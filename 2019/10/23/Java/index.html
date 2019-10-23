@@ -5,17 +5,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Code and Life - Magnolia</title>
+    <title>Java并发编程常见问题总结 - Magnolia</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="TriDiamond Obsidian,"> 
-    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,Hellow world
-我喜欢编程 , 我同样热爱生活；
-我想成为佼佼者，我同样向往芸芸众生。
-
-我是白马, 百万本科生中平凡的一员。
-很多时候我都在想,我未来会过上什么样子得生活？百万年薪迎娶白,"> 
+    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,序言最近在看关于并发编程的一些内容，因为之前在学这一块内容不是很彻底，很多细节问题都不太清楚，中午看牛客的一些面试题目的时候发现自己还是应该好好总结一下这些内容。
+概要我打算按照以下这个顺序来进行总,"> 
     <meta name="author" content="JoryBeast97"> 
     <link rel="alternative" href="atom.xml" title="Magnolia" type="application/atom+xml"> 
     <link rel="icon" href="/img/favicon.png"> 
@@ -35,7 +31,7 @@
     <div class="bar" style="width: 0;"></div>
     <a id="home-icon" class="image-icon icon-home iconfont" href="javascript:;" data-url="http://yoursite.com"></a>
     <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-    <h3 class="subtitle">Code and Life</h3>
+    <h3 class="subtitle">Java并发编程常见问题总结</h3>
     <div class="social">
 <!--        <div class="like-icon">-->
 <!--            <a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
@@ -64,15 +60,15 @@
                 
                     <a href="javascript:;"><b>「 </b>文章<b> 」</b></a>
                 
-                十月 21, 2019
+                十月 23, 2019
             </p>
-            <h3 class="post-title animated fadeInDown"><a href="/2019/10/21/Code-and-Life/" title="Code and Life" class="">Code and Life</a></h3>
+            <h3 class="post-title animated fadeInDown"><a href="/2019/10/23/Java/" title="Java并发编程常见问题总结" class="">Java并发编程常见问题总结</a></h3>
             
                 <p class="post-count animated fadeInDown">
                     
                         <span>
                         <b class="iconfont icon-text2"></b> <i>文章字数</i>
-                        3.3k
+                        3.7k
                     </span>
                     
                     
@@ -91,7 +87,7 @@
                 </p>
             
             
-                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/%E7%94%9F%E6%B4%BB%E9%97%B2%E8%B0%88/" rel="tag">生活闲谈</a></li></ul>
+                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/Java%E5%B9%B6%E5%8F%91/" rel="tag">Java并发</a></li></ul>
             
         </div>
     </div>
@@ -112,55 +108,79 @@
 <div class="article">
     <div class='main'>
         <div class="content markdown animated fadeIn slower">
-            <h3 id="Hellow-world"><a href="#Hellow-world" class="headerlink" title="Hellow world"></a>Hellow world</h3><blockquote>
-<p>我喜欢编程 , 我同样热爱生活；</p>
-<p>我想成为佼佼者，我同样向往芸芸众生。</p>
+            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>最近在看关于并发编程的一些内容，因为之前在学这一块内容不是很彻底，很多细节问题都不太清楚，中午看牛客的一些面试题目的时候发现自己还是应该好好总结一下这些内容。</p>
+<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p>我打算按照以下这个顺序来进行总结,尽量保持长时间更新。</p>
+<ul>
+<li>Java中多线程问题总结</li>
+<li>锁技术</li>
+<li>Java.utils.concurrent并发包</li>
+</ul>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><h4 id="🎏多线程问题总结"><a href="#🎏多线程问题总结" class="headerlink" title="🎏多线程问题总结"></a>🎏多线程问题总结</h4><blockquote>
+<p>1.说说进程、线程之间的区别</p>
 </blockquote>
-<p>我是白马, 百万本科生中平凡的一员。</p>
-<p>很多时候我都在想,我未来会过上什么样子得生活？百万年薪迎娶白富美？看看镜子中的自己清醒了不少。没错，I’m a coder，虽然我很想让别人称呼我为Geek，可是生活一团糟，和酷酷得Geek完全搭不上边，现在，我更愿意别人称呼我为“F同学”，虽然很多人都叫我“91F先生”。</p>
-<p>说说自己编程得契机吧，我想把自己得故事分享给更多迷茫得大学生。</p>
-<p>我所就读得学校只是一所双非一本，在现如今火热的互联网行业中，远远谈不上”竞争力”，更糟糕的是，我并非计算机与科学，只是一个相关专业，所以，也许我和你们一样，算不上“科班生”。</p>
-<p>我还记得大一的时候，学习C语言，第一次看到代码的我. . .如果是小说剧情一定会是发现了一个新的世界，从此深耕于此，最终成就了一番事业。可惜，我只是个天赋不太出众，平平凡凡的学生，迷茫可能是我在前两个月最大的感觉。我搞不懂include，弄不明白指针，更不会理解各种库，我能做的只是按照谭浩强的教材上的示例照着敲下去，int a，int b，看上去和走过的这20年一样，毫无章法，凌乱不堪。</p>
-<p>促使我真正进入编程，决定做一名Coder的最大动力，可能就是“高薪”。三百六十行，行行转IT，都说互联网是风口上的猪，这一次，我也想体验一把做猪的感觉。可是没想到，这波互联网泡沐在18年的时候，破碎了。只有退潮的时候，才知道谁在裸泳，而我们这群”面向工资编程”的程序员，一定是在新闻联播中都要打上马赛克的样子。那个时候我就在想，我是否该转行，互联网也许热潮过后，剩下的只是被资本家分食后的杯盘狼藉，说实话，我很迷茫。</p>
-<p>从小到大，我接受的是典型的中国式应试教育，我们不会被告诉去如何选择，我们所要做的就是执行，只要我们执行的足够坚决，似乎就能够收获一个不错的结果。我问自己，喜欢编程吗？似乎谈不上，但是不讨厌。我记得那天纠结了良久，每天倒头就睡的自己罕见的失眠了，那一刻我知道，我应该是喜欢编程的，我还是很在意，而非只在意其可能给我带来的潜在价值。</p>
-<p>那天，我在我最早的博客上写下了第一篇文章。</p>
-<p><strong>“Hellow ，world”</strong></p>
-<h3 id="Balance"><a href="#Balance" class="headerlink" title="Balance"></a>Balance</h3><p>2018年4月26日，我分手了，和相恋四年的女友分手了。</p>
-<p>我记得那段时间是自己最矛盾的时间，我还记得她和我说的一句话</p>
-<p>“你很了解我，可我好像永远无法了解你。”</p>
-<p>夏天失恋，海滩 烧烤 冰啤酒。</p>
-<p>呵，我酒精过敏。</p>
-<p>我开始每天用大量的学习来冲淡自己的烦躁，图书馆，健身房是每天出现最多的地方。拼命的折磨自己，让自己每天大量的精力都用在提升自己的道路上，果然，两个月后，我肺炎了。太高强度的锻炼让我的身体疲惫不堪，加之失眠以及每天对自己的强迫榨干了身体最后一丝丝的潜力，我，报废了。</p>
-<p>康复后，我开始想一件事，一件我想了很久很久的事情。</p>
-<p>到底，如何平衡生活？</p>
-<p>我开始尝试着给自己写一些简单的手账，开始给自己安排必要的休息时间，开始学着从他人角度来着想，坚持是一件很难得事情，所幸，我做的还不错。</p>
-<p>那段时间我啃掉了《Thinking in Java》、《高性能Mysql》、《TCP/IP协议》等书，那应该是自己技术成长最快的一段时间。人心中丢了一块东西，总需要另外一些事情去寄托。当时没有想太多，只是让自己按部就班得生活，让自己每天要过的充实一点，虽然在外看起来十分无趣，就像一个coder。</p>
-<p>如果一切都是这样子，也许我也会和很多人一样，去考研，去考虑读博。</p>
-<p>可是，生活总会给你一些小小的契机，改变你的方向。</p>
-<h3 id="这个项目，能做吗"><a href="#这个项目，能做吗" class="headerlink" title="这个项目，能做吗?"></a>这个项目，能做吗?</h3><p>2018年年底，433宿舍。</p>
-<p>“我苏烈大了三个，你们人呢？”</p>
-<p>“我被兰陵王感叹号警告了，没敢冲。”</p>
-<p>“下次跟上。”</p>
-<p>手机弹出了一条信息，</p>
-<p>创客空间实验室 ：电缆监控平台项目需求文档.pdf，明天下午开个会，觉得自己能力不错得都可以来。</p>
-<p>粗略得扫了一眼，是个很有意思得项目，晚上简单归纳了一下自己得想法，睡觉，明天看看它到底什么名堂。</p>
-<p>那是我第一次到孵化园，虽然我更愿意叫它，赏金乐园。这个实验室很奇怪，是由企业投资，定期投放项目，类似外包模式，只要你有能力，你就能像赏金猎人一样接下任务。</p>
-<p>过程很顺利，也可能因为我之前准备的原因，成功进入了这个项目组。之后的一段时间我又恢复了自己之前那种麻木的状态，每天不断学习大量知识，因为项目所给出的框架需求都是非常新的。在那时我第一次接触到持续部署，RPC框架通讯，Modbus解析以及可插拔模块化的开发理念，直到现在我都特别感谢指导我们的一位已经毕业的师哥，师哥是位大牛，在项目过程中给我们的提供了非常多现代开发模式的理念，师哥现在在Orcale就职，祝愿他前程似锦。</p>
-<p>自那以后，我们便经常在孵化园做“Geek party”，兴趣永远能让一帮人聚集起来，之后我们编写了很多好玩的小玩意，也接到了不少的小项目。自己开始尝试编写开源的简易框架，开始试着给源码找Bug，开始关注互联网发展，不知不觉，似乎真的变成了一个Coder。</p>
-<p>那半年，是自己最充实而快乐的一个阶段。</p>
-<h3 id="生活，未完待续"><a href="#生活，未完待续" class="headerlink" title="生活，未完待续"></a>生活，未完待续</h3><p>很多人都选择了考研，我明白这是一条在不确定自己想要什么的时候最正确的路，可是，我真的不喜欢这种考试的感觉。</p>
-<p>直到现在我都不知道自己做的这个决定对错与否，但是，我应该不会后悔。</p>
-<p>一直很喜欢一句话，</p>
+<p>进程是程序运行和资源分配的基本单位,一个程序至少有一个进程,一个进程至少有一个线程.进程在执行过程中拥有独立的内存单元,而多个线程共享内存资源,减少切换次数,从而效率更高.线程是进程的一个实体,是CPU调度和分派的基本单位,是比程序更小的能独立运行的基本单位.同一进程中的多个线程之间可以并发执行。</p>
 <blockquote>
-<p>“那些将要去的地方，都是素未谋面的故乡”</p>
+<p>2.什么是守护线程?</p>
 </blockquote>
-<p>我想提早走出象牙塔，想看看更多的地方。以Coder的角度来看，我想直到今天，我应该算个合格吧。</p>
-<p>可是我想成为一名Geek。</p>
-<p>生活需要改变，太枯燥的生活会让人失去激情，就像没有压力的人生最终都会暗淡无光。</p>
-<p>写到这里似乎已经有些偏题，不过也算笔随心动，就这样也很好，随意的感觉在程序的世界中并不多见，可生活永远是Random，何况，它还不是伪随机量。</p>
-<p>我想参加一次健体比赛。比起健身，我更愿意称其为训练，因为这样，我觉得足够的尊重。坚持了三年，每周五到六练，也算是小有所成。曾和朋友开玩笑说 : “我要成为程序员中最大的仔”，也许不能成为第一，但还是想在舞台上走上一遭，哪怕只有一个Most Muscular。</p>
-<p>现在是晚上22.42，按照计划该睡觉了。</p>
-<p>晚安，世界。</p>
+<p>在Java中，有两种线程——用户线程与守护线程。(如果将main算做的话是三种线程)</p>
+<p>守护线程主要为用户线程提供一定的服务，在Java中最经典的就是GC线程。守护线程和Main线程不干扰用户线程的操作，当JVM检测到内存中只存在守护线程的时候，JVM将退出。</p>
+<blockquote>
+<p>3.Java中实现多线程的方式?区别?</p>
+</blockquote>
+<p>在Java中,可以通过实现Runnable接口或者继承Thread类实现多线程。Java中没有实现多继承,而在大部分情况下,实现Runnable接口要比继承Thread好一些。</p>
+<blockquote>
+<p>4.Java线程中的状态</p>
+</blockquote>
+<p>在Java语言中,线程一般分为以下几种状态,并在不同的方法调用时状态进行相互的切换。</p>
+<ul>
+<li>new : 线程被创建 , 此时一个线程虽然被创建,但是并不具备争夺CPU执行权的资格</li>
+<li>runnable : 线程处于可运行的状态,具备竞争CPU执行权的资格</li>
+<li>block : 阻塞状态，当多个线程获取同一资源时,其中一个线程获取资源,其他线程进入阻塞状态等待资源的释放</li>
+<li>wait : 等待状态，进入等待状态的线程将在特定的条件下被唤醒，例如sleep,notify等方法。唤醒后该线程进入runnable的状态，开始竞争资源。</li>
+<li>dead : 线程死亡，当该线程任务全部执行完成后线程被销毁。</li>
+</ul>
+<blockquote>
+<p>5.产生死锁的四个条件</p>
+</blockquote>
+<ol>
+<li><p>互斥条件：一个资源每次只能被一个进程使用。 </p>
+</li>
+<li><p>请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。</p>
+</li>
+<li><p>不剥夺条件:进程已获得的资源，在末使用完之前，不能强行剥夺。 </p>
+</li>
+<li><p>循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。</p>
+</li>
+</ol>
+<blockquote>
+<p>6.线程的局部变量ThreadLocal</p>
+</blockquote>
+<p>Threadlocal是在线程内部维护一个变量域。举个例子。</p>
+<p>现在有这样一个需求，我们希望在每个线程中都要记录该线程运行的时间，我们应该怎么做? 按照以往的思路,我们可以在类中创建一个这样的变量，然后实时更新。但是在多线程中，由于多个线程都需要访问这个变量，那么就会出现并发的问题。</p>
+<p>Java中提供了ThreadLocal，允许在线程域内保存一个变量的副本，各个线程修改自身的副本不影响其他的线程数值。</p>
+<blockquote>
+<p>7.wait和sleep的区别</p>
+</blockquote>
+<ul>
+<li>sleep()来自Thread类，和wait()来自Object类.调用sleep()方法的过程中，线程不会释放对象锁。而 调用 wait 方法线程会释放对象锁</li>
+<li>sleep()睡眠后不出让系统资源，wait让其他线程可以占用CPU</li>
+<li>sleep(milliseconds)需要指定一个睡眠时间，时间一到会自动唤醒.而wait()需要配合notify()或者notifyAll()使用</li>
+</ul>
+<blockquote>
+<p>8.当线程出现异常会如何?</p>
+</blockquote>
+<p>如果这个异常没有被捕获的话，这个线程就停止执行了。另外重要的一点是：如果这个线程持有某个某个对象的监视器，那么这个对象监视器会被立即释放</p>
+<blockquote>
+<p>9.wait(),notify()和suspend(),resume()之间的区别</p>
+</blockquote>
+<p>首先，前面叙述的所有方法都隶属于 Thread 类，但是这一对却直接隶属于 Object 类，也就是说，所有对象都拥有这一对方法。初看起来这十分不可思议，但是实际上却是很自然的，因为这一对方法阻塞时要释放占用的锁，而锁是任何对象都具有的，调用任意对象的 wait() 方法导致线程阻塞，并且该对象上的锁被释放。而调用 任意对象的notify()方法则导致从调用该对象的 wait() 方法而阻塞的线程中随机选择的一个解除阻塞（但要等到获得锁后才真正可执行）。</p>
+<p>其次，前面叙述的所有方法都可在任何位置调用，但是这一对方法却必须在 synchronized 方法或块中调用，理由也很简单，只有在synchronized 方法或块中当前线程才占有锁，才有锁可以释放。同样的道理，调用这一对方法的对象上的锁必须为当前线程所拥有，这样才有锁可以释放。因此，这一对方法调用必须放置在这样的 synchronized 方法或块中，该方法或块的上锁对象就是调用这一对方法的对象。若不满足这一条件，则程序虽然仍能编译，但在运行时会出现IllegalMonitorStateException 异常。</p>
+<p>wait() 和 notify() 方法的上述特性决定了它们经常和synchronized关键字一起使用，将它们和操作系统进程间通信机制作一个比较就会发现它们的相似性：synchronized方法或块提供了类似于操作系统原语的功能，它们的执行不会受到多线程机制的干扰，而这一对方法则相当于 block 和wakeup 原语（这一对方法均声明为 synchronized）。它们的结合使得我们可以实现操作系统上一系列精妙的进程间通信的算法（如信号量算法），并用于解决各种复杂的线程间通信问题。</p>
+<p>关于 wait() 和 notify() 方法最后再说明两点：</p>
+<p>第一：调用 notify() 方法导致解除阻塞的线程是从因调用该对象的 wait() 方法而阻塞的线程中随机选取的，我们无法预料哪一个线程将会被选择，所以编程时要特别小心，避免因这种不确定性而产生问题。</p>
+<p>第二：除了 notify()，还有一个方法 notifyAll() 也可起到类似作用，唯一的区别在于，调用 notifyAll() 方法将把因调用该对象的 wait() 方法而阻塞的所有线程一次性全部解除阻塞。当然，只有获得锁的那一个线程才能进入可执行状态。</p>
+<p>谈到阻塞，就不能不谈一谈死锁，略一分析就能发现，suspend() 方法和不指定超时期限的 wait() 方法的调用都可能产生死锁。遗憾的是，Java 并不在语言级别上支持死锁的避免，我们在编程中必须小心地避免死锁。</p>
+<p>以上我们对 Java 中实现线程阻塞的各种方法作了一番分析，我们重点分析了 wait() 和 notify() 方法，因为它们的功能最强大，使用也最灵活，但是这也导致了它们的效率较低，较容易出错。实际使用中我们应该灵活使用各种方法，以便更好地达到我们的目的。</p>
 
             <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
             <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
@@ -202,7 +222,7 @@
                     <div class="box sticky animated fadeInRight faster">
                         <div id="toc" class="subbox">
                             <h4>目录</h4>
-                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hellow-world"><span class="toc-number">1.</span> <span class="toc-text">Hellow world</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Balance"><span class="toc-number">2.</span> <span class="toc-text">Balance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#这个项目，能做吗"><span class="toc-number">3.</span> <span class="toc-text">这个项目，能做吗?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生活，未完待续"><span class="toc-number">4.</span> <span class="toc-text">生活，未完待续</span></a></li></ol>
+                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#概要"><span class="toc-number">2.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#🎏多线程问题总结"><span class="toc-number">3.1.</span> <span class="toc-text">🎏多线程问题总结</span></a></li></ol></li></ol>
                         </div>
                     </div>
                 
