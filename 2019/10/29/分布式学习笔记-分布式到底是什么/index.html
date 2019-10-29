@@ -5,13 +5,12 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Java - Magnolia</title>
+    <title>分布式学习笔记:分布式到底是什么? - Magnolia</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="TriDiamond Obsidian,"> 
-    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,序言最近在看关于并发编程的一些内容，因为之前在学这一块内容不是很彻底，很多细节问题都不太清楚，中午看牛客的一些面试题目的时候发现自己还是应该好好总结一下这些内容。
-概要我打算按照以下这个顺序来进行总,"> 
+    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,序言最近基本上手头上所有的事情都告一段落,想着利用这段时间学习一点新的东西,恰好看到目前业内关于分布式一直是热门话题，虽然本科阶段不可能触碰到关于分布式的项目,但是把基础学一下总归不落俗。很多Cod,"> 
     <meta name="author" content="JoryBeast97"> 
     <link rel="alternative" href="atom.xml" title="Magnolia" type="application/atom+xml"> 
     <link rel="icon" href="/img/favicon.png"> 
@@ -31,7 +30,7 @@
     <div class="bar" style="width: 0;"></div>
     <a id="home-icon" class="image-icon icon-home iconfont" href="javascript:;" data-url="http://yoursite.com"></a>
     <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-    <h3 class="subtitle">Java</h3>
+    <h3 class="subtitle">分布式学习笔记:分布式到底是什么?</h3>
     <div class="social">
 <!--        <div class="like-icon">-->
 <!--            <a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
@@ -60,21 +59,21 @@
                 
                     <a href="javascript:;"><b>「 </b>文章<b> 」</b></a>
                 
-                十月 23, 2019
+                十月 29, 2019
             </p>
-            <h3 class="post-title animated fadeInDown"><a href="/2019/10/23/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/" title="Java" class="">Java</a></h3>
+            <h3 class="post-title animated fadeInDown"><a href="/2019/10/29/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%86%E5%B8%83%E5%BC%8F%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="分布式学习笔记:分布式到底是什么?" class="">分布式学习笔记:分布式到底是什么?</a></h3>
             
                 <p class="post-count animated fadeInDown">
                     
                         <span>
                         <b class="iconfont icon-text2"></b> <i>文章字数</i>
-                        3.7k
+                        2.2k
                     </span>
                     
                     
                         <span>
                         <b class="iconfont icon-timer__s"></b> <i>阅读约需</i>
-                        3 mins.
+                        2 mins.
                     </span>
                     
                     
@@ -87,7 +86,7 @@
                 </p>
             
             
-                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/Java%E5%B9%B6%E5%8F%91/" rel="tag">Java并发</a></li></ul>
+                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">分布式学习笔记</a></li></ul>
             
         </div>
     </div>
@@ -108,79 +107,39 @@
 <div class="article">
     <div class='main'>
         <div class="content markdown animated fadeIn slower">
-            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>最近在看关于并发编程的一些内容，因为之前在学这一块内容不是很彻底，很多细节问题都不太清楚，中午看牛客的一些面试题目的时候发现自己还是应该好好总结一下这些内容。</p>
-<h3 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h3><p>我打算按照以下这个顺序来进行总结,尽量保持长时间更新。</p>
+            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>最近基本上手头上所有的事情都告一段落,想着利用这段时间学习一点新的东西,恰好看到目前业内关于分布式一直是热门话题，虽然本科阶段不可能触碰到关于分布式的项目,但是把基础学一下总归不落俗。很多Coder都在说分布式，但是我还真的不太了解什么是分布式,这次看了很多技术博客，总算对于分布式有一个皮毛层面的认识，总结一下。</p>
+<h3 id="传统服务器开发模式-amp-问题"><a href="#传统服务器开发模式-amp-问题" class="headerlink" title="传统服务器开发模式 &amp; 问题"></a>传统服务器开发模式 &amp; 问题</h3><p>首先来回顾一下我们之前的系统，一般可以分为两个阶段。</p>
 <ul>
-<li>Java中多线程问题总结</li>
-<li>锁技术</li>
-<li>Java.utils.concurrent并发包</li>
+<li><p><strong>单机阶段</strong> : 我们将一个完整的服务端程序部署在一台机器上，此时一般访问量不大，机器的性能足够应付这些访问所带来的数据处理问题，此时我们可以理解为很多客户端只访问同一台服务器。</p>
+</li>
+<li><p><strong>集群阶段</strong> : 当访问量太多时，一台主机无论如何也不能够再进行拓展，那么这时候我们就需要使用多台服务器来分担访问量增大所带来的压力。我们在多台服务器上部署这些服务端程序。当用户访问的时候，首先访问负载均衡服务器。</p>
+<blockquote>
+<p>负载均衡服务器 : 我们希望将流量均摊在每台服务器之上，负载均衡服务器帮助我们进行调度，将用户访问流量引导至目前访问量最小的服务器之上。</p>
+</blockquote>
+<p>通过负载均衡后，流量被分摊到不同的服务器之上，当流量增大时，我们只需要增加服务器的数量即可。</p>
+</li>
 </ul>
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><h4 id="🎏多线程问题总结"><a href="#🎏多线程问题总结" class="headerlink" title="🎏多线程问题总结"></a>🎏多线程问题总结</h4><blockquote>
-<p>1.说说进程、线程之间的区别</p>
-</blockquote>
-<p>进程是程序运行和资源分配的基本单位,一个程序至少有一个进程,一个进程至少有一个线程.进程在执行过程中拥有独立的内存单元,而多个线程共享内存资源,减少切换次数,从而效率更高.线程是进程的一个实体,是CPU调度和分派的基本单位,是比程序更小的能独立运行的基本单位.同一进程中的多个线程之间可以并发执行。</p>
+<p>但是有时遇见一些特殊情况后,集群的解决方式并不一定能够快速处理,同时也不是最优解。</p>
+<p>EXM :  我们来举个例子，假如目前有个电商系统 ， 有订单模块 ， 活动模块， 账户模块等。双十一的时候，总流量暴增，但是各个模块增长幅度却不同，活动模块增长明显高于其他模块。根据木桶效应，则活动模块就会成为一个短板，为了应付激增的流量，我们需要增加更多的服务器，但是对于其他模块来说，这实际上就是一种资源浪费！</p>
+<p>而且在集群时，服务器数量和性能的比率并不是线性，当到达某个节点时，服务器的增长所带来的收益将变得非常小。</p>
+<p>因此，分布式登上了舞台。</p>
+<h3 id="什么是分布式"><a href="#什么是分布式" class="headerlink" title="什么是分布式?"></a>什么是分布式?</h3><p>我觉得可以用四个字来概括分布式 : <strong>聚、散、离、合</strong></p>
+<p>分布式实际上就是将一个完整的服务端程序拆分成不同的小型服务，这些服务称为微服务。可以进行独立部署，独立运行与测试，然后通过网络将其相连，互相调用，达到一个完整的服务端的功能。</p>
+<p>那么分布式能够带来哪些好处呢？</p>
+<p><strong>灵活</strong> : 由于每个服务都部署在一台服务器上，以上面的例子来说，当活动服务流量增长时，我们只需要增加活动服务的服务器即可。通过这种方式，我们能够对资源进行灵活的调配。</p>
+<p><strong>快速开发</strong> : 由于每个服务都通过网络通讯，所以开发起来将会方便很多，开发人员只需要关注自己所负责的部分即可。</p>
+<p><strong>耦合度低</strong> : 当某个微服务出现了问题时，并不会导致整个应用瞬间奔溃，此时我们只需要通过调换服务器能够暂时解决问题。</p>
+<p><strong>语言自由</strong> : 由于分布式使用了网络通信，RESTful或者RPC框架，各个微服务可以通过不同的语言编写。</p>
+<p>那么分布式就真的完美无缺了吗? 答案当然是不。</p>
+<p>根据CoolShell的一篇文章指出。</p>
 <blockquote>
-<p>2.什么是守护线程?</p>
+<p>如果单机或者集群能够应付的应用，并且未来规模可以预期，则分布式并不是必须的。</p>
 </blockquote>
-<p>在Java中，有两种线程——用户线程与守护线程。(如果将main算做的话是三种线程)</p>
-<p>守护线程主要为用户线程提供一定的服务，在Java中最经典的就是GC线程。守护线程和Main线程不干扰用户线程的操作，当JVM检测到内存中只存在守护线程的时候，JVM将退出。</p>
-<blockquote>
-<p>3.Java中实现多线程的方式?区别?</p>
-</blockquote>
-<p>在Java中,可以通过实现Runnable接口或者继承Thread类实现多线程。Java中没有实现多继承,而在大部分情况下,实现Runnable接口要比继承Thread好一些。</p>
-<blockquote>
-<p>4.Java线程中的状态</p>
-</blockquote>
-<p>在Java语言中,线程一般分为以下几种状态,并在不同的方法调用时状态进行相互的切换。</p>
-<ul>
-<li>new : 线程被创建 , 此时一个线程虽然被创建,但是并不具备争夺CPU执行权的资格</li>
-<li>runnable : 线程处于可运行的状态,具备竞争CPU执行权的资格</li>
-<li>block : 阻塞状态，当多个线程获取同一资源时,其中一个线程获取资源,其他线程进入阻塞状态等待资源的释放</li>
-<li>wait : 等待状态，进入等待状态的线程将在特定的条件下被唤醒，例如sleep,notify等方法。唤醒后该线程进入runnable的状态，开始竞争资源。</li>
-<li>dead : 线程死亡，当该线程任务全部执行完成后线程被销毁。</li>
-</ul>
-<blockquote>
-<p>5.产生死锁的四个条件</p>
-</blockquote>
-<ol>
-<li><p>互斥条件：一个资源每次只能被一个进程使用。 </p>
-</li>
-<li><p>请求与保持条件：一个进程因请求资源而阻塞时，对已获得的资源保持不放。</p>
-</li>
-<li><p>不剥夺条件:进程已获得的资源，在末使用完之前，不能强行剥夺。 </p>
-</li>
-<li><p>循环等待条件:若干进程之间形成一种头尾相接的循环等待资源关系。</p>
-</li>
-</ol>
-<blockquote>
-<p>6.线程的局部变量ThreadLocal</p>
-</blockquote>
-<p>Threadlocal是在线程内部维护一个变量域。举个例子。</p>
-<p>现在有这样一个需求，我们希望在每个线程中都要记录该线程运行的时间，我们应该怎么做? 按照以往的思路,我们可以在类中创建一个这样的变量，然后实时更新。但是在多线程中，由于多个线程都需要访问这个变量，那么就会出现并发的问题。</p>
-<p>Java中提供了ThreadLocal，允许在线程域内保存一个变量的副本，各个线程修改自身的副本不影响其他的线程数值。</p>
-<blockquote>
-<p>7.wait和sleep的区别</p>
-</blockquote>
-<ul>
-<li>sleep()来自Thread类，和wait()来自Object类.调用sleep()方法的过程中，线程不会释放对象锁。而 调用 wait 方法线程会释放对象锁</li>
-<li>sleep()睡眠后不出让系统资源，wait让其他线程可以占用CPU</li>
-<li>sleep(milliseconds)需要指定一个睡眠时间，时间一到会自动唤醒.而wait()需要配合notify()或者notifyAll()使用</li>
-</ul>
-<blockquote>
-<p>8.当线程出现异常会如何?</p>
-</blockquote>
-<p>如果这个异常没有被捕获的话，这个线程就停止执行了。另外重要的一点是：如果这个线程持有某个某个对象的监视器，那么这个对象监视器会被立即释放</p>
-<blockquote>
-<p>9.wait(),notify()和suspend(),resume()之间的区别</p>
-</blockquote>
-<p>首先，前面叙述的所有方法都隶属于 Thread 类，但是这一对却直接隶属于 Object 类，也就是说，所有对象都拥有这一对方法。初看起来这十分不可思议，但是实际上却是很自然的，因为这一对方法阻塞时要释放占用的锁，而锁是任何对象都具有的，调用任意对象的 wait() 方法导致线程阻塞，并且该对象上的锁被释放。而调用 任意对象的notify()方法则导致从调用该对象的 wait() 方法而阻塞的线程中随机选择的一个解除阻塞（但要等到获得锁后才真正可执行）。</p>
-<p>其次，前面叙述的所有方法都可在任何位置调用，但是这一对方法却必须在 synchronized 方法或块中调用，理由也很简单，只有在synchronized 方法或块中当前线程才占有锁，才有锁可以释放。同样的道理，调用这一对方法的对象上的锁必须为当前线程所拥有，这样才有锁可以释放。因此，这一对方法调用必须放置在这样的 synchronized 方法或块中，该方法或块的上锁对象就是调用这一对方法的对象。若不满足这一条件，则程序虽然仍能编译，但在运行时会出现IllegalMonitorStateException 异常。</p>
-<p>wait() 和 notify() 方法的上述特性决定了它们经常和synchronized关键字一起使用，将它们和操作系统进程间通信机制作一个比较就会发现它们的相似性：synchronized方法或块提供了类似于操作系统原语的功能，它们的执行不会受到多线程机制的干扰，而这一对方法则相当于 block 和wakeup 原语（这一对方法均声明为 synchronized）。它们的结合使得我们可以实现操作系统上一系列精妙的进程间通信的算法（如信号量算法），并用于解决各种复杂的线程间通信问题。</p>
-<p>关于 wait() 和 notify() 方法最后再说明两点：</p>
-<p>第一：调用 notify() 方法导致解除阻塞的线程是从因调用该对象的 wait() 方法而阻塞的线程中随机选取的，我们无法预料哪一个线程将会被选择，所以编程时要特别小心，避免因这种不确定性而产生问题。</p>
-<p>第二：除了 notify()，还有一个方法 notifyAll() 也可起到类似作用，唯一的区别在于，调用 notifyAll() 方法将把因调用该对象的 wait() 方法而阻塞的所有线程一次性全部解除阻塞。当然，只有获得锁的那一个线程才能进入可执行状态。</p>
-<p>谈到阻塞，就不能不谈一谈死锁，略一分析就能发现，suspend() 方法和不指定超时期限的 wait() 方法的调用都可能产生死锁。遗憾的是，Java 并不在语言级别上支持死锁的避免，我们在编程中必须小心地避免死锁。</p>
-<p>以上我们对 Java 中实现线程阻塞的各种方法作了一番分析，我们重点分析了 wait() 和 notify() 方法，因为它们的功能最强大，使用也最灵活，但是这也导致了它们的效率较低，较容易出错。实际使用中我们应该灵活使用各种方法，以便更好地达到我们的目的。</p>
+<p>分布式并非完美无缺，与此相反，分布式的出现为我们带来了新的问题。由于分布式完全依赖于网络，并且网络是一种不可靠的传输，意外情况永远无法预料，所以会出现很多问题。</p>
+<p>例如我们的某个微服务在调用另一个服务器方法时，由于网络延迟，导致出现了两次请求，那么就需要判断如何去执行这些内容。</p>
+<p>同时，分布式的某个微服务出现问题，可能导致雪崩情况的出现，一个服务的堵塞，导致使用它的其他服务无法正常工作，最后出现系统的奔溃。</p>
+<p>总的来说，分布式是一种对于高并发，高可用，高性能的解决方案，但是其中依然存在不完美的地方。</p>
+<p>仁者见仁，智者见智，但是，它依旧是目前最火热的方案。</p>
 
             <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
             <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
@@ -222,7 +181,7 @@
                     <div class="box sticky animated fadeInRight faster">
                         <div id="toc" class="subbox">
                             <h4>目录</h4>
-                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#概要"><span class="toc-number">2.</span> <span class="toc-text">概要</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#🎏多线程问题总结"><span class="toc-number">3.1.</span> <span class="toc-text">🎏多线程问题总结</span></a></li></ol></li></ol>
+                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#传统服务器开发模式-amp-问题"><span class="toc-number">2.</span> <span class="toc-text">传统服务器开发模式 &amp; 问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是分布式"><span class="toc-number">3.</span> <span class="toc-text">什么是分布式?</span></a></li></ol>
                         </div>
                     </div>
                 
