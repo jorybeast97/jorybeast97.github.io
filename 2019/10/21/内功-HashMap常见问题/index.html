@@ -1,360 +1,76 @@
+extends includes/layout.pug
 
-<!DOCTYPE html>
-<html lang="zh-CN" class="loading">
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>内功:HashMap常见问题 - Magnolia</title>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="google" content="notranslate" />
-    <meta name="keywords" content="TriDiamond Obsidian,"> 
-    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,序言首先推荐一个B站Up主——Java硬核空间，这个Up就职于Grandle，是个非常牛逼的程序员,给很多框架找到过Bug例如SpringBoot，maven等。这次Hashmap的面试题整理就是来,"> 
-    <meta name="author" content="JoryBeast97"> 
-    <link rel="alternative" href="atom.xml" title="Magnolia" type="application/atom+xml"> 
-    <link rel="icon" href="/img/favicon.png"> 
-    <link href="/font/Rubik-Bold-kern-latin.woff2" as="font" type="font/woff2" crossorigin="">
-    <link href="/font/Rubik-Regular-kern-latin.woff2" as="font" type="font/woff2" crossorigin="">
-    <link rel="stylesheet" href="//at.alicdn.com/t/font_1429596_7jr8c7mf4wi.css">
-    <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.7.2/animate.min.css">
-    <link rel="stylesheet" href="/css/obsidian.css">
-</head>
-
-<body class="loading">
-    <span id="config-title" style="display:none">Magnolia</span>
-    <div id="loader"></div>
-    <div id="single">
-    <div class="scrollbar gradient-bg-rev"></div>
-<div id="top" style="display: block;">
-    <div class="bar" style="width: 0;"></div>
-    <a id="home-icon" class="image-icon icon-home iconfont" href="javascript:;" data-url="http://yoursite.com"></a>
-    <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-    <h3 class="subtitle">内功:HashMap常见问题</h3>
-    <div class="social">
-<!--        <div class="like-icon">-->
-<!--            <a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
-<!--        </div>-->
-<!--        <div>-->
-<!--            <div class="share">-->
-<!--                <a title="Get qrcode" id="qr-icon" href="javascript:;" class="iconfont icon-QRcode-o"></a>-->
-<!--            </div>-->
-<!--            <div id="qr"></div>-->
-<!--        </div>-->
-    </div>
-</div>
-
-    <div class="section">
-        <div class= article-header-wrapper>
-    <div class="article-header">
-        <div class="article-cover animated fadeIn" style="
-            animation-delay: 600ms;
-            animation-duration: 1.2s;
-            background-image: 
-                radial-gradient(ellipse closest-side, rgba(0, 0, 0, 0.65), #100e17),
-                url(/img/cover.jpg);">
-        </div>
-        <div class="else">
-            <p class="animated fadeInDown">
-                
-                    <a href="javascript:;"><b>「 </b>文章<b> 」</b></a>
-                
-                十月 21, 2019
-            </p>
-            <h3 class="post-title animated fadeInDown"><a href="/2019/10/21/%E5%86%85%E5%8A%9F-HashMap%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/" title="内功:HashMap常见问题" class="">内功:HashMap常见问题</a></h3>
-            
-                <p class="post-count animated fadeInDown">
-                    
-                        <span>
-                        <b class="iconfont icon-text2"></b> <i>文章字数</i>
-                        10k
-                    </span>
-                    
-                    
-                        <span>
-                        <b class="iconfont icon-timer__s"></b> <i>阅读约需</i>
-                        9 mins.
-                    </span>
-                    
-                    
-                    
-                        <span id="busuanzi_container_page_pv">
-                            <b class="iconfont icon-read"></b> <i>阅读次数</i>
-                            <span id="busuanzi_value_page_pv">0</span>
-                        </span>
-                    
-                </p>
-            
-            
-                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/Java%E5%9F%BA%E7%A1%80/" rel="tag">Java基础</a></li></ul>
-            
-        </div>
-    </div>
-</div>
-
-<div class="screen-gradient-after">
-    <div class="screen-gradient-content">
-        <div class="screen-gradient-content-inside">
-            <div class="bold-underline-links screen-gradient-sponsor">
-                <p>
-                    <span></span>  
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="article">
-    <div class='main'>
-        <div class="content markdown animated fadeIn slower">
-            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>首先推荐一个B站Up主——<strong>Java硬核空间</strong>，这个Up就职于Grandle，是个非常牛逼的程序员,给很多框架找到过Bug例如SpringBoot，maven等。这次Hashmap的面试题整理就是来自于这个大佬的一期视频讲解,谢谢。</p>
-<h3 id="直击灵魂的常见HashMap问题"><a href="#直击灵魂的常见HashMap问题" class="headerlink" title="直击灵魂的常见HashMap问题"></a>直击灵魂的常见HashMap问题</h3><p>HashMap一直是面试之中的热点问题,无论是应届生还是从业人员。一般来讲是以下几个问题。</p>
-<ul>
-<li><strong>HashMap为什么容量要是2^n？</strong></li>
-<li><strong>什么是resize?什么是rehash?</strong></li>
-<li><strong>HashMap为什么是线程不安全的?为什么会出现死锁?</strong></li>
-<li><strong>HashMap扩容机制?初始容量?负载因子?</strong></li>
-<li><strong>JDK1.7和1.8中HashMap的变化情况?</strong></li>
-</ul>
-<p>这几个问题实际上就能够完整将HashMap从创建到扩容,从应用到并发的情况完全概括,昨天花了两个多小时总结了以下。</p>
-<hr>
-<h3 id="HashMap为什么容量要是2-n"><a href="#HashMap为什么容量要是2-n" class="headerlink" title="HashMap为什么容量要是2^n"></a>HashMap为什么容量要是2^n</h3><p>在聊这个问题之前,我们首先要来看看HashMap的结构。太过简单的原理这里不进行赘述,只给出简单分析。</p>
-<p><strong>HashMap是一种由数组+链表所组成的数据结构,其中我们将数组索引位上的链表成为”桶(bucket)”</strong></p>
-<p>那么我们在存放数据的时候如何将数据准确的散列到桶内?这就需要一个很精密的过程。这里我先来总结三个量。</p>
-<ul>
-<li>hashCode : 对象通过对私有域的一组计算后的获得的一个int值</li>
-<li>hash : 将hashCode进行位运算后的到的一个二进制的数据(一般都很大)</li>
-<li>length : hashmap中桶的数量</li>
-</ul>
-<p>下面我们来看看HashMap源码中是怎样给对象分配桶位置的。在HashMap中,采用的是<strong>按位与</strong>的计算，其中散列的方式为。</p>
-<blockquote>
-<p><strong>hash &amp; (length - 1)</strong></p>
-</blockquote>
-<p>假如一个对象经过计算得到Hash值为1011011011,如果我们的桶数目为2的四次方，则length - 1后二进制位01111.</p>
-<blockquote>
-<p>按位与计算<br>0 1 1 1 1<br>1 1 0 1 1</p>
-</blockquote>
-<p>结果为1011，这个就是对象在桶中的位置。但是如果不是2的n次方会发生什么。</p>
-<p><strong>如果不是2^n，length - 1后所有为可能不全为1</strong></p>
-<p>假设length - 1 = 1011，hash值后四位为1111</p>
-<blockquote>
-<p>1 0 1 1<br> 1 1 1 1</p>
-</blockquote>
-<p> 结果为1011，也就是说无论第二位是1的桶永远无法存储对象,这将造成一种资源浪费,所以才使用2^n作为容量。</p>
-<h3 id="什么是resize-什么是rehash"><a href="#什么是resize-什么是rehash" class="headerlink" title="什么是resize?什么是rehash?"></a>什么是resize?什么是rehash?</h3><p>当Hash表要进行扩容的时候,就会进行两个过程。</p>
-<ul>
-<li>resize : 创建当前桶2倍大小的新的Map,然后将桶中元素获取。</li>
-<li>rehash : 重新计算元素的在新的桶中位置</li>
-</ul>
-<p><strong>resize是很重要的一个方法,也是导致死循环的万恶之源</strong></p>
-<h3 id="HashMap为什么是线程不安全的-为什么会出现死锁"><a href="#HashMap为什么是线程不安全的-为什么会出现死锁" class="headerlink" title="HashMap为什么是线程不安全的?为什么会出现死锁?"></a>HashMap为什么是线程不安全的?为什么会出现死锁?</h3><blockquote>
-<p>由于HashMap造成的多线程问题,都是程序员自己的锅<br><strong>HashMap是线程不安全的!</strong></p>
-</blockquote>
-<p>一切的根源在于resize方法,首先我们来看下transfer方法做了些什么</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">transfer</span><span class="params">(Entry[] newTable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Entry[] src = table;</span><br><span class="line">    <span class="keyword">int</span> newCapacity = newTable.length;</span><br><span class="line">    <span class="comment">//下面这段代码的意思是：</span></span><br><span class="line">    <span class="comment">//  从OldTable里摘一个元素出来，然后放到NewTable中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; src.length; j++) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; e = src[j];</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            src[j] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">                <span class="keyword">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">                e.next = newTable[i];</span><br><span class="line">                newTable[i] = e;</span><br><span class="line">                e = next;</span><br><span class="line">            &#125; <span class="keyword">while</span> (e != <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>以上为JDK1.8中的代码,已经大大降低了出现死循环的几率,但是依旧存在,而这种情况在1.7中更为严重,首先来考虑一个问题, HashMap是如何操作。</p>
-<p>首先创建一个新的Entry数组,然后将桶中的数据拿出重新散列存放进入新的桶中，这个过程看上去一点问题也没有,但是为什么会出现死锁问题，问题就出现在<strong>取出数据这一个过程</strong></p>
-<p>在JDK1.7版本中,取出数据的顺序和存放数据的顺序不一样,这里放上来世CoolShell的一张图解释一下。</p>
-<p><a href="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" alt=""></a></p>
-<p>可以看到7和3两个节点顺序是不同的,这个很容易理解,我们先拿到3，3一定是先放入桶底，7后拿到，放在3的上面，但是在多线程中，问题就出现了。<br><a href="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" alt=""></a></p>
-<p>当两个线程访问时，3.next本应该为7，可是7在新的桶中已经在3之前，当前线程虽然将3的指针改为指向null，但是也许另一个线程仍然保存着3.next = 7这个操作，这样在3和7之间就出现了死循环，一旦访问该桶链表中的数据，就会出现死循环情况，导致系统CPU占用率100%。</p>
-<h3 id="HashMap扩容机制-初始容量-负载因子"><a href="#HashMap扩容机制-初始容量-负载因子" class="headerlink" title="HashMap扩容机制?初始容量?负载因子?"></a>HashMap扩容机制?初始容量?负载因子?</h3><p>直接简单粗暴的给出结论 : </p>
-<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>当HashMap中的数据超过<strong>HashMap容量 X 负载因子</strong>的时候就进行扩容。</p>
-<h4 id="初始容量"><a href="#初始容量" class="headerlink" title="初始容量"></a>初始容量</h4><p>HashMap默认的初始容量为16.</p>
-<h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>HashMap中负载因子主要用来做性能平衡，经过测试0.75的负载因子值比较合适。</p>
-<ul>
-<li>大于0.75 : 查找效率降低，空间效率增高</li>
-<li>小于0.75 : 查找效率增高，空间效率降低</li>
-</ul>
-<h3 id="JDK1-7和1-8中HashMap的变化情况"><a href="#JDK1-7和1-8中HashMap的变化情况" class="headerlink" title="JDK1.7和1.8中HashMap的变化情况?"></a>JDK1.7和1.8中HashMap的变化情况?</h3><p>在JDK1.8中，HashMap由数组+链表变为数组+红黑树(由链表转换)当桶内数据大于8的时候,链表将转化为一颗红黑树,保证其查找效率。</p>
-<h4 id="为什么这个值是8"><a href="#为什么这个值是8" class="headerlink" title="为什么这个值是8?"></a>为什么这个值是8?</h4><p>我们直接来看JDK1.8的注释，在开头的注释中，有这样一些注释。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">* Because TreeNodes are about twice the size of regular nodes, we</span><br><span class="line">     * use them only when bins contain enough nodes to warrant use</span><br><span class="line">     * (see TREEIFY_THRESHOLD). <span class="function">And when they become too <span class="title">small</span> <span class="params">(due to</span></span></span><br><span class="line"><span class="function"><span class="params">     * removal or resizing)</span> they are converted back to plain bins.  In</span></span><br><span class="line"><span class="function">     * usages with well-distributed user hashCodes, tree bins are</span></span><br><span class="line"><span class="function">     * rarely used.  Ideally, under random hashCodes, the frequency of</span></span><br><span class="line"><span class="function">     * nodes in bins follows a Poisson distribution</span></span><br><span class="line"><span class="function">     * <span class="params">(http://en.wikipedia.org/wiki/Poisson_distribution)</span> with a</span></span><br><span class="line"><span class="function">     * parameter of about 0.5 on average <span class="keyword">for</span> the <span class="keyword">default</span> resizing</span></span><br><span class="line"><span class="function">     * threshold of 0.75, although with a large variance because of</span></span><br><span class="line"><span class="function">     * resizing granularity. Ignoring variance, the expected</span></span><br><span class="line"><span class="function">     * occurrences of list size k <span class="title">are</span> <span class="params">(exp(<span class="number">-0.5</span>)</span> * <span class="title">pow</span><span class="params">(<span class="number">0.5</span>, k)</span> /</span></span><br><span class="line"><span class="function">     * <span class="title">factorial</span><span class="params">(k)</span>). The first values are:</span></span><br><span class="line"><span class="function">     *</span></span><br><span class="line"><span class="function">     * 0:    0.60653066</span></span><br><span class="line"><span class="function">     * 1:    0.30326533</span></span><br><span class="line"><span class="function">     * 2:    0.07581633</span></span><br><span class="line"><span class="function">     * 3:    0.01263606</span></span><br><span class="line"><span class="function">     * 4:    0.00157952</span></span><br><span class="line"><span class="function">     * 5:    0.00015795</span></span><br><span class="line"><span class="function">     * 6:    0.00001316</span></span><br><span class="line"><span class="function">     * 7:    0.00000094</span></span><br><span class="line"><span class="function">     * 8:    0.00000006</span></span><br><span class="line"><span class="function">     * more: less than 1 in ten million</span></span><br></pre></td></tr></table></figure>
-
-<p>这些值是什么意思?实际上这就是桶中出现数据个数的泊松分布,出现0个数据概率约为0.6，一个为0.3依次类推，当到8的时候，我们已经可以发现概率基本约为千万分之一。所以将红黑树设置为该值，而实际中转化为红黑树的比例较少。</p>
-
-            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
-            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
-                <source type="audio/mpeg" src="">
-            </audio>
-            
-                <ul id="audio-list" style="display:none">
-                    
-                        
-                            <li title='0' data-url='/statics/chengdu.mp3'></li>
-                        
-                    
-                </ul>
-            
-            
-            
-        </div>
-        <div class="sidebar">
-            <div class="box animated fadeInRight">
-                <div class="subbox">
-                    <img src="https://res.cloudinary.com/tridiamond/image/upload/v1571154379/TriDiamondLogoCircleLighting_llbad2.png" height=300 width=300></img>
-                    <p>JoryBeast97</p>
-                    <span>不乱于心，不困于情</span>
-                    <dl>
-                        <dd><a href="https://github.com/TriDiamond" target="_blank"><span class=" iconfont icon-github"></span></a></dd>
-                        <dd><a href="https://twitter.com/TriDiamond6" target="_blank"><span class=" iconfont icon-twitter"></span></a></dd>
-                        <dd><a href="https://stackoverflow.com/users/7602324/tridiamond?tab=profile" target="_blank"><span class=" iconfont icon-stack-overflow"></span></a></dd>
-                    </dl>
-                </div>
-                <ul>
-                    <li><a href="/">6 <p>文章</p></a></li>
-                    <li><a href="/categories">0 <p>分类</p></a></li>
-                    <li><a href="/tags">5 <p>标签</p></a></li>
-                </ul>
-            </div>
-            
-                
-                
-                    <div class="box sticky animated fadeInRight faster">
-                        <div id="toc" class="subbox">
-                            <h4>目录</h4>
-                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#直击灵魂的常见HashMap问题"><span class="toc-number">2.</span> <span class="toc-text">直击灵魂的常见HashMap问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap为什么容量要是2-n"><span class="toc-number">3.</span> <span class="toc-text">HashMap为什么容量要是2^n</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是resize-什么是rehash"><span class="toc-number">4.</span> <span class="toc-text">什么是resize?什么是rehash?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap为什么是线程不安全的-为什么会出现死锁"><span class="toc-number">5.</span> <span class="toc-text">HashMap为什么是线程不安全的?为什么会出现死锁?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap扩容机制-初始容量-负载因子"><span class="toc-number">6.</span> <span class="toc-text">HashMap扩容机制?初始容量?负载因子?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#扩容机制"><span class="toc-number">6.1.</span> <span class="toc-text">扩容机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#初始容量"><span class="toc-number">6.2.</span> <span class="toc-text">初始容量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#负载因子"><span class="toc-number">6.3.</span> <span class="toc-text">负载因子</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDK1-7和1-8中HashMap的变化情况"><span class="toc-number">7.</span> <span class="toc-text">JDK1.7和1.8中HashMap的变化情况?</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#为什么这个值是8"><span class="toc-number">7.1.</span> <span class="toc-text">为什么这个值是8?</span></a></li></ol></li></ol>
-                        </div>
-                    </div>
-                
-            
-        </div>
-    </div>
-</div>
+block top_img
+  - var top_img =  page.top_img || page.cover || theme.post_meta.top_img || theme.post_img || theme.top_img || config.top_img
+  - var bg_img = top_img !== true ? `background-image: url(${top_img})` : ''
+  div#top-container(style=bg_img)
+    #post-info
+      #post-title
+          .posttitle=page.title || _p('no_title')
+      #post-meta
+        if (theme.post_meta.date_type)
+          if (theme.post_meta.date_type === 'both')
+            time.post-meta__date
+              i.fa.fa-calendar(aria-hidden="true")
+              =' '+_p('post.created')+' '+date(page.date, config.date_format)
+              span.post-meta__separator |
+              i.fa.fa-history(aria-hidden="true")
+              =' '+_p('post.updated')+' '+date(page.updated, config.date_format)
+          else
+            - var date_type = theme.post_meta.date_type === 'updated' ? 'updated' : 'date'
+            time.post-meta__date #[i.fa.fa-calendar(aria-hidden="true")] #[=date(page[date_type], config.date_format)]
+                  
+        if (theme.post_meta.categories && page.categories.data.length > 0)
+          if (theme.post_meta.date_type)
+            span.post-meta__separator.mobile_hidden |
+          span.mobile_hidden
+            each item, index in page.categories.data
+              i.fa.fa-inbox.post-meta__icon(aria-hidden="true")
+              a(href=url_for(item.path)).post-meta__categories #[=item.name]
+              if (index < page.categories.data.length - 1)
+                i.fa.fa-angle-right(aria-hidden="true")
+        .post-meta-wordcount
+          if (theme.wordcount && theme.wordcount.enable)
+            span= _p('post.wordcount') + ': '
+            span.word-count= wordcount(page.content)
+            span.post-meta__separator |
+            span= _p('post.min2read', min2read(page.content, {cn: 350, en: 160}))
+          if (theme.wordcount && theme.wordcount.enable && theme.busuanzi.page_pv)
+            span.post-meta__separator |
+          if theme.busuanzi.page_pv           
+            span= _p('post.page_pv') + ': '
+            span#busuanzi_value_page_pv
 
 
-    </div>
-</div>
-    <div id="back-to-top" class="animated fadeIn faster">
-        <div class="flow"></div>
-        <span class="percentage animated fadeIn faster">0%</span>
-        <span class="iconfont icon-top02 animated fadeIn faster"></span>
-    </div>
-</body>
-<footer>
-    <p class="copyright" id="copyright">
-        &copy; 2019
-        <span class="gradient-text">
-            JoryBeast97
-        </span>.
-        Powered by <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a>
-        Theme
-        <span class="gradient-text">
-            <a href="https://github.com/TriDiamond/hexo-theme-obsidian" title="Obsidian" target="_blank" rel="noopener">Obsidian</a>
-            <small><a href="https://github.com/TriDiamond/hexo-theme-obsidian/blob/master/CHANGELOG.md" title="1.3.1" target="_blank" rel="noopener">1.3.1</a></small>
-        </span>
-    </p>
-</footer>
-
-<script src="//cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
-<script src="/js/plugin.js"></script>
-<script src="/js/obsidian.js"></script>
-<script src="/js/jquery.truncate.js"></script>
-<script src="//cdn.bootcss.com/typed.js/2.0.10/typed.min.js"></script>
-<script src="//cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
-
-
-    <script src="/js/busuanzi.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            if ($('span[id^="busuanzi_"]').length) {
-                initialBusuanzi();
-            }
-        });
-    </script>
-
-
-<link rel="stylesheet" href="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe.min.css">
-<link rel="stylesheet" href="//cdn.bootcss.com/photoswipe/4.1.3/default-skin/default-skin.min.css">
-<script src="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe.min.js"></script>
-<script src="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
-
-<!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-            <div class="pswp__top-bar">
-                <!--  Controls are self-explanatory. Order can be changed. -->
-                <div class="pswp__counter"></div>
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                      <div class="pswp__preloader__cut">
-                        <div class="pswp__preloader__donut"></div>
-                      </div>
-                    </div>
-                </div>
-            </div>
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div> 
-            </div>
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-    <!-- Highlight.js -->
-    <link rel="stylesheet" href="/css/dracula.css">
-    <script src="//cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js">
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
-        });
-    </script>
-
-
-<script>
-    function initialTyped () {
-        var typedTextEl = $('.typed-text');
-        if (typedTextEl && typedTextEl.length > 0) {
-            var typed = new Typed('.typed-text', {
-                strings: ["不乱于心，不困于情", "不畏将来，不念过往"],
-                typeSpeed: 90,
-                loop: true,
-                loopCount: Infinity,
-                backSpeed: 20,
-            });
-        }
-    }
-
-    if ($('.article-header') && $('.article-header').length) {
-        $(document).ready(function () {
-            initialTyped();
-        });
-    }
-</script>
-
-
-</html>
+block content
+  article#post(class="")
+    #post-content.article-container!= page.content
+  if (theme.post_copyright && theme.post_copyright.enable && page.copyright != false)
+    .post-copyright
+      .post-copyright__author
+        span.post-copyright-meta= _p('post.copyright.author') + ": "
+        span.post-copyright-info
+          a(href=`mailto:${config.email}`) #[=config.author]
+      .post-copyright__type
+        span.post-copyright-meta= _p('post.copyright.link') + ": "
+        span.post-copyright-info
+          a(href=url_for(page.permalink)) #[=page.permalink]
+      .post-copyright__notice
+        span.post-copyright-meta= _p('post.copyright.copyright_notice') + ": "
+        span.post-copyright-info!= _p('post.copyright.copyright_content', theme.post_copyright.license_url, theme.post_copyright.license, config.url, config.title)
+  
+  .tag_share
+    if (theme.post_meta.tags)
+      .post-meta__tag-list
+        each item, index in page.tags.data
+          a(href=url_for(item.path)).post-meta__tags #[=item.name]    
+    include includes/share/index.pug
+        
+  if theme.reward.enable
+    include includes/reward.pug
+  include includes/pagination.pug
+  
+  if theme.related_post && theme.related_post.enable
+    != related_posts(page,site.posts)
+  if page.comments !== false
+    include includes/comments/index.pug

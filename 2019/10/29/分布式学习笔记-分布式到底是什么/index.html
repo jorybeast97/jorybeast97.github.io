@@ -1,328 +1,76 @@
+extends includes/layout.pug
 
-<!DOCTYPE html>
-<html lang="zh-CN" class="loading">
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>分布式学习笔记:分布式到底是什么? - Magnolia</title>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="google" content="notranslate" />
-    <meta name="keywords" content="TriDiamond Obsidian,"> 
-    <meta name="description" content="那些将要去地地方，都是素未谋面地故乡,序言最近基本上手头上所有的事情都告一段落,想着利用这段时间学习一点新的东西,恰好看到目前业内关于分布式一直是热门话题，虽然本科阶段不可能触碰到关于分布式的项目,但是把基础学一下总归不落俗。很多Cod,"> 
-    <meta name="author" content="JoryBeast97"> 
-    <link rel="alternative" href="atom.xml" title="Magnolia" type="application/atom+xml"> 
-    <link rel="icon" href="/img/favicon.png"> 
-    <link href="/font/Rubik-Bold-kern-latin.woff2" as="font" type="font/woff2" crossorigin="">
-    <link href="/font/Rubik-Regular-kern-latin.woff2" as="font" type="font/woff2" crossorigin="">
-    <link rel="stylesheet" href="//at.alicdn.com/t/font_1429596_7jr8c7mf4wi.css">
-    <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.7.2/animate.min.css">
-    <link rel="stylesheet" href="/css/obsidian.css">
-</head>
-
-<body class="loading">
-    <span id="config-title" style="display:none">Magnolia</span>
-    <div id="loader"></div>
-    <div id="single">
-    <div class="scrollbar gradient-bg-rev"></div>
-<div id="top" style="display: block;">
-    <div class="bar" style="width: 0;"></div>
-    <a id="home-icon" class="image-icon icon-home iconfont" href="javascript:;" data-url="http://yoursite.com"></a>
-    <div id="play-icon" title="Play/Pause" class="iconfont icon-play"></div>
-    <h3 class="subtitle">分布式学习笔记:分布式到底是什么?</h3>
-    <div class="social">
-<!--        <div class="like-icon">-->
-<!--            <a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
-<!--        </div>-->
-<!--        <div>-->
-<!--            <div class="share">-->
-<!--                <a title="Get qrcode" id="qr-icon" href="javascript:;" class="iconfont icon-QRcode-o"></a>-->
-<!--            </div>-->
-<!--            <div id="qr"></div>-->
-<!--        </div>-->
-    </div>
-</div>
-
-    <div class="section">
-        <div class= article-header-wrapper>
-    <div class="article-header">
-        <div class="article-cover animated fadeIn" style="
-            animation-delay: 600ms;
-            animation-duration: 1.2s;
-            background-image: 
-                radial-gradient(ellipse closest-side, rgba(0, 0, 0, 0.65), #100e17),
-                url(/img/cover.jpg);">
-        </div>
-        <div class="else">
-            <p class="animated fadeInDown">
-                
-                    <a href="javascript:;"><b>「 </b>文章<b> 」</b></a>
-                
-                十月 29, 2019
-            </p>
-            <h3 class="post-title animated fadeInDown"><a href="/2019/10/29/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%86%E5%B8%83%E5%BC%8F%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" title="分布式学习笔记:分布式到底是什么?" class="">分布式学习笔记:分布式到底是什么?</a></h3>
-            
-                <p class="post-count animated fadeInDown">
-                    
-                        <span>
-                        <b class="iconfont icon-text2"></b> <i>文章字数</i>
-                        2.2k
-                    </span>
-                    
-                    
-                        <span>
-                        <b class="iconfont icon-timer__s"></b> <i>阅读约需</i>
-                        2 mins.
-                    </span>
-                    
-                    
-                    
-                        <span id="busuanzi_container_page_pv">
-                            <b class="iconfont icon-read"></b> <i>阅读次数</i>
-                            <span id="busuanzi_value_page_pv">0</span>
-                        </span>
-                    
-                </p>
-            
-            
-                <ul class="animated fadeInDown post-tags-list" itemprop="keywords"><li class="animated fadeInDown post-tags-list-item"><a class="animated fadeInDown post-tags-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">分布式学习笔记</a></li></ul>
-            
-        </div>
-    </div>
-</div>
-
-<div class="screen-gradient-after">
-    <div class="screen-gradient-content">
-        <div class="screen-gradient-content-inside">
-            <div class="bold-underline-links screen-gradient-sponsor">
-                <p>
-                    <span></span>  
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="article">
-    <div class='main'>
-        <div class="content markdown animated fadeIn slower">
-            <h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>最近基本上手头上所有的事情都告一段落,想着利用这段时间学习一点新的东西,恰好看到目前业内关于分布式一直是热门话题，虽然本科阶段不可能触碰到关于分布式的项目,但是把基础学一下总归不落俗。很多Coder都在说分布式，但是我还真的不太了解什么是分布式,这次看了很多技术博客，总算对于分布式有一个皮毛层面的认识，总结一下。</p>
-<h3 id="传统服务器开发模式-amp-问题"><a href="#传统服务器开发模式-amp-问题" class="headerlink" title="传统服务器开发模式 &amp; 问题"></a>传统服务器开发模式 &amp; 问题</h3><p>首先来回顾一下我们之前的系统，一般可以分为两个阶段。</p>
-<ul>
-<li><p><strong>单机阶段</strong> : 我们将一个完整的服务端程序部署在一台机器上，此时一般访问量不大，机器的性能足够应付这些访问所带来的数据处理问题，此时我们可以理解为很多客户端只访问同一台服务器。</p>
-</li>
-<li><p><strong>集群阶段</strong> : 当访问量太多时，一台主机无论如何也不能够再进行拓展，那么这时候我们就需要使用多台服务器来分担访问量增大所带来的压力。我们在多台服务器上部署这些服务端程序。当用户访问的时候，首先访问负载均衡服务器。</p>
-<blockquote>
-<p>负载均衡服务器 : 我们希望将流量均摊在每台服务器之上，负载均衡服务器帮助我们进行调度，将用户访问流量引导至目前访问量最小的服务器之上。</p>
-</blockquote>
-<p>通过负载均衡后，流量被分摊到不同的服务器之上，当流量增大时，我们只需要增加服务器的数量即可。</p>
-</li>
-</ul>
-<p>但是有时遇见一些特殊情况后,集群的解决方式并不一定能够快速处理,同时也不是最优解。</p>
-<p>EXM :  我们来举个例子，假如目前有个电商系统 ， 有订单模块 ， 活动模块， 账户模块等。双十一的时候，总流量暴增，但是各个模块增长幅度却不同，活动模块增长明显高于其他模块。根据木桶效应，则活动模块就会成为一个短板，为了应付激增的流量，我们需要增加更多的服务器，但是对于其他模块来说，这实际上就是一种资源浪费！</p>
-<p>而且在集群时，服务器数量和性能的比率并不是线性，当到达某个节点时，服务器的增长所带来的收益将变得非常小。</p>
-<p>因此，分布式登上了舞台。</p>
-<h3 id="什么是分布式"><a href="#什么是分布式" class="headerlink" title="什么是分布式?"></a>什么是分布式?</h3><p>我觉得可以用四个字来概括分布式 : <strong>聚、散、离、合</strong></p>
-<p>分布式实际上就是将一个完整的服务端程序拆分成不同的小型服务，这些服务称为微服务。可以进行独立部署，独立运行与测试，然后通过网络将其相连，互相调用，达到一个完整的服务端的功能。</p>
-<p>那么分布式能够带来哪些好处呢？</p>
-<p><strong>灵活</strong> : 由于每个服务都部署在一台服务器上，以上面的例子来说，当活动服务流量增长时，我们只需要增加活动服务的服务器即可。通过这种方式，我们能够对资源进行灵活的调配。</p>
-<p><strong>快速开发</strong> : 由于每个服务都通过网络通讯，所以开发起来将会方便很多，开发人员只需要关注自己所负责的部分即可。</p>
-<p><strong>耦合度低</strong> : 当某个微服务出现了问题时，并不会导致整个应用瞬间奔溃，此时我们只需要通过调换服务器能够暂时解决问题。</p>
-<p><strong>语言自由</strong> : 由于分布式使用了网络通信，RESTful或者RPC框架，各个微服务可以通过不同的语言编写。</p>
-<p>那么分布式就真的完美无缺了吗? 答案当然是不。</p>
-<p>根据CoolShell的一篇文章指出。</p>
-<blockquote>
-<p>如果单机或者集群能够应付的应用，并且未来规模可以预期，则分布式并不是必须的。</p>
-</blockquote>
-<p>分布式并非完美无缺，与此相反，分布式的出现为我们带来了新的问题。由于分布式完全依赖于网络，并且网络是一种不可靠的传输，意外情况永远无法预料，所以会出现很多问题。</p>
-<p>例如我们的某个微服务在调用另一个服务器方法时，由于网络延迟，导致出现了两次请求，那么就需要判断如何去执行这些内容。</p>
-<p>同时，分布式的某个微服务出现问题，可能导致雪崩情况的出现，一个服务的堵塞，导致使用它的其他服务无法正常工作，最后出现系统的奔溃。</p>
-<p>总的来说，分布式是一种对于高并发，高可用，高性能的解决方案，但是其中依然存在不完美的地方。</p>
-<p>仁者见仁，智者见智，但是，它依旧是目前最火热的方案。</p>
-
-            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
-            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
-                <source type="audio/mpeg" src="">
-            </audio>
-            
-                <ul id="audio-list" style="display:none">
-                    
-                        
-                            <li title='0' data-url='/statics/chengdu.mp3'></li>
-                        
-                    
-                </ul>
-            
-            
-            
-        </div>
-        <div class="sidebar">
-            <div class="box animated fadeInRight">
-                <div class="subbox">
-                    <img src="https://res.cloudinary.com/tridiamond/image/upload/v1571154379/TriDiamondLogoCircleLighting_llbad2.png" height=300 width=300></img>
-                    <p>JoryBeast97</p>
-                    <span>不乱于心，不困于情</span>
-                    <dl>
-                        <dd><a href="https://github.com/TriDiamond" target="_blank"><span class=" iconfont icon-github"></span></a></dd>
-                        <dd><a href="https://twitter.com/TriDiamond6" target="_blank"><span class=" iconfont icon-twitter"></span></a></dd>
-                        <dd><a href="https://stackoverflow.com/users/7602324/tridiamond?tab=profile" target="_blank"><span class=" iconfont icon-stack-overflow"></span></a></dd>
-                    </dl>
-                </div>
-                <ul>
-                    <li><a href="/">6 <p>文章</p></a></li>
-                    <li><a href="/categories">0 <p>分类</p></a></li>
-                    <li><a href="/tags">5 <p>标签</p></a></li>
-                </ul>
-            </div>
-            
-                
-                
-                    <div class="box sticky animated fadeInRight faster">
-                        <div id="toc" class="subbox">
-                            <h4>目录</h4>
-                            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#序言"><span class="toc-number">1.</span> <span class="toc-text">序言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#传统服务器开发模式-amp-问题"><span class="toc-number">2.</span> <span class="toc-text">传统服务器开发模式 &amp; 问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是分布式"><span class="toc-number">3.</span> <span class="toc-text">什么是分布式?</span></a></li></ol>
-                        </div>
-                    </div>
-                
-            
-        </div>
-    </div>
-</div>
+block top_img
+  - var top_img =  page.top_img || page.cover || theme.post_meta.top_img || theme.post_img || theme.top_img || config.top_img
+  - var bg_img = top_img !== true ? `background-image: url(${top_img})` : ''
+  div#top-container(style=bg_img)
+    #post-info
+      #post-title
+          .posttitle=page.title || _p('no_title')
+      #post-meta
+        if (theme.post_meta.date_type)
+          if (theme.post_meta.date_type === 'both')
+            time.post-meta__date
+              i.fa.fa-calendar(aria-hidden="true")
+              =' '+_p('post.created')+' '+date(page.date, config.date_format)
+              span.post-meta__separator |
+              i.fa.fa-history(aria-hidden="true")
+              =' '+_p('post.updated')+' '+date(page.updated, config.date_format)
+          else
+            - var date_type = theme.post_meta.date_type === 'updated' ? 'updated' : 'date'
+            time.post-meta__date #[i.fa.fa-calendar(aria-hidden="true")] #[=date(page[date_type], config.date_format)]
+                  
+        if (theme.post_meta.categories && page.categories.data.length > 0)
+          if (theme.post_meta.date_type)
+            span.post-meta__separator.mobile_hidden |
+          span.mobile_hidden
+            each item, index in page.categories.data
+              i.fa.fa-inbox.post-meta__icon(aria-hidden="true")
+              a(href=url_for(item.path)).post-meta__categories #[=item.name]
+              if (index < page.categories.data.length - 1)
+                i.fa.fa-angle-right(aria-hidden="true")
+        .post-meta-wordcount
+          if (theme.wordcount && theme.wordcount.enable)
+            span= _p('post.wordcount') + ': '
+            span.word-count= wordcount(page.content)
+            span.post-meta__separator |
+            span= _p('post.min2read', min2read(page.content, {cn: 350, en: 160}))
+          if (theme.wordcount && theme.wordcount.enable && theme.busuanzi.page_pv)
+            span.post-meta__separator |
+          if theme.busuanzi.page_pv           
+            span= _p('post.page_pv') + ': '
+            span#busuanzi_value_page_pv
 
 
-    </div>
-</div>
-    <div id="back-to-top" class="animated fadeIn faster">
-        <div class="flow"></div>
-        <span class="percentage animated fadeIn faster">0%</span>
-        <span class="iconfont icon-top02 animated fadeIn faster"></span>
-    </div>
-</body>
-<footer>
-    <p class="copyright" id="copyright">
-        &copy; 2019
-        <span class="gradient-text">
-            JoryBeast97
-        </span>.
-        Powered by <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a>
-        Theme
-        <span class="gradient-text">
-            <a href="https://github.com/TriDiamond/hexo-theme-obsidian" title="Obsidian" target="_blank" rel="noopener">Obsidian</a>
-            <small><a href="https://github.com/TriDiamond/hexo-theme-obsidian/blob/master/CHANGELOG.md" title="1.3.1" target="_blank" rel="noopener">1.3.1</a></small>
-        </span>
-    </p>
-</footer>
-
-<script src="//cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
-<script src="/js/plugin.js"></script>
-<script src="/js/obsidian.js"></script>
-<script src="/js/jquery.truncate.js"></script>
-<script src="//cdn.bootcss.com/typed.js/2.0.10/typed.min.js"></script>
-<script src="//cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
-
-
-    <script src="/js/busuanzi.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            if ($('span[id^="busuanzi_"]').length) {
-                initialBusuanzi();
-            }
-        });
-    </script>
-
-
-<link rel="stylesheet" href="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe.min.css">
-<link rel="stylesheet" href="//cdn.bootcss.com/photoswipe/4.1.3/default-skin/default-skin.min.css">
-<script src="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe.min.js"></script>
-<script src="//cdn.bootcss.com/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
-
-<!-- Root element of PhotoSwipe. Must have class pswp. -->
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-    <!-- Background of PhotoSwipe. 
-         It's a separate element as animating opacity is faster than rgba(). -->
-    <div class="pswp__bg"></div>
-    <!-- Slides wrapper with overflow:hidden. -->
-    <div class="pswp__scroll-wrap">
-        <!-- Container that holds slides. 
-            PhotoSwipe keeps only 3 of them in the DOM to save memory.
-            Don't modify these 3 pswp__item elements, data is added later on. -->
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-        <div class="pswp__ui pswp__ui--hidden">
-            <div class="pswp__top-bar">
-                <!--  Controls are self-explanatory. Order can be changed. -->
-                <div class="pswp__counter"></div>
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-                <!-- element will get class pswp__preloader--active when preloader is running -->
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                      <div class="pswp__preloader__cut">
-                        <div class="pswp__preloader__donut"></div>
-                      </div>
-                    </div>
-                </div>
-            </div>
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div> 
-            </div>
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-    <!-- Highlight.js -->
-    <link rel="stylesheet" href="/css/dracula.css">
-    <script src="//cdn.bootcss.com/highlight.js/9.15.10/highlight.min.js">
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
-        });
-    </script>
-
-
-<script>
-    function initialTyped () {
-        var typedTextEl = $('.typed-text');
-        if (typedTextEl && typedTextEl.length > 0) {
-            var typed = new Typed('.typed-text', {
-                strings: ["不乱于心，不困于情", "不畏将来，不念过往"],
-                typeSpeed: 90,
-                loop: true,
-                loopCount: Infinity,
-                backSpeed: 20,
-            });
-        }
-    }
-
-    if ($('.article-header') && $('.article-header').length) {
-        $(document).ready(function () {
-            initialTyped();
-        });
-    }
-</script>
-
-
-</html>
+block content
+  article#post(class="")
+    #post-content.article-container!= page.content
+  if (theme.post_copyright && theme.post_copyright.enable && page.copyright != false)
+    .post-copyright
+      .post-copyright__author
+        span.post-copyright-meta= _p('post.copyright.author') + ": "
+        span.post-copyright-info
+          a(href=`mailto:${config.email}`) #[=config.author]
+      .post-copyright__type
+        span.post-copyright-meta= _p('post.copyright.link') + ": "
+        span.post-copyright-info
+          a(href=url_for(page.permalink)) #[=page.permalink]
+      .post-copyright__notice
+        span.post-copyright-meta= _p('post.copyright.copyright_notice') + ": "
+        span.post-copyright-info!= _p('post.copyright.copyright_content', theme.post_copyright.license_url, theme.post_copyright.license, config.url, config.title)
+  
+  .tag_share
+    if (theme.post_meta.tags)
+      .post-meta__tag-list
+        each item, index in page.tags.data
+          a(href=url_for(item.path)).post-meta__tags #[=item.name]    
+    include includes/share/index.pug
+        
+  if theme.reward.enable
+    include includes/reward.pug
+  include includes/pagination.pug
+  
+  if theme.related_post && theme.related_post.enable
+    != related_posts(page,site.posts)
+  if page.comments !== false
+    include includes/comments/index.pug
