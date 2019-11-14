@@ -93,13 +93,16 @@
 
 <p>结果很让人意外，程序只输出了<code>HYRULE1.0.0</code>并没有将静态代码块的内容输出。理由如下。</p>
 <p><strong>常量在编译阶段会存入到调用这个常量的方法所在的类的常量池中</strong></p>
-<p>我们来仔细研究一下过程，常量<code>VERSION</code>由<code>Test</code>类的<code>main</code>方法调用，所以在编译阶段，<code>VERSION</code>将被存放在<code>Test</code>类的常量池当中，本质上，调用类并没有直接引用到Log的类(虽然常量在Log类中定义)，因此并不会触发定义常量的类的类初始化。</p>
+<p>我们来仔细研究一下过程，常量<code>VERSION</code>由<code>Test</code>类的<code>main</code>方法调用，所以在编译阶段，<code>VERSION</code>将被存放在<code>Test</code>类的常量池当中，本质上，调用类并没有直接引用到Log的类(虽然常量在Log类中定义)，因此并不会触发定义常量的类的类初始化。甚至我们可以在编译完成后将Log编译完成后的Class文件删除，同样能够执行这个程序。</p>
+<p>我们尝试用<code>javap -c</code>命令来反编译一下这个FinalTest.class文件看看有什么效果。</p>
+<p><img alt data-src="https://s2.ax1x.com/2019/11/14/MtG94s.png" class="lozad"></p>
+<p>可以看到，这个常量VERSION在编译完后已经被替换为了String对象<code>&quot;hyrule 1.0.0&quot;</code>了，实际上在FinalTest.class中，不再和Log类有任何的关系，在输出时也只是输出自己常量池中的内容。</p>
 <h5 id="常见JVM参数"><a href="#常见JVM参数" class="headerlink" title="常见JVM参数"></a>常见JVM参数</h5><p>标准格式</p>
 <blockquote>
-<p>-XX:+<option> <code>something</code> : 开启某选项</option></p>
-<p>-XX:-<option> <code>something</code> ：关闭某选项</option></p>
-<p>-XX:+<option>=value : 赋值操作 </option></p>
-<p><code>-XX:</code>为添加参数的标准格式，后面的<code>&lt;option&gt;</code>表示具体操作，+或者-表示一个布尔开关。</p>
+<p>-XX:+&lt; option &gt; <code>something</code> : 开启某选项</p>
+<p>-XX:-&lt; option &gt; <code>something</code> ：关闭某选项</p>
+<p>-XX:+&lt; option &gt;=value : 赋值操作 </p>
+<p><code>-XX:</code>为添加参数的标准格式，后面的<code>&lt; option &gt;</code>表示具体操作，+或者-表示一个布尔开关。</p>
 <p>例如<code>-XX:+TraceClassLoading</code> ，在默认情况下，该选项会关闭，而该参数指令中+代表开启该选项。</p>
 </blockquote>
 <ul>
