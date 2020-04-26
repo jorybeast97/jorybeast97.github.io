@@ -1,26 +1,229 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>Java反射与动态代理 | 无咎</title><meta name="description" content="Java反射与动态代理"><meta name="keywords" content="Spring"><meta name="author" content="JoryBeast97"><meta name="copyright" content="JoryBeast97"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="canonical" href="http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Java反射与动态代理"><meta name="twitter:description" content="Java反射与动态代理"><meta name="twitter:image" content="https://cdn.colorhub.me/jKy1uEwP6T5I8B25D8ND920ZRPX-n5rU4uiAms12W2I/fill/0/500/ce/0/bG9jYWw6Ly8vZmQv/YzkvMzY0OTVlYjhi/NWMwNTcwOWExYTYz/ZjcwZjM1NjBhM2Vk/MTZiZmRjOS5qcGVn.jpg"><meta property="og:type" content="article"><meta property="og:title" content="Java反射与动态代理"><meta property="og:url" content="http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"><meta property="og:site_name" content="无咎"><meta property="og:description" content="Java反射与动态代理"><meta property="og:image" content="https://cdn.colorhub.me/jKy1uEwP6T5I8B25D8ND920ZRPX-n5rU4uiAms12W2I/fill/0/500/ce/0/bG9jYWw6Ly8vZmQv/YzkvMzY0OTVlYjhi/NWMwNTcwOWExYTYz/ZjcwZjM1NjBhM2Vk/MTZiZmRjOS5qcGVn.jpg"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="prev" title="Spring学习笔记总结" href="http://yoursite.com/2019/11/05/Spring%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93/"><link rel="next" title="Git学习" href="http://yoursite.com/2019/11/05/Git%E5%AD%A6%E4%B9%A0/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
-  highlight_copy: 'false',
-  highlight_lang: 'true',
-  highlight_shrink: 'false',
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  bookmark: {
-    title: '添加书签',
-    message_prev: '按',
-    message_next: '键将本页加入书签'
-  },
-  runtime_unit: '天',
-  copyright: undefined,
-  copy_copyright_js: false
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Java反射机制是SpringIoC技术实现的基础，同时也是拓展很多功能的重要方式。简单来讲，反射技术允许我们在程序运行的过程中，随意获得任意一个类的信息(属性与方法)，调用任意一个对象的方法。">
+<meta name="keywords" content="Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java反射与动态代理">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;05&#x2F;Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="Java反射机制是SpringIoC技术实现的基础，同时也是拓展很多功能的重要方式。简单来讲，反射技术允许我们在程序运行的过程中，随意获得任意一个类的信息(属性与方法)，调用任意一个对象的方法。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;timgsa.baidu.com&#x2F;timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1548327578257&amp;di=e7b7b123d61a6bd3fea0d7d2db21fb60&amp;imgtype=0&amp;src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.loli.net&#x2F;2019&#x2F;10&#x2F;16&#x2F;w73KRjNzA1uovdn.png">
+<meta property="og:updated_time" content="2020-04-26T04:18:54.448Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;timgsa.baidu.com&#x2F;timg?image&amp;quality=80&amp;size=b9999_10000&amp;sec=1548327578257&amp;di=e7b7b123d61a6bd3fea0d7d2db21fb60&amp;imgtype=0&amp;src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Java反射与动态代理 | 无咎 NOTE</title>
   
-}</script></head><body><canvas class="fireworks"></canvas><div id="header"> <div id="page-header"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">无咎</a></span><i class="fa fa-bars fa-fw toggle-menu pull-right close" aria-hidden="true"></i><span class="pull-right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-wrench"></i><span> 工具</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><script>document.body.addEventListener('touchstart', function(){ });</script></div></span><span class="pull-right" id="search_button"></span></div></div><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="lozad avatar_img" src="/img/touxiang.jpg" onerror="onerror=null;src='/img/friend_404.gif'"></div><div class="mobile_post_data"><div class="mobile_data_item is_center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">45</div></a></div></div><div class="mobile_data_item is_center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is_center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">16</div></a></div></div></div><hr><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-wrench"></i><span> 工具</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> 关于</span></a></div><script>document.body.addEventListener('touchstart', function(){ });</script></div></div><div id="mobile-sidebar-toc"><div class="toc_mobile_headline">目录</div><ol class="toc_mobile_items"><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#代理模式-Proxy"><span class="toc_mobile_items-number">1.</span> <span class="toc_mobile_items-text">代理模式(Proxy)</span></a></li><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#静态代理"><span class="toc_mobile_items-number">2.</span> <span class="toc_mobile_items-text">静态代理</span></a><ol class="toc_mobile_items-child"><li class="toc_mobile_items-item toc_mobile_items-level-4"><a class="toc_mobile_items-link" href="#实现方式"><span class="toc_mobile_items-number">2.1.</span> <span class="toc_mobile_items-text">实现方式</span></a></li><li class="toc_mobile_items-item toc_mobile_items-level-4"><a class="toc_mobile_items-link" href="#静态代理优劣"><span class="toc_mobile_items-number">2.2.</span> <span class="toc_mobile_items-text">静态代理优劣</span></a></li></ol></li><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#动态代理"><span class="toc_mobile_items-number">3.</span> <span class="toc_mobile_items-text">动态代理</span></a></li><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#JDK动态代理"><span class="toc_mobile_items-number">4.</span> <span class="toc_mobile_items-text">JDK动态代理</span></a></li><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#Cglib动态代理"><span class="toc_mobile_items-number">5.</span> <span class="toc_mobile_items-text">Cglib动态代理</span></a></li><li class="toc_mobile_items-item toc_mobile_items-level-3"><a class="toc_mobile_items-link" href="#小结"><span class="toc_mobile_items-number">6.</span> <span class="toc_mobile_items-text">小结</span></a></li></ol></div></div><div id="body-wrap"><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true">     </i><div class="auto_open" id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代理模式-Proxy"><span class="toc-number">1.</span> <span class="toc-text">代理模式(Proxy)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#静态代理"><span class="toc-number">2.</span> <span class="toc-text">静态代理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实现方式"><span class="toc-number">2.1.</span> <span class="toc-text">实现方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#静态代理优劣"><span class="toc-number">2.2.</span> <span class="toc-text">静态代理优劣</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#动态代理"><span class="toc-number">3.</span> <span class="toc-text">动态代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDK动态代理"><span class="toc-number">4.</span> <span class="toc-text">JDK动态代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cglib动态代理"><span class="toc-number">5.</span> <span class="toc-text">Cglib动态代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://cdn.colorhub.me/jKy1uEwP6T5I8B25D8ND920ZRPX-n5rU4uiAms12W2I/fill/0/500/ce/0/bG9jYWw6Ly8vZmQv/YzkvMzY0OTVlYjhi/NWMwNTcwOWExYTYz/ZjcwZjM1NjBhM2Vk/MTZiZmRjOS5qcGVn.jpg)"><div id="post-info"><div id="post-title"><div class="posttitle">Java反射与动态代理</div></div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 发表于 2019-11-05<span class="post-meta__separator">|</span><i class="fa fa-history" aria-hidden="true"></i> 更新于 2019-11-10</time><span class="post-meta__separator mobile_hidden">|</span><span class="mobile_hidden"><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Web%E6%A1%86%E6%9E%B6/">Web框架</a></span><div class="post-meta-wordcount"></div></div></div></div><div class="layout layout_post" id="content-inner">   <article id="post"><div class="article-container" id="post-content"><p>  Java反射机制是SpringIoC技术实现的基础，同时也是拓展很多功能的重要方式。简单来讲，反射技术允许我们在程序运行的过程中，随意获得任意一个类的信息(属性与方法)，调用任意一个对象的方法。</p>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">无咎的个人博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java反射与动态代理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-05 20:37:08" itemprop="dateCreated datePublished" datetime="2019-11-05T20:37:08+08:00">2019-11-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-26 12:18:54" itemprop="dateModified" datetime="2020-04-26T12:18:54+08:00">2020-04-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web%E6%A1%86%E6%9E%B6/" itemprop="url" rel="index"><span itemprop="name">Web框架</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>  Java反射机制是SpringIoC技术实现的基础，同时也是拓展很多功能的重要方式。简单来讲，反射技术允许我们在程序运行的过程中，随意获得任意一个类的信息(属性与方法)，调用任意一个对象的方法。</p>
+<a id="more"></a>
+
 <hr>
 <p>  <strong>什么是反射？</strong></p>
 <p>  Java是一门面向对象的语言，对象作为Java世界中最小的执行对象，能够承担各种事务。但是其中有两部分不属于面向对象的范畴。</p>
@@ -32,7 +235,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建person类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">person</span></span>&#123; &#125;</span><br><span class="line"><span class="comment">//使用Class类创建</span></span><br><span class="line">Class personClass = person.class;</span><br></pre></td></tr></table></figure>
 <p>  可以看到，直接使用类名.class方法能够创建Class的对象，通过这个例子就很容易理解我们所<strong>创建的类都是Class类的子类，而Class类的引用官方称作为类类型(class type)。</strong>同时，Class类无法创建实例对象，这点在源码中就能看到。</p>
 <p>  在了解反射之前，我们需要先对于Java语言编译运行原理进行简单的了解。Java语言也是一门半解释性语言，我们在编译器编写的代码后缀都是.java格式，而JVM所运行的则是.class后缀文件，JVM将.class字节码解释为机器码在计算机上进行运行。</p>
-<p><a href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548327578257&di=e7b7b123d61a6bd3fea0d7d2db21fb60&imgtype=0&src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png" target="_blank" rel="noopener"><img alt data-src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548327578257&di=e7b7b123d61a6bd3fea0d7d2db21fb60&imgtype=0&src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png" class="lozad"></a></p>
+<p><a href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548327578257&di=e7b7b123d61a6bd3fea0d7d2db21fb60&imgtype=0&src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png" target="_blank" rel="noopener"><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548327578257&di=e7b7b123d61a6bd3fea0d7d2db21fb60&imgtype=0&src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201901%2F20190119130807644551.png" alt=""></a></p>
 <p>  由于我们目前所使用的编译器先机，大部分编译期所出现的问题编译器都会为我们进行报错，所以很难区分编译器和运行期。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">select</span><span class="params">(<span class="keyword">int</span> choice)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(choice &gt; <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> person();</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> other();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 <p>  例如这段代码，如果我们在IDEA编译器中为创建other这个类，在编译时编译器便会提示，不允许编译通过。但是如果我们通过TXT记事本来书写后使用命令行加载该文件时，编译会出现无法加载到other这个类的错误，这种错误在现在优秀的编译器上是很少能见到的。</p>
@@ -139,7 +342,7 @@
 <p>在时间拦截器中,我们可以像静态代理中实现的一样,对方法前后进行增强。下面来看下测试结果。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        TargetClazz targetClazz = <span class="keyword">new</span> TargetClazz();</span><br><span class="line">        System.out.println(<span class="string">"targetClazz 未增强前结果如下 : "</span>);</span><br><span class="line">        targetClazz.doSomething();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"targetClazz 增强后结果如下 : "</span>);</span><br><span class="line">        JDKProxy targetClazz1 = (JDKProxy) <span class="keyword">new</span> ProxyFactory(targetClazz).getProxyInstance();</span><br><span class="line">        targetClazz1.doSomething();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<p><a href="https://i.loli.net/2019/10/16/w73KRjNzA1uovdn.png" target="_blank" rel="noopener"><img alt data-src="https://i.loli.net/2019/10/16/w73KRjNzA1uovdn.png" class="lozad"></a></p>
+<p><a href="https://i.loli.net/2019/10/16/w73KRjNzA1uovdn.png" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/16/w73KRjNzA1uovdn.png" alt=""></a></p>
 <h3 id="Cglib动态代理"><a href="#Cglib动态代理" class="headerlink" title="Cglib动态代理"></a>Cglib动态代理</h3><p>虽然JDK动态代理已经很方便了,但是还是需要为目标类实现一个接口,如果我们不想实现接口,那么可以使用Cglib动态代理。</p>
 <p>Cglib动态代理使用的是子类继承的方式进行增强。我们知道在子类中可以使用<strong>super</strong>关键字调用父类方法,Cglib就是使用了这个特点。那么Cglib对于目标类也有一定的限制。</p>
 <ul>
@@ -150,17 +353,207 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CglibProxyIntercepter</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object sub, Method method, Object[] objects, MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"执行前..."</span>);</span><br><span class="line">        Object object = methodProxy.invokeSuper(sub, objects);</span><br><span class="line">        System.out.println(<span class="string">"执行后..."</span>);</span><br><span class="line">        <span class="keyword">return</span> object;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>动态代理使用场景多为方法增强处理,例如SpringAOP。在SpringAOP中,如果切面实现了接口则使用JDK动态代理,否则使用JDK动态代理。 </p>
-</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined" target="_blank" rel="noopener">JoryBeast97</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">http://yoursite.com/2019/11/05/Java%E5%8F%8D%E5%B0%84%E4%B8%8E%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://yoursite.com">无咎</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Spring/">Spring    </a></div><div class="post_share"><div class="social-share" data-image="https://cdn.colorhub.me/jKy1uEwP6T5I8B25D8ND920ZRPX-n5rU4uiAms12W2I/fill/0/500/ce/0/bG9jYWw6Ly8vZmQv/YzkvMzY0OTVlYjhi/NWMwNTcwOWExYTYz/ZjcwZjM1NjBhM2Vk/MTZiZmRjOS5qcGVn.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></div></div><div class="post-reward"><a class="reward-button"><i class="fa fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><img class="lozad post-qr-code__img" src="/img/wechat.jpg"><div class="post-qr-code__desc">微信</div></li><li class="reward-item"><img class="lozad post-qr-code__img" src="/img/alipay.jpg"><div class="post-qr-code__desc">支付寶</div></li></ul></div></a></div><nav class="pagination_post" id="pagination"><div class="prev-post pull-left"><a href="/2019/11/05/Spring%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93/"><img class="prev_cover lozad" data-src="https://cdn.colorhub.me/b_LOvybh3toRePSm5POpleJKYIAYpHUau0LZK6kSAtQ/fill/0/500/ce/0/bG9jYWw6Ly8vNTYv/ZDEvNmM3NDc5YmZh/YWE0NDZjMmZhNzVj/NGI1Mzc5YjhhOWIy/YjI5NTZkMS5qcGVn.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="label">上一篇</div><div class="prev_info"><span>Spring学习笔记总结</span></div></a></div><div class="next-post pull-right"><a href="/2019/11/05/Git%E5%AD%A6%E4%B9%A0/"><img class="next_cover lozad" data-src="https://cdn.colorhub.me/7pGh5sqgqypdsx7hg-zxuKBtjL0IB98glFoe7ZLq8cg/fill/0/500/ce/0/bG9jYWw6Ly8vYzIv/MmYvNDEzZDdlMmVh/ZTMzYzI1NzBhYWMx/YThhMzg1ODU3NzIw/YjgwYzIyZi5qcGc.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="label">下一篇</div><div class="next_info"><span>Git学习</span></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/11/05/Spring学习笔记总结/" title="Spring学习笔记总结"><img class="relatedPosts_cover lozad"data-src="https://cdn.colorhub.me/b_LOvybh3toRePSm5POpleJKYIAYpHUau0LZK6kSAtQ/fill/0/500/ce/0/bG9jYWw6Ly8vNTYv/ZDEvNmM3NDc5YmZh/YWE0NDZjMmZhNzVj/NGI1Mzc5YjhhOWIy/YjI5NTZkMS5qcGVn.jpg"><div class="relatedPosts_title">Spring学习笔记总结</div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> 评论</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
-  clientID: 'be3148d2364a7354f65a',
-  clientSecret: 'b286f2d46c310aeea22f16756f4ff8135017ec9b',
-  repo: 'blogTalk',
-  owner: 'jorybeast97',
-  admin: 'jorybeast97',
-  id: md5(decodeURI(location.pathname)),
-  language: 'en , zh-CN , zh-TW'
-})
-gitalk.render('gitalk-container')</script></div></div></div><footer><div id="footer"><div class="copyright">&copy;2018 - 2020 By JoryBeast97</div><div class="framework-info"><span>驱动 </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="阅读模式"></i><i class="fa fa-plus" id="font_plus" title="放大字体"></i><i class="fa fa-minus" id="font_minus" title="缩小字体"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="简繁转换">繁</a><i class="nightshift fa fa-moon-o" id="nightshift" title="夜间模式"></i></div><div id="rightside-config-show"><div id="rightside_config" title="设置"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="直达评论"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="目录" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="回到顶部" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="/js/third-party/fireworks.js"></script><script src="/js/nightshift.js"></script><script id="ribbon" src="https://cdn.jsdelivr.net/gh/jerryc127/CDN@latest/js/piao.js"></script><script src="/js/tw_cn.js"></script><script>translateInitilization()
 
-</script><script src="https://cdn.jsdelivr.net/npm/instant.page@1.2.2/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script><script>const observer = lozad(); // lazy loads elements with default selector as '.lozad'
-observer.observe();
-</script></body></html>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/11/05/Spring%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93/" rel="prev" title="Spring学习笔记总结">
+      <i class="fa fa-chevron-left"></i> Spring学习笔记总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/11/06/%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/" rel="next" title="Spring Cloud学习笔记:服务的注册与发现">
+      Spring Cloud学习笔记:服务的注册与发现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#代理模式-Proxy"><span class="nav-number">1.</span> <span class="nav-text">代理模式(Proxy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态代理"><span class="nav-number">2.</span> <span class="nav-text">静态代理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现方式"><span class="nav-number">2.1.</span> <span class="nav-text">实现方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#静态代理优劣"><span class="nav-number">2.2.</span> <span class="nav-text">静态代理优劣</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理"><span class="nav-number">3.</span> <span class="nav-text">动态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK动态代理"><span class="nav-number">4.</span> <span class="nav-text">JDK动态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cglib动态代理"><span class="nav-number">5.</span> <span class="nav-text">Cglib动态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
