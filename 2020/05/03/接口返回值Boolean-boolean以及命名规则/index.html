@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近在看《阿里Java开发手册—泰山版》,虽然现在还是个学生,但是在开发过程中,还是能够体会到代码规范的重要。  【强制】: POJO类中布尔类型的变量,都不要加is,否则可能引起框架解析序列化错误。  这条强制要求是我在这本书中印象比较深的一条,因为以前我是经常这样使用的。例如数据库的逻辑删除一直使用的是isDelete字段,后来查看了一些文章后才发现这个习惯可能会带来巨大的隐患。所以写一篇博文">
+<meta name="keywords" content="接口规范">
+<meta property="og:type" content="article">
+<meta property="og:title" content="接口返回值Boolean&#x2F;boolean以及命名规则">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;03&#x2F;%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="最近在看《阿里Java开发手册—泰山版》,虽然现在还是个学生,但是在开发过程中,还是能够体会到代码规范的重要。  【强制】: POJO类中布尔类型的变量,都不要加is,否则可能引起框架解析序列化错误。  这条强制要求是我在这本书中印象比较深的一条,因为以前我是经常这样使用的。例如数据库的逻辑删除一直使用的是isDelete字段,后来查看了一些文章后才发现这个习惯可能会带来巨大的隐患。所以写一篇博文">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-03T14:28:24.337Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>接口返回值Boolean/boolean以及命名规则 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          接口返回值Boolean/boolean以及命名规则
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-03 21:35:34 / 修改时间：22:28:24" itemprop="dateCreated datePublished" datetime="2020-05-03T21:35:34+08:00">2020-05-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%80%9D%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">技术思考</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在看《阿里Java开发手册—泰山版》,虽然现在还是个学生,但是在开发过程中,还是能够体会到代码规范的重要。</p>
+<blockquote>
+<p>【强制】: POJO类中布尔类型的变量,都不要加is,否则可能引起框架解析序列化错误。</p>
+</blockquote>
+<p>这条强制要求是我在这本书中印象比较深的一条,因为以前我是经常这样使用的。例如数据库的逻辑删除一直使用的是<code>isDelete</code>字段,后来查看了一些文章后才发现这个习惯可能会带来巨大的隐患。所以写一篇博文来加强自己的记忆,也希望能给更多的人一个提醒。</p>
+<p>如果文中有不对或者不足的地方,请及时指正,感谢阅读。</p>
+<a id="more"></a>
+
+<hr>
+<h3 id="场景回忆"><a href="#场景回忆" class="headerlink" title="场景回忆"></a>场景回忆</h3><p>在开发一个接口时,很多情况我们需要使用到布尔类型作为一个接口调用成功与否的返回标志,那么就可能有如下的返回值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">boolean</span> success;</span><br><span class="line">Boolean success;</span><br><span class="line"><span class="keyword">boolean</span> isSuccess;</span><br><span class="line">Boolean isSuccess；</span><br></pre></td></tr></table></figure>
+
+<p>在之前看一些源码时,这几种方式都有见过,而今天我们主要来看看究竟那种方式更适合。首先来看命名规则。</p>
+<h3 id="isSuceess-success"><a href="#isSuceess-success" class="headerlink" title="isSuceess/success"></a>isSuceess/success</h3><p>在阿里开发手册中有着明确的规定,禁止使用<code>isSuccess</code>这种格式的命名方法,以下是原文。</p>
+<div class="note warning">
+            <p>【强制】: POJO类中布尔类型的变量,都不要加is,否则可能引起框架解析序列化错误。 </p>
+          </div>
+
+<p>这个规定看起来很奇怪,按理来说,一个变量的命名最大的影响在于代码的可读性,而非解析问题,如果当一个变量名称都会严重影响到框架解析时,说明该框架健壮性很差,并且侵入性极高,这样的情况理论上来说是不会被阿里所采用的,所以我在网上检索了相关的文章,发现了一些缘由。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelOne</span></span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> isSuccess;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSuccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> isSuccess;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSuccess</span><span class="params">(<span class="keyword">boolean</span> success)</span> </span>&#123;</span><br><span class="line">        isSuccess = success;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelTwo</span></span>&#123;</span><br><span class="line">    Boolean isSuccess;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Boolean <span class="title">getSuccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> isSuccess;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSuccess</span><span class="params">(Boolean success)</span> </span>&#123;</span><br><span class="line">        isSuccess = success;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中的<code>get/set</code>方法是由IDEA自动生成的,这里能够发现一个规律。</p>
+<ul>
+<li>基本类型自动生成的getter和setter方法，名称都是<code>isXXX()</code>和<code>setXXX()</code>形式的。</li>
+<li>包装类型自动生成的getter和setter方法，名称都是<code>getXXX()</code>和<code>setXXX()</code>形式的。</li>
+</ul>
+<h4 id="Java-Bean-get-set规则"><a href="#Java-Bean-get-set规则" class="headerlink" title="Java Bean get/set规则"></a>Java Bean get/set规则</h4><p>理论上来说,产生的方法都应该是<code>get/set</code>类型，为什么会有这种情况 ，从google能够搜到关于Java Bean的get and set方法的规则，不难发现一些区别。</p>
+<p>对于一般的数据类型来说,其方法定义如下 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;PropertyType&gt; get&lt;PropertyName&gt;();</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> set&lt;PropertyName&gt;(&lt;PropertyType&gt; a);</span><br></pre></td></tr></table></figure>
+
+<p>但是对于<code>boolean</code>这个基本数据类型,其单独定义了方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">boolean</span> is&lt;PropertyName&gt;();</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> set&lt;PropertyName&gt;(<span class="keyword">boolean</span> m);</span><br></pre></td></tr></table></figure>
+
+<p>如果对照规范来说,一个<code>boolean</code>的变量<code>isSuccess</code>生成的get方法应该叫<code>isisSuccess</code>,但是实际上很多IDEA都会生成<code>isSuccess</code>,正是因为这个特点,会造成很多隐患。</p>
+<p>虽然在大部分情况下,并不会影响程序的正常运行,但是在序列化过程中,就会出现异常情况。</p>
+<h4 id="序列化测试"><a href="#序列化测试" class="headerlink" title="序列化测试"></a>序列化测试</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Templete</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">//定一个Model3类型</span></span><br><span class="line">        ModelOne model = <span class="keyword">new</span> ModelOne();</span><br><span class="line">        model.setSuccess(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用fastjson(1.2.16)序列化model3成字符串并输出</span></span><br><span class="line">        System.out.println(<span class="string">"Serializable Result With fastjson :"</span> + JSON.toJSONString(model));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用Gson(2.8.5)序列化model3成字符串并输出</span></span><br><span class="line">        Gson gson =<span class="keyword">new</span> Gson();</span><br><span class="line">        System.out.println(<span class="string">"Serializable Result With Gson :"</span> +gson.toJson(model));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用jackson(2.9.7)序列化model3成字符串并输出</span></span><br><span class="line">        ObjectMapper om = <span class="keyword">new</span> ObjectMapper();</span><br><span class="line">        System.out.println(<span class="string">"Serializable Result With jackson :"</span> +om.writeValueAsString(model));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelOne</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1836697963736227954L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isSuccess;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSuccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> isSuccess;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSuccess</span><span class="params">(<span class="keyword">boolean</span> success)</span> </span>&#123;</span><br><span class="line">        isSuccess = success;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getHollis</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hollischuang"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行以下代码,会输入如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Serializable Result With fastjson :&#123;&quot;hollis&quot;:&quot;hollischuang&quot;,&quot;success&quot;:true&#125;</span><br><span class="line">Serializable Result With Gson :&#123;&quot;isSuccess&quot;:true&#125;</span><br><span class="line">Serializable Result With jackson :&#123;&quot;success&quot;:true,&quot;hollis&quot;:&quot;hollischuang&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里就出现了一个问题,在fastjson和jackson的结果中，原来类中的isSuccess字段被序列化成success，并且其中还包含hollis值，而Gson中只有isSuccess字段。</p>
+<p>这里就需要简单理解下fastjson和jackson的策略。</p>
+<blockquote>
+<p>fastjson和jackson在把对象序列化成json字符串的时候，是通过反射遍历出该类中的所有getter方法，得到getHollis和isSuccess，然后根据JavaBeans规则，他会认为这是两个属性hollis和success的值。直接序列化成json:{“hollis”:”hollischuang”,”success”:true}</p>
+</blockquote>
+<p>而Gson则不是这样做,他是通过反射遍历该类中的所有属性，并把其值序列化成json:{“isSuccess”:true}。</p>
+<p>由此可以看出,由于不同的序列化工具,可能导致不同的序列化结果。现在我们再来看看另外一种情况。</p>
+<p>我们删掉<code>getHollis</code>方法,再次执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Serializable Result With fastjson :&#123;<span class="string">"success"</span>:<span class="keyword">true</span>&#125;</span><br><span class="line">Serializable Result With Gson :&#123;<span class="string">"isSuccess"</span>:<span class="keyword">true</span>&#125;</span><br><span class="line">Serializable Result With jackson :&#123;<span class="string">"success"</span>:<span class="keyword">true</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时不同的序列化工具得到的变量是不同的,如果我们使用一个工具序列化,而另一个工具反序列化会发生什么情况?</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Templete</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        ModelOne model = <span class="keyword">new</span> ModelOne();</span><br><span class="line">        model.setSuccess(<span class="keyword">true</span>);</span><br><span class="line">        Gson gson =<span class="keyword">new</span> Gson();</span><br><span class="line">        System.out.println(gson.fromJson(JSON.toJSONString(model),ModelOne.class));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ModelOne</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1836697963736227954L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isSuccess;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSuccess</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> isSuccess;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSuccess</span><span class="params">(<span class="keyword">boolean</span> success)</span> </span>&#123;</span><br><span class="line">        isSuccess = success;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> StringJoiner(<span class="string">", "</span>, ModelOne.class.getSimpleName() + <span class="string">"["</span>, <span class="string">"]"</span>)</span><br><span class="line">            .add(<span class="string">"isSuccess="</span> + isSuccess)</span><br><span class="line">            .toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行代码,输出如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ModelOne[isSuccess=false]</span><br></pre></td></tr></table></figure>
+
+<p>这和我们预期的结果完全相反，原因是因为JSON框架通过扫描所有的getter后发现有一个isSuccess方法，然后根据JavaBeans的规范，解析出变量名为success，把model对象序列化字符串后内容为<code>{&quot;success&quot;:true}</code>。</p>
+<p>根据<code>{&quot;success&quot;:true}</code>这个json串，Gson框架在通过解析后，通过反射寻找Model类中的success属性，但是Model类中只有isSuccess属性，所以，最终反序列化后的Model类的对象中，isSuccess则会使用默认值false。</p>
+<p>到这里我们就明白了为什么会出现<code>isXXX</code>这类命名变量会导致严重的隐患问题。</p>
+<hr>
+<h3 id="Boolean-boolean"><a href="#Boolean-boolean" class="headerlink" title="Boolean / boolean"></a>Boolean / boolean</h3><p>上面的变量名称总结完毕,现在来看看这两个类型。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">boolean</span> success</span><br><span class="line">Boolean success</span><br></pre></td></tr></table></figure>
+
+<p>Boolean是boolean的包装类,所以这个问题就转到了到底是顶一个一个基本类型还是一个包装类的问题。</p>
+<p>我们来看一段代码 : </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BooleanMainTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Model model1 = <span class="keyword">new</span> Model();</span><br><span class="line">        System.out.println(<span class="string">"default model : "</span> + model1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Model</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 定一个Boolean类型的success成员变量</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> Boolean success;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 定一个boolean类型的failure成员变量</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> failure;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> StringJoiner(<span class="string">", "</span>, Model.class.getSimpleName() + <span class="string">"["</span>, <span class="string">"]"</span>)</span><br><span class="line">            .add(<span class="string">"success="</span> + success)</span><br><span class="line">            .add(<span class="string">"failure="</span> + failure)</span><br><span class="line">            .toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出如下 : </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">default model : Model[success=null, failure=false]</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，当我们没有设置Model对象的字段的值的时候，Boolean类型的变量会设置默认值为<code>null</code>，而boolean类型的变量会设置默认值为<code>false</code>。</p>
+<p>即对象的默认值是<code>null</code>，boolean基本数据类型的默认值是<code>false</code>。</p>
+<p>这两者的优劣我自己经验较少,没有实际体验,但是阿里的开发手册给出要求以及一些解答。</p>
+<blockquote>
+<p>8.关于基本数据类型与包装数据类型的使用标准如下:<br>     1. [强制] 所有的PO]O类属性必须使用包装数据类型。<br>     2. [强制] RPC方法的返回值和参数必须使用包装数据类型。<br>     3. [推荐] 所有的局部变量使用基本数据类型。</p>
+</blockquote>
+<p>这里建议我们使用包装类型，原因是什么呢？</p>
+<p>举一个扣费的例子，我们做一个扣费系统，扣费时需要从外部的定价系统中读取一个费率的值，我们预期该接口的返回值中会包含一个浮点型的费率字段。当我们取到这个值得时候就使用公式：金额*费率=费用 进行计算，计算结果进行划扣。</p>
+<p>如果由于计费系统异常，他可能会返回个默认值，如果这个字段是Double类型的话，该默认值为null，如果该字段是double类型的话，该默认值为0.0。</p>
+<p>如果扣费系统对于该费率返回值没做特殊处理的话，拿到null值进行计算会直接报错，阻断程序。拿到0.0可能就直接进行计算，得出接口为0后进行扣费了。这种异常情况就无法被感知。</p>
+<p><strong>这种使用包装类型定义变量的方式，通过异常来阻断程序，进而可以被识别到这种线上问题。如果使用基本数据类型的话，系统可能不会报错，进而认为无异常。</strong>(该解释摘自<a href="http://hollischuang.gitee.io/tobetopjavaer/#/basics/java-basic/success-isSuccess-and-bollean-Bollean" target="_blank" rel="noopener">Java程序员文档</a>)</p>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本篇文章主要总结了关于布尔类型作为返回值以及命名的一些细节问题,最终我们应该能够总结出,如果希望使用一个布尔类型作为接口的返回值,优先使用<code>Boolean success</code>这种格式来命名,能够减少异常,并且能够通过null打断程序。</p>
+<p>但是同样,我们也需要对<code>Boolean</code>来进行null的判断,否则空指针异常会让人头痛不已。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8E%A5%E5%8F%A3%E8%A7%84%E8%8C%83/" rel="tag"># 接口规范</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/01/SpringBoot%E6%95%B4%E5%90%88%E9%98%BF%E9%87%8C%E4%BA%91OSS%E5%AE%8C%E6%88%90%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" rel="prev" title="SpringBoot整合阿里云OSS完成文件上传">
+      <i class="fa fa-chevron-left"></i> SpringBoot整合阿里云OSS完成文件上传
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#场景回忆"><span class="nav-number">1.</span> <span class="nav-text">场景回忆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#isSuceess-success"><span class="nav-number">2.</span> <span class="nav-text">isSuceess/success</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Java-Bean-get-set规则"><span class="nav-number">2.1.</span> <span class="nav-text">Java Bean get/set规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#序列化测试"><span class="nav-number">2.2.</span> <span class="nav-text">序列化测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Boolean-boolean"><span class="nav-number">3.</span> <span class="nav-text">Boolean / boolean</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
