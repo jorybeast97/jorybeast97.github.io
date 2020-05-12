@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。 话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。">
+<meta name="keywords" content="Sharding Sphere">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sharding Sphere分库分表解决方案浅析及实践">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;11&#x2F;Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。 话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;11&#x2F;YYFj4U.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;11&#x2F;YYAhlQ.png">
+<meta property="og:updated_time" content="2020-05-12T01:01:58.430Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;11&#x2F;YYFj4U.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Sharding Sphere分库分表解决方案浅析及实践 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Sharding Sphere分库分表解决方案浅析及实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-11 21:05:08" itemprop="dateCreated datePublished" datetime="2020-05-11T21:05:08+08:00">2020-05-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-12 09:01:58" itemprop="dateModified" datetime="2020-05-12T09:01:58+08:00">2020-05-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。</p>
+<p>话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="数据库拆分概述"><a href="#数据库拆分概述" class="headerlink" title="数据库拆分概述"></a>数据库拆分概述</h2><p>关于Mysql一张表中到底存储多少数据后就会出现严重的性能下降的问题,很多人有自己不同的看法,而我在浏览一些资料时,大部分人认为, 数据量最好不要让索引的B+树层级超过3。</p>
+<p>由于我们项目中使用的InnoDB,所以每个索引页的大小为16KB，其中使用<code>long</code>类型作为索引,而在mysql中,索引位占据7bit,long占用8bit，也就是说一个索引节点需要15bit，一个索引页中能够存放1070个左右的节点。而最下面的一层中数据大约为1KB的数据行,所以总数为</p>
+<blockquote>
+<p>1070 × 1070 × 16 = 18318400</p>
+</blockquote>
+<p>2000w左右的数据量实际上已经非常大了,如果索引设计的不得当,可能在几百万的时候就会出现慢sql,所以分库分表能够有效拆分数据库,提高数据库性能,一般分为如下两种。</p>
+<h3 id="垂直分割"><a href="#垂直分割" class="headerlink" title="垂直分割"></a>垂直分割</h3><p>垂直切分主要解决的问题是数据库高并发的问题,一般来说Mysql单机的并发量超过2000时就会有很大压力。如果把所有数据都设计到一个数据表中,那么多个业务都需要访问同一个数据库,必然会增大并发,这样也就会导致数据库的崩溃。</p>
+<p>例如我们将支付,订单,购物车三个数据都放在同一个数据表中的多个字段,那么多个模块的调用都会操作同一个数据库,此时为了降低压力,可以将这些字段拆分到不同的表中，然后部署到不同的数据库上,能够降低单库的访问量。</p>
+<h3 id="水平分割"><a href="#水平分割" class="headerlink" title="水平分割"></a>水平分割</h3><p>当单表数据过大时,查询速度会奇慢无比,所以需要将一部分数据分割到其他表中,这就是水平分割。</p>
+<p>水平分割可以通过多种算法来定位到目标库和表。</p>
+<ul>
+<li>范围算法 : 例如<code>id</code>字段在0<del>20000,存放到表1,20000</del>40000放到表2</li>
+<li>Hash取模 : 可以利用ID进行hash取模,例如<code>index = id % 2</code>,index为1存放表1,0存放表2</li>
+</ul>
+<h2 id="Sharding-Sphere"><a href="#Sharding-Sphere" class="headerlink" title="Sharding Sphere"></a>Sharding Sphere</h2><p>虽然网上的数据库中间件很多,但是一点点看来,大部分都放弃了维护,而目前社区还比较活跃的有如下两个</p>
+<ul>
+<li>mycat</li>
+<li>sharding sphere</li>
+</ul>
+<p>mycat脱胎于阿里的cobar,社区也比较活跃,但是官网的文档混乱,并且可读性极差,所以最后我选择了Sharding Sphere。</p>
+<p>Sharding Sphere目前已经从Apache开源机构成功孵化,称为一个Apache开源项目,而且目前看来提供了多种分库分表的方式,未来前景也比较广阔。</p>
+<h3 id="Sharding-Sphere-JDBC"><a href="#Sharding-Sphere-JDBC" class="headerlink" title="Sharding Sphere JDBC"></a>Sharding Sphere JDBC</h3><p><img src="https://s1.ax1x.com/2020/05/11/YYFj4U.png" alt=""></p>
+<blockquote>
+<p>定位为轻量级Java框架，在Java的JDBC层提供的额外服务。 它使用客户端直连数据库，以jar包形式提供服务，无需额外部署和依赖，可理解为增强版的JDBC驱动，完全兼容JDBC和各种ORM框架。</p>
+</blockquote>
+<p>简单来说,Sharding Sphere JDBC是对于以往使用的JDBC的一个增强,有些类似于Mybatis Plus和Mybtais的关系,只不过Sharding JDBC的侵入性更强。</p>
+<p>该方法需要对每一个应用程序重新配置和编写Sharding-JDBC的代码,这里提供一份自己的配置文件及注释。</p>
+<div class="note danger">
+            <p>注意! 如果使用Spring Boot Starter的启动方式,请参照Github Issue中的提示完成,否则会有很多的错误 </p>
+          </div>
+
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">8081</span></span><br><span class="line"><span class="comment"># 配置多个库的数据源</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.names</span>=<span class="string">sculli_db1,sculli_db2</span></span><br><span class="line"><span class="comment"># 配置数据库1</span></span><br><span class="line"><span class="comment">#config the first datasouce,name sculli_db1</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db1?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#config the second datasouce,named sculli_db2</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db2?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#拆分策略</span></span><br><span class="line"><span class="comment">#分库策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.algorithm-expression</span>=<span class="string">sculli_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分表策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.actual-data-nodes</span>=<span class="string">sculli_db$-&gt;&#123;0..1&#125;.monitor_db$-&gt;&#123;0..1&#125;</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.type</span>=<span class="string">SNOWFLAKE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分片策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.algorithm-expression</span>=<span class="string">monitor_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"><span class="comment">#打印语句</span></span><br><span class="line"><span class="meta">spring.shardingsphere.props.sql.show</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.main.allow-bean-definition-overriding</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<p>虽然这种方式也能够完成对于分库分表的操作,但是并不理想,有以下几个问题。</p>
+<ol>
+<li><code>Sharding JDBC Spring Boot Starter</code>对于版本的依赖比较严重,在<code>issue</code>上有很大一部分用户都在反馈2.x的版本和4.0.RC版本有很大的冲突,会导致<code>nullPointException</code>,并且非常难以排查和解决。</li>
+<li>配置文件繁琐,如果通过JDBC的方式配置,那么每一个服务都需要配置这类文件,而且我的示例文件中还有很多的细节没有配置,整个过程非常繁琐,并且容易出错。</li>
+<li>升级困难,当我们希望Sharding Sphere JDBC进行升级时,必须对各个配置文件进行检查等操作,整个过程维护起来非常困难。</li>
+</ol>
+<p>结合手头上的项目,我们最后还是决定使用第二种方式。</p>
+<h3 id="Sharding-Proxy"><a href="#Sharding-Proxy" class="headerlink" title="Sharding Proxy"></a>Sharding Proxy</h3><blockquote>
+<p>定位为透明化的数据库代理端，提供封装了数据库二进制协议的服务端版本，用于完成对异构语言的支持。 目前先提供MySQL/PostgreSQL版本，它可以使用任何兼容MySQL/PostgreSQL协议的访问客户端(如：MySQL Command Client, MySQL Workbench, Navicat等)操作数据，对DBA更加友好。</p>
+</blockquote>
+<p><img src="https://s1.ax1x.com/2020/05/11/YYAhlQ.png" alt=""></p>
+<p>Sharding Proxy实际上是为数据库与应用程序提供了一个解耦的中间件。应用程序不再直接访问数据库,而是将SQL语句发送给Proxy,由Proxy进行分库处理来完成,整个过程对于应用层来说是完全透明的,并且对于DBA来说也是利于管理的。</p>
+<p>其中有几个重要的概念 : </p>
+<p><strong>逻辑表</strong></p>
+<p>水平拆分的数据库（表）的相同逻辑和数据结构表的总称。例：用户数据根据主键尾数拆分为2张表，分别是user_0到user_1，他们的逻辑表名为user。</p>
+<p><strong>真实表</strong></p>
+<p>在分片的数据库中真实存在的物理表。即上个示例中的user_0到user_1</p>
+<p>在Sharding Proxy中,我们主要需要配置数据库源和逻辑表以及逻辑表到真实表的散列规则。</p>
+<p>这里使用Aliyun的RDS服务给出的Sharding Proxy配置规则。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">vi</span> <span class="string">/root/apache-shardingsphere-incubating-4.0.0-sharding-proxy-bin/conf/config-sharding.yaml</span>  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">schemaName:</span> <span class="string">sdb</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dataSources:</span></span><br><span class="line"><span class="attr">  db0:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db0</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db1:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db1</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db2:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db2</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db3:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db3</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"></span><br><span class="line"><span class="attr">shardingRule:</span></span><br><span class="line"><span class="attr">  tables:</span></span><br><span class="line"><span class="attr">    t_order:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">    t_order_item:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order_item$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order_item$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_item_id</span></span><br><span class="line"><span class="attr">  bindingTables:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">t_order,t_order_item</span></span><br><span class="line"><span class="attr">  defaultTableStrategy:</span></span><br><span class="line"><span class="attr">    none:</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="旧数据迁移问题"><a href="#旧数据迁移问题" class="headerlink" title="旧数据迁移问题"></a>旧数据迁移问题</h2><p>虽然Sharding Proxy能帮我们透明的数据分片操作,尽量小的减少对于代码的侵入,但是如何去进行旧的数据迁移是一个比较重要的问题,这部分我在网上找到了一些方案。</p>
+<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>在一个不敏感的时期进行停机,然后开多台机器读取就旧数据库并将数据读出并导入到新的数据库中,然后进行配置,重启即可。</p>
+<p>这个方案胜在简单,易于操作,但是如果表量大,而且停机时间影响很大则不适用此方案。</p>
+<h3 id="双写迁移方法"><a href="#双写迁移方法" class="headerlink" title="双写迁移方法"></a>双写迁移方法</h3><p>简单来说，就是在线上系统里面，之前所有写库的地方，增删改操作，<strong>除了对老库增删改，都加上对新库的增删改</strong>，这就是所谓的<strong>双写</strong>，同时写俩库，老库和新库。</p>
+<p>然后<strong>系统部署</strong>之后，新库数据差太远，用之前说的导数工具，跑起来读老库数据写新库，写的时候要根据 gmt_modified 这类字段判断这条数据最后修改的时间，除非是读出来的数据在新库里没有，或者是比新库的数据新才会写。简单来说，就是不允许用老数据覆盖新数据。</p>
+<p>导完一轮之后，有可能数据还是存在不一致，那么就程序自动做一轮校验，比对新老库每个表的每条数据，接着如果有不一样的，就针对那些不一样的，从老库读数据再次写。反复循环，直到两个库每个表的数据都完全一致为止。</p>
+<p>接着当数据完全一致了，就 ok 了，基于仅仅使用分库分表的最新代码，重新部署一次，不就仅仅基于分库分表在操作了么，还没有几个小时的停机时间，很稳。所以现在基本玩儿数据迁移之类的，都是这么干的。</p>
+<h3 id="权衡"><a href="#权衡" class="headerlink" title="权衡"></a>权衡</h3><p>最终结合我们项目的自身特性,我们决定结合两个方式来完成,由于我们的数据是只需要保证半年内,所以半年前的数据都会进行抛弃处理。所以对新库和就库做以下处理</p>
+<ul>
+<li>新库 : 每次写入都会写入新库,但是并不对新库进行读取</li>
+<li>旧库 : 依旧对旧库进行写入,但是会用一台机器对就库和新库进行同步,读取操作暂时还在旧库上进行</li>
+</ul>
+<p>当新库和旧库一致时,暂停数据模块,更改配置源即可。</p>
+<p>这样能够保证与各个监控端口不会断开,数据处理模块的暂停期间内,Modbus数据会被存放在消息队列中,能够再上线后能够存入库内。同时也能够在一个比较短的时间内完成同步操作。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Sharding-Sphere/" rel="tag"># Sharding Sphere</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/08/%E5%8A%A0%E7%9B%90%E5%AF%86%E7%A0%81%E5%93%88%E5%B8%8C-%E5%A6%82%E4%BD%95%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8/" rel="prev" title="加盐密码哈希:如何正确使用?">
+      <i class="fa fa-chevron-left"></i> 加盐密码哈希:如何正确使用?
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库拆分概述"><span class="nav-number">1.</span> <span class="nav-text">数据库拆分概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#垂直分割"><span class="nav-number">1.1.</span> <span class="nav-text">垂直分割</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#水平分割"><span class="nav-number">1.2.</span> <span class="nav-text">水平分割</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sharding-Sphere"><span class="nav-number">2.</span> <span class="nav-text">Sharding Sphere</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-Sphere-JDBC"><span class="nav-number">2.1.</span> <span class="nav-text">Sharding Sphere JDBC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-Proxy"><span class="nav-number">2.2.</span> <span class="nav-text">Sharding Proxy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#旧数据迁移问题"><span class="nav-number">3.</span> <span class="nav-text">旧数据迁移问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#停机迁移方案"><span class="nav-number">3.1.</span> <span class="nav-text">停机迁移方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双写迁移方法"><span class="nav-number">3.2.</span> <span class="nav-text">双写迁移方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权衡"><span class="nav-number">3.3.</span> <span class="nav-text">权衡</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
