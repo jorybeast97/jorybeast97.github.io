@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在之前的一篇文章中已经总结了Tomcat的几个重要组件以及其担任的工作职责。而本篇文章将总结如何去以Debug方式运行Tomcat的源码,以及其启动过程中到底做了哪些内容。 本文基于JDK1.8以及tomcat-9.0.20-src源码版本,不能保证其他版本能够正常运行,本文中已经展示了作者自己在启动的时候会出现的一些BUG以及解决方式。 本文将主要解决如下几个问题  使用IDEA搭建环境运行并调">
+<meta name="keywords" content="Tomcat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tomcat系列文章:Bootstrap启动流程源码分析">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="在之前的一篇文章中已经总结了Tomcat的几个重要组件以及其担任的工作职责。而本篇文章将总结如何去以Debug方式运行Tomcat的源码,以及其启动过程中到底做了哪些内容。 本文基于JDK1.8以及tomcat-9.0.20-src源码版本,不能保证其他版本能够正常运行,本文中已经展示了作者自己在启动的时候会出现的一些BUG以及解决方式。 本文将主要解决如下几个问题  使用IDEA搭建环境运行并调">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;Y0lW5V.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;Y03nfK.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;Y03s7n.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;YBgrcD.png">
+<meta property="og:updated_time" content="2020-05-14T11:03:39.781Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;14&#x2F;Y0lW5V.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Tomcat系列文章:Bootstrap启动流程源码分析 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Tomcat系列文章:Bootstrap启动流程源码分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-14 19:01:39 / 修改时间：19:03:39" itemprop="dateCreated datePublished" datetime="2020-05-14T19:01:39+08:00">2020-05-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web-Server/" itemprop="url" rel="index"><span itemprop="name">Web Server</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在之前的一篇文章中已经总结了Tomcat的几个重要组件以及其担任的工作职责。而本篇文章将总结如何去以Debug方式运行Tomcat的源码,以及其启动过程中到底做了哪些内容。</p>
+<p>本文基于<code>JDK1.8</code>以及<code>tomcat-9.0.20-src</code>源码版本,不能保证其他版本能够正常运行,本文中已经展示了作者自己在启动的时候会出现的一些BUG以及解决方式。</p>
+<p>本文将主要解决如下几个问题</p>
+<ol>
+<li>使用IDEA搭建环境运行并调试tomcat源代码</li>
+<li>分析<code>catalina.bootstrap</code>的启动过程</li>
+<li>分析<code>catalinHomeFile</code>和<code>catalinaBaseFile</code>的语义以及不可替代性</li>
+<li>分析<code>common</code>,<code>catalina</code>,<code>shared</code>被加载过程</li>
+<li>分析<code>catalina</code>被实例化的过程</li>
+</ol>
+<p>本文篇幅较长,需要一个时间段来阅读。</p>
+<p>作者代码功力尚浅,如有不足错误之处,请及时指正,感谢阅读。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h2><blockquote>
+<p><strong>注意 : tomcat版本小版本变化会导致Build过程失败,请严格使用文中的版本</strong></p>
+</blockquote>
+<p>我们使用的是<code>apache-tomcat-9.0.20-src</code>和<code>JDK 1.8</code>,这里仅提供tomcat的下载地址。</p>
+<p>apache-tomcat-9.0.20-src下载地址 : <a href="http://archive.apache.org/dist/tomcat/" target="_blank" rel="noopener">http://archive.apache.org/dist/tomcat/</a></p>
+<p><img src="https://s1.ax1x.com/2020/05/14/Y0lW5V.png" alt=""></p>
+<p>之后我们需要使用maven来进行项目编译,这里需要准备两个maven的<code>pom.xml</code>文件。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>    </span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span>    </span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"</span>&gt;</span>    </span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>gxf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>apache-tomcat-9<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>apache-tomcat-9-source<span class="tag">&lt;/<span class="name">name</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span>    </span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">modules</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>apache-tomcat-9.0.20-src<span class="tag">&lt;/<span class="name">module</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;/<span class="name">modules</span>&gt;</span>    </span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>    </span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span>    </span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span>    </span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span>    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.tomcat<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>Tomcat9.0<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>Tomcat9.0<span class="tag">&lt;/<span class="name">name</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>9.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    </span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">finalName</span>&gt;</span>Tomcat9.0<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">sourceDirectory</span>&gt;</span>java<span class="tag">&lt;/<span class="name">sourceDirectory</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">testSourceDirectory</span>&gt;</span>test<span class="tag">&lt;/<span class="name">testSourceDirectory</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">resources</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;<span class="name">resource</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;<span class="name">directory</span>&gt;</span>java<span class="tag">&lt;/<span class="name">directory</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;/<span class="name">resource</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;/<span class="name">resources</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">testResources</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;<span class="name">testResource</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;<span class="name">directory</span>&gt;</span>test<span class="tag">&lt;/<span class="name">directory</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;/<span class="name">testResource</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;/<span class="name">testResources</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span>    </span><br><span class="line">    </span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span>    </span><br><span class="line">                    <span class="tag">&lt;<span class="name">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">encoding</span>&gt;</span>    </span><br><span class="line">                    <span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span>    </span><br><span class="line">                    <span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span>    </span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span>    </span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span>    </span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ant<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ant<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ant<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ant-apache-log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ant<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ant-commons-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>wsdl4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>wsdl4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.xml.rpc<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javax.xml.rpc-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.eclipse.jdt.core.compiler<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ecj<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.4.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后我们将<code>apache-tomcat-9.0.20-src</code>解压,按照以下路径配置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//顶层文件</span><br><span class="line">tomcat</span><br><span class="line">	----  apache-tomcat-9.0.20-src</span><br><span class="line">		---- 其他源码(bin/webapps/conf...)</span><br><span class="line">		---- pom.xml(文中第二个pom)</span><br><span class="line">	----  pom.xml(文中第一个pom)</span><br></pre></td></tr></table></figure>
+
+<p>然后IDEA导入项目<code>tomcat</code>,现build以下,一般来说会报第一种错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Error:(394, 40) java: 找不到符号</span><br><span class="line">  符号:   变量 VERSION_10</span><br><span class="line">  位置: 类 org.eclipse.jdt.internal.compiler.impl.CompilerOptions</span><br><span class="line">Error:(399, 40) java: 找不到符号</span><br><span class="line">  符号:   变量 VERSION_11</span><br><span class="line">  位置: 类 org.eclipse.jdt.internal.compiler.impl.CompilerOptions</span><br><span class="line">Error:(397, 40) java: 找不到符号</span><br><span class="line">  符号:   变量 VERSION_11</span><br><span class="line">  位置: 类 org.eclipse.jdt.internal.compiler.impl.CompilerOptions</span><br></pre></td></tr></table></figure>
+
+<p>这是个tomcat为之后JDK预留版本的一个问题,直接找到源代码,将这些版本改为<code>jdk 1.8</code>即可。</p>
+<p><img src="https://s1.ax1x.com/2020/05/14/Y03nfK.png" alt=""></p>
+<p>然后需要删除<code>test</code>测试文件,这些文件中报错比较多,一般都是关于<code>easyMock</code>的错误,删除不影响程序运行。</p>
+<p>最后需要配置一下启动项。</p>
+<p><img src="https://s1.ax1x.com/2020/05/14/Y03s7n.png" alt=""></p>
+<p>Main Class配置为<code>catalina.startup.Bootratp</code>,这就是整个tomcat的运行入口。</p>
+<p>第二个参数为指定tomcat默认配置读取路径,如果不配置会找不到conf,配置<code>apache-tomcat-9.0.20-src</code>的根目录即可。</p>
+<p>此时运行项目。</p>
+<p><img src="https://s1.ax1x.com/2020/05/14/YBgrcD.png" alt=""></p>
+<h2 id="启动流程"><a href="#启动流程" class="headerlink" title="启动流程"></a>启动流程</h2><p>上述启动过程中已经了解到,tomcat真正的程序入口<code>org.apache.catalina.startup.Bootstrap</code>这个类。而该类的启动过程主要做了如下几件事情 : </p>
+<ul>
+<li>通过静态代码块加载<code>catalinaHomeFile</code>和<code>catalinaBaseFile</code>两个路径</li>
+<li>加载了<code>common</code>,<code>catalina</code>,<code>shared</code>三个组件</li>
+<li>创建<code>catalina</code>对象</li>
+</ul>
+<p>下面我们进行逐条分析。</p>
+<h3 id="静态代码块"><a href="#静态代码块" class="headerlink" title="静态代码块"></a>静态代码块</h3><p>当一个类被加载进入虚拟机后,它的静态代码块中代码会被执行,所以在tomcat的设计中,静态代码块中的部分是重点,也是很多之后操作的基础。</p>
+<p>static中内容有些多,但是逻辑分明,所以我们按照一段一段来处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">// Will always be non-null</span></span><br><span class="line">        String userDir = System.getProperty(<span class="string">"user.dir"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Home first</span></span><br><span class="line">        String home = System.getProperty(Globals.CATALINA_HOME_PROP);</span><br><span class="line">        File homeFile = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (home != <span class="keyword">null</span>) &#123;</span><br><span class="line">            File f = <span class="keyword">new</span> File(home);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                homeFile = f.getCanonicalFile();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">                homeFile = f.getAbsoluteFile();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">//其余内容</span></span><br><span class="line">        . . . . . .</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先会判断home目录是否已经被加载过。由于tomcat可能会在一台机器上产生多个实例,为了防止每次都去要创建一个副本,程序希望能够使用公共变量来进行初始化加载尽量节约内存。(如果在每个线程中维护一个Threadlocal是可行的,但是意义不大,因为这些变量只在启动阶段有作用)。</p>
+<p>如果home不为空,说明此时已经被加载过,直接使用IO操作来获取到<code>homefile</code>即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (homeFile == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="comment">// First fall-back. See if current directory is a bin directory</span></span><br><span class="line">    <span class="comment">// in a normal Tomcat install</span></span><br><span class="line">    File bootstrapJar = <span class="keyword">new</span> File(userDir, <span class="string">"bootstrap.jar"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (bootstrapJar.exists()) &#123;</span><br><span class="line">        File f = <span class="keyword">new</span> File(userDir, <span class="string">".."</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            homeFile = f.getCanonicalFile();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">            homeFile = f.getAbsoluteFile();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果为空,则说明tomcat是第一次启动,我们需要加载一些类。这里可以看到会主动按照路径加载<code>bootstrap.jar</code>。如果能够加载到,就会像上面一样继续执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (homeFile == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="comment">// Second fall-back. Use current directory</span></span><br><span class="line">    File f = <span class="keyword">new</span> File(userDir);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        homeFile = f.getCanonicalFile();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">        homeFile = f.getAbsoluteFile();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于按照路径加载可能会无法找到<code>bootstrap.jar</code>,那么这次一会根据当前目录进行加载。这样做了两次检查,确保这个<code>bootstrap.jar</code>能够被加载进入JVM中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">    <span class="comment">//前面代码 . . . . . .</span></span><br><span class="line">    catalinaHomeFile = homeFile;</span><br><span class="line">    System.setProperty(</span><br><span class="line">        Globals.CATALINA_HOME_PROP, catalinaHomeFile.getPath());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Then base</span></span><br><span class="line">    String base = System.getProperty(Globals.CATALINA_BASE_PROP);</span><br><span class="line">    <span class="keyword">if</span> (base == <span class="keyword">null</span>) &#123;</span><br><span class="line">        catalinaBaseFile = catalinaHomeFile;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        File baseFile = <span class="keyword">new</span> File(base);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            baseFile = baseFile.getCanonicalFile();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">            baseFile = baseFile.getAbsoluteFile();</span><br><span class="line">        &#125;</span><br><span class="line">        catalinaBaseFile = baseFile;</span><br><span class="line">    &#125;</span><br><span class="line">    System.setProperty(</span><br><span class="line">        Globals.CATALINA_BASE_PROP, catalinaBaseFile.getPath());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="catalinaHomeFile-和-catalinaBaseFile"><a href="#catalinaHomeFile-和-catalinaBaseFile" class="headerlink" title="catalinaHomeFile 和 catalinaBaseFile"></a>catalinaHomeFile 和 catalinaBaseFile</h4><p>当两次加载完成后,此时就能够获取到<code>homeFile</code>,这里就开始进行我们之前提到的<code>catalinaHomeFile</code>和<code>catalinaBaseFile</code>。</p>
+<p>在stackOverflow上,有一个问题是关于catalinaHomeFile和catalinaBaseFile是否能够只存在一个的必要性。其中给出了这两个变量的作用。我们这里引用一下。</p>
+<blockquote>
+<p><code>CATALINA_HOME</code> represents the root of your Tomcat installation.</p>
+<p>Optionally, Tomcat may be configured for multiple instances by defining <code>$CATALINA_BASE</code> for each instance. If multiple instances are not configured, <code>$CATALINA_BASE</code> is the same as <code>$CATALINA_HOME</code>.</p>
+</blockquote>
+<p>catalinaHomeFile是Tomcat的安装目录,如果你只希望运行一个Tomcat实例时,catalinaHomeFile和catalinaBaseFile是相同的,但是如果你希望运行多个Tomcat实例,则需要catalinaBaseFile变量。</p>
+<p>这里为了方便大家,我同样将这两个配置文件在多实例下的区别一并引用。</p>
+<blockquote>
+<p>In many circumstances, it is desirable to have a single copy of a Tomcat binary distribution shared among multiple users on the same server. To make this possible, you can set the <code>CATALINA_BASE</code> environment variable to the directory that contains the files for your ‘personal’ Tomcat instance.</p>
+<p>(翻译 : 很多情况下,用户希望在机器上运行多个tomcat实例,为此,可以将CatalinaBaseFile设置为你单独的实例空间)</p>
+<p>When running with a separate <code>CATALINA_HOME</code> and <code>CATALINA_BASE</code>, the files and directories are split as following:</p>
+<p>In <code>CATALINA_BASE</code>:</p>
+<ul>
+<li><code>bin</code> - Only: setenv.sh (*nix) or setenv.bat (Windows), tomcat-juli.jar</li>
+<li><code>conf</code> - Server configuration files (including server.xml)</li>
+<li><code>lib</code> - Libraries and classes, as explained below</li>
+<li><code>logs</code> - Log and output files</li>
+<li><code>webapps</code> - Automatically loaded web applications</li>
+<li><code>work</code> - Temporary working directories for web applications</li>
+<li><code>temp</code> - Directory used by the JVM for temporary files&gt;</li>
+</ul>
+<p>In <code>CATALINA_HOME</code>:</p>
+<ul>
+<li><code>bin</code> - Startup and shutdown scripts</li>
+<li><code>lib</code> - Libraries and classes, as explained below</li>
+<li><code>endorsed</code> - Libraries that override standard “Endorsed Standards”. By default it’s absent.</li>
+</ul>
+</blockquote>
+<p>到此,我们基本上就将static内部所有的过程都完成了,那下面我们就来看一看在加载完成后,<code>bootstrap</code>会做些什么。</p>
+<h3 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h3><p>由于<code>org.apache.catalina.startup.Bootstrap#main</code>很长,所以我们一段一段来分析其启动时加载策略,以便我们更好理解源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (daemonLock) &#123;</span><br><span class="line">            <span class="keyword">if</span> (daemon == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// Don't set daemon until init() has completed</span></span><br><span class="line">                Bootstrap bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    bootstrap.init();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                    handleThrowable(t);</span><br><span class="line">                    t.printStackTrace();</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                daemon = bootstrap;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// When running as a service the call to stop will be on a new</span></span><br><span class="line">                <span class="comment">// thread so make sure the correct class loader is used to</span></span><br><span class="line">                <span class="comment">// prevent a range of class not found exceptions.</span></span><br><span class="line">                Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">	    <span class="comment">//其他内容</span></span><br><span class="line">    	. . . . . .</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先要理解一个点,也就是这个<code>bootstrap</code>是做什么的。在很多程序中我们都能够见到这个词,例如Netty，而本身意思带有引导的含义,也就是说,<code>bootstrap</code>并不是真正运行我们程序的线程,而是一个在程序开始前进行资源准备以及加载的类。</p>
+<p>有了这个基础我们再来看这段代码就比较清晰了。首先是<code>daemon</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Bootstrap daemon = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个可见的变量,由于tomcat可能会开启多个实例,所以我们必须保证自己的daemon是单例的,这里也是一种单例模式的启动。</p>
+<p>如果tomcat在启动时发现daemon为空,则会实例化一个<code>bootstrap</code>对象来完成初始化的方法,这也是第一个重点。</p>
+<h3 id="init方法"><a href="#init方法" class="headerlink" title="init方法"></a>init方法</h3><p>官方文档上对于<code>init</code>方法的描述为</p>
+<blockquote>
+<p>Load the Catalina daemon.</p>
+</blockquote>
+<p>下面我们来看下代码中的一些细节。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">    initClassLoaders();</span><br><span class="line"></span><br><span class="line">    Thread.currentThread().setContextClassLoader(catalinaLoader);</span><br><span class="line"></span><br><span class="line">    SecurityClassLoad.securityClassLoad(catalinaLoader);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Load our startup class and call its process() method</span></span><br><span class="line">    <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">        log.debug(<span class="string">"Loading startup class"</span>);</span><br><span class="line">    Class&lt;?&gt; startupClass = catalinaLoader.loadClass(<span class="string">"org.apache.catalina.startup.Catalina"</span>);</span><br><span class="line">    Object startupInstance = startupClass.getConstructor().newInstance();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Set the shared extensions class loader</span></span><br><span class="line">    <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">        log.debug(<span class="string">"Setting startup class properties"</span>);</span><br><span class="line">    String methodName = <span class="string">"setParentClassLoader"</span>;</span><br><span class="line">    Class&lt;?&gt; paramTypes[] = <span class="keyword">new</span> Class[<span class="number">1</span>];</span><br><span class="line">    paramTypes[<span class="number">0</span>] = Class.forName(<span class="string">"java.lang.ClassLoader"</span>);</span><br><span class="line">    Object paramValues[] = <span class="keyword">new</span> Object[<span class="number">1</span>];</span><br><span class="line">    paramValues[<span class="number">0</span>] = sharedLoader;</span><br><span class="line">    Method method =</span><br><span class="line">        startupInstance.getClass().getMethod(methodName, paramTypes);</span><br><span class="line">    method.invoke(startupInstance, paramValues);</span><br><span class="line"></span><br><span class="line">    catalinaDaemon = startupInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="类加载器初始化过程"><a href="#类加载器初始化过程" class="headerlink" title="类加载器初始化过程"></a>类加载器初始化过程</h4><p>首先是第一个方法<code>initClassLoaders</code>,见名知意,是对类加载器的一些操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ClassLoader commonLoader = <span class="keyword">null</span>;</span><br><span class="line">ClassLoader catalinaLoader = <span class="keyword">null</span>;</span><br><span class="line">ClassLoader sharedLoader = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>bootstrap</code>有这三个成员变量,分别对应了三个组件的加载器。而<code>initClassLoaders</code>方法则是对这三个加载器的初始化操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initClassLoaders</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        commonLoader = createClassLoader(<span class="string">"common"</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">if</span> (commonLoader == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// no config file, default to this loader - we might be in a 'single' env.</span></span><br><span class="line">            commonLoader = <span class="keyword">this</span>.getClass().getClassLoader();</span><br><span class="line">        &#125;</span><br><span class="line">        catalinaLoader = createClassLoader(<span class="string">"server"</span>, commonLoader);</span><br><span class="line">        sharedLoader = createClassLoader(<span class="string">"shared"</span>, commonLoader);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        handleThrowable(t);</span><br><span class="line">        log.error(<span class="string">"Class loader creation threw exception"</span>, t);</span><br><span class="line">        System.exit(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内部没有什么太多可以说的,主要还是看一下这个方法中调用次数最多的<code>createClassLoader</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> ClassLoader <span class="title">createClassLoader</span><span class="params">(String name, ClassLoader parent)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">    String value = CatalinaProperties.getProperty(name + <span class="string">".loader"</span>);</span><br><span class="line">    <span class="keyword">if</span> ((value == <span class="keyword">null</span>) || (value.equals(<span class="string">""</span>)))</span><br><span class="line">        <span class="keyword">return</span> parent;</span><br><span class="line"></span><br><span class="line">    value = replace(value);</span><br><span class="line"></span><br><span class="line">    List&lt;Repository&gt; repositories = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    String[] repositoryPaths = getPaths(value);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//JAR的查找过程,这里不是关注的重点</span></span><br><span class="line">    . . . . . .</span><br><span class="line">    <span class="keyword">return</span> ClassLoaderFactory.createClassLoader(repositories, parent);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于后半段主要是寻找JAR和定位的过程,我们就不详细分析,我们应该重点分析前半部分,也就是类加载过程。</p>
+<p>能够注意到,参数中有一个<code>ClassLoader parent</code>，如果你足够敏感,一定能够联想到类加载机制中的双亲委派机制。关于双亲委派机制究竟做了什么,以及如何工作,不是本篇文章重点,如果有兴趣,这里给出一篇文章,可以详细了解。</p>
+<blockquote>
+<p>关于Java类加载器双亲委派机制的思考 : <a href="https://www.cnblogs.com/lanxuezaipiao/p/4138511.html" target="_blank" rel="noopener">https://www.cnblogs.com/lanxuezaipiao/p/4138511.html</a></p>
+</blockquote>
+<p>所以整个加载过程实际上是逐层委托给上层的类加载器来创建的,当到达顶层的类加载器时,才会将类加载进入JVM。</p>
+<p>我们再回到<code>initClassLoaders</code>方法中,需要注意的是只有<code>commonLoader</code>的上层加载器为null。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">commonLoader = createClassLoader(<span class="string">"common"</span>, <span class="keyword">null</span>);</span><br><span class="line"><span class="keyword">if</span> (commonLoader == <span class="keyword">null</span>) &#123;</span><br><span class="line">    <span class="comment">// no config file, default to this loader - we might be in a 'single' env.</span></span><br><span class="line">    commonLoader = <span class="keyword">this</span>.getClass().getClassLoader();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说,<code>commonLoader</code>是整个加载器的最顶层,只有当它被创建后,后续的<code>shared</code>,<code>catalina</code>才能够被加载。这也是<code>common</code>组件被广泛运用于tomcat各处的原因所在。</p>
+<h4 id="catalina实例化"><a href="#catalina实例化" class="headerlink" title="catalina实例化"></a>catalina实例化</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Load our startup class and call its process() method</span></span><br><span class="line"><span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">    log.debug(<span class="string">"Loading startup class"</span>);</span><br><span class="line">Class&lt;?&gt; startupClass = catalinaLoader.loadClass(<span class="string">"org.apache.catalina.startup.Catalina"</span>);</span><br><span class="line">Object startupInstance = startupClass.getConstructor().newInstance();</span><br></pre></td></tr></table></figure>
+
+<p>之前已经通过双亲委派将三个类加载器创建完成,下面就是通过<code>catalinaLoader</code>创建<code>catalina</code> 实例。这个过程是通过反射方式完成的。</p>
+<h4 id="命令行参数设置"><a href="#命令行参数设置" class="headerlink" title="命令行参数设置"></a>命令行参数设置</h4><p>前半部分<code>init</code>方法基本解决,下面比较简单,我们来看一下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span><br><span class="line">	<span class="comment">//上半部分</span></span><br><span class="line">	. . . . . .</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        String command = <span class="string">"start"</span>;</span><br><span class="line">        <span class="keyword">if</span> (args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            command = args[args.length - <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (command.equals(<span class="string">"startd"</span>)) &#123;</span><br><span class="line">            args[args.length - <span class="number">1</span>] = <span class="string">"start"</span>;</span><br><span class="line">            daemon.load(args);</span><br><span class="line">            daemon.start();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">"stopd"</span>)) &#123;</span><br><span class="line">            args[args.length - <span class="number">1</span>] = <span class="string">"stop"</span>;</span><br><span class="line">            daemon.stop();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">"start"</span>)) &#123;</span><br><span class="line">            daemon.setAwait(<span class="keyword">true</span>);</span><br><span class="line">            daemon.load(args);</span><br><span class="line">            daemon.start();</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == daemon.getServer()) &#123;</span><br><span class="line">                System.exit(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">"stop"</span>)) &#123;</span><br><span class="line">            daemon.stopServer(args);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">"configtest"</span>)) &#123;</span><br><span class="line">            daemon.load(args);</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == daemon.getServer()) &#123;</span><br><span class="line">                System.exit(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.exit(<span class="number">0</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.warn(<span class="string">"Bootstrap: command \""</span> + command + <span class="string">"\" does not exist."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        <span class="comment">// Unwrap the Exception for clearer error reporting</span></span><br><span class="line">        <span class="keyword">if</span> (t <span class="keyword">instanceof</span> InvocationTargetException &amp;&amp;</span><br><span class="line">            t.getCause() != <span class="keyword">null</span>) &#123;</span><br><span class="line">            t = t.getCause();</span><br><span class="line">        &#125;</span><br><span class="line">        handleThrowable(t);</span><br><span class="line">        t.printStackTrace();</span><br><span class="line">        System.exit(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下半部分的主要是对于启动时命令函参数的一些设置。</p>
+<blockquote>
+<p>Java中<code>main</code>函数的参数<code>String[] args</code>是在通过命令行启动时附带的参数,例如 : </p>
+<p>javac test.java</p>
+<p>java test val1 val2 val3</p>
+<p>如果输出args的话会输出后面的三个参数。</p>
+</blockquote>
+<p>tomcat中使用了这种方式来完成对于命令行的处理,可以看到实际上就是设置了一些启动级别,根据参数来在启动的时候完成设置。</p>
+<p>至此,bootstrap启动过程已经分析完毕。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文使用大量篇幅加代码来阐述<code>bootstrap</code>启动过程,整个过程就是定位创建catalinaBaseFile和catalinaHomeFile,然后通过双亲委派机制加载三个加载器,最后通过init方法来创建,并且能够获取命令行参数。</p>
+<p>整个过程实际上还是比较清晰有逻辑的,在阅读tomcat源码时,一定要先梳理其运行逻辑,按照逻辑逐步抽离,否则会陷入左右为难的过程。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://stackoverflow.com/questions/3090398/tomcat-catalina-base-and-catalina-home-variables" target="_blank" rel="noopener">CATALINA_BASE VS CATALINA_HOME</a></li>
+<li><a href="https://juejin.im/post/5af176196fb9a07ac90d2ac8" target="_blank" rel="noopener">Tomcat源码分析</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Tomcat/" rel="tag"># Tomcat</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/" rel="prev" title="Tomcat系列文章:Tomcat基本架构">
+      <i class="fa fa-chevron-left"></i> Tomcat系列文章:Tomcat基本架构
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#资源准备"><span class="nav-number">1.</span> <span class="nav-text">资源准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动流程"><span class="nav-number">2.</span> <span class="nav-text">启动流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态代码块"><span class="nav-number">2.1.</span> <span class="nav-text">静态代码块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#catalinaHomeFile-和-catalinaBaseFile"><span class="nav-number">2.1.1.</span> <span class="nav-text">catalinaHomeFile 和 catalinaBaseFile</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main函数"><span class="nav-number">2.2.</span> <span class="nav-text">main函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#init方法"><span class="nav-number">2.3.</span> <span class="nav-text">init方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#类加载器初始化过程"><span class="nav-number">2.3.1.</span> <span class="nav-text">类加载器初始化过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#catalina实例化"><span class="nav-number">2.3.2.</span> <span class="nav-text">catalina实例化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#命令行参数设置"><span class="nav-number">2.3.3.</span> <span class="nav-text">命令行参数设置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -161,6 +161,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Tomcat系列文章:Bootstrap启动流程源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-14 19:01:39 / 修改时间：19:03:39" itemprop="dateCreated datePublished" datetime="2020-05-14T19:01:39+08:00">2020-05-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web-Server/" itemprop="url" rel="index"><span itemprop="name">Web Server</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在之前的一篇文章中已经总结了Tomcat的几个重要组件以及其担任的工作职责。而本篇文章将总结如何去以Debug方式运行Tomcat的源码,以及其启动过程中到底做了哪些内容。</p>
+<p>本文基于<code>JDK1.8</code>以及<code>tomcat-9.0.20-src</code>源码版本,不能保证其他版本能够正常运行,本文中已经展示了作者自己在启动的时候会出现的一些BUG以及解决方式。</p>
+<p>本文将主要解决如下几个问题</p>
+<ol>
+<li>使用IDEA搭建环境运行并调试tomcat源代码</li>
+<li>分析<code>catalina.bootstrap</code>的启动过程</li>
+<li>分析<code>catalinHomeFile</code>和<code>catalinaBaseFile</code>的语义以及不可替代性</li>
+<li>分析<code>common</code>,<code>catalina</code>,<code>shared</code>被加载过程</li>
+<li>分析<code>catalina</code>被实例化的过程</li>
+</ol>
+<p>本文篇幅较长,需要一个时间段来阅读。</p>
+<p>作者代码功力尚浅,如有不足错误之处,请及时指正,感谢阅读。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -907,95 +993,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/12/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/12/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">AQS源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-12 17:34:41" itemprop="dateCreated datePublished" datetime="2020-04-12T17:34:41+08:00">2020-04-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:15:34" itemprop="dateModified" datetime="2020-04-26T12:15:34+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">Java基础技术</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>在分析J.U.C包下的各项源码时,多多少少都会遇到一些<code>AbstractQueuedSynchronizer</code>的内容,因为其是实现<code>ReentrantLock</code>,<code>CountDownLatch等</code>功能的基础。</p>
-<p>而之前自己在网上Google关于AQS的内容发现,好多博客大同小异,并没有真正分析清除AQS的原理所在,所以希望能够从源码的角度,按照自己的思维整理一篇关于AQS相关的博客,对于后续需要总结的<code>Lock</code>相关的内容有所帮助。</p>
-<p>注意 : </p>
-<ol>
-<li>本文使用JDK1.8作为基础,可以结合源码进行理解</li>
-<li>本文基于<code>ReentrantLock</code>中的公平锁来阐述,非公平锁和公平锁的区别很小,易于理解</li>
-<li>本文将以配图形式尽量完整阐述整个流程思路,但是如果有不易表达的地方,还是应该多看源码,J.U.C下的源码很优雅</li>
-<li>本文结合个人理解,如有错误之处,请评论指正或联系作者,谢谢</li>
-</ol>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/12/AQS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1067,7 +1064,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
