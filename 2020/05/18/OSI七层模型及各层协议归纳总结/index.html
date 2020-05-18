@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="非科班出身在刚开始自学计算机网络时总觉得无从下手,太多的协议与模型让整个知识比较散乱。后来按照七层模型逐层学习,并理解了网络自顶向下的设计思路后感觉豁然开朗，因此特地将自己的学习思路归纳成一篇一万五千字的文章供由需要的伙伴参考。 本文将主要从以下几个方面归纳总结 :   OSI七层模型,五层模型及TCP&#x2F;IP四层模型 链路层协议——以太网,ARP 网络层协议——IP , ICMP 传输层协议——T">
+<meta name="keywords" content="OSI模型及协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSI七层模型及各层协议归纳总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;18&#x2F;OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="非科班出身在刚开始自学计算机网络时总觉得无从下手,太多的协议与模型让整个知识比较散乱。后来按照七层模型逐层学习,并理解了网络自顶向下的设计思路后感觉豁然开朗，因此特地将自己的学习思路归纳成一篇一万五千字的文章供由需要的伙伴参考。 本文将主要从以下几个方面归纳总结 :   OSI七层模型,五层模型及TCP&#x2F;IP四层模型 链路层协议——以太网,ARP 网络层协议——IP , ICMP 传输层协议——T">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;18&#x2F;YWo4aj.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;18&#x2F;YWohZQ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2eXFA.png">
+<meta property="og:image" content="c:%5CUsers%5Cfanhao%5CDesktop%5Caa%5CQQ%E6%88%AA%E5%9B%BE20200515175719.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2Ryc9.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2f2FK.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2fLY8.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s2.ax1x.com&#x2F;2020&#x2F;01&#x2F;17&#x2F;1SmGNV.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;s2.ax1x.com&#x2F;2020&#x2F;01&#x2F;17&#x2F;1SmrAx.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRCEOs.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRE43V.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRM7kD.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YR3Ivd.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRGL9S.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRtEwR.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2kGWT.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;Y2VN6S.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRhk8O.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YRhMIP.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;17&#x2F;YR4fmj.png">
+<meta property="og:updated_time" content="2020-05-18T03:55:59.939Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;18&#x2F;YWo4aj.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>OSI七层模型及各层协议归纳总结 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OSI七层模型及各层协议归纳总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-18 11:50:38 / 修改时间：11:55:59" itemprop="dateCreated datePublished" datetime="2020-05-18T11:50:38+08:00">2020-05-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>非科班出身在刚开始自学计算机网络时总觉得无从下手,太多的协议与模型让整个知识比较散乱。后来按照七层模型逐层学习,并理解了网络自顶向下的设计思路后感觉豁然开朗，因此特地将自己的学习思路归纳成一篇一万五千字的文章供由需要的伙伴参考。</p>
+<p>本文将主要从以下几个方面归纳总结 : </p>
+<ul>
+<li>OSI七层模型,五层模型及TCP/IP四层模型</li>
+<li>链路层协议——以太网,ARP</li>
+<li>网络层协议——IP , ICMP</li>
+<li>传输层协议——TCP/UDP及UPD可靠性传输协议RUDP,RTP</li>
+<li>应用层协议——HTTP多版本,DNS,FTP,SMTP,HTTPS,WebSocket协议</li>
+</ul>
+<p>本文篇幅较长,可以当作一个总结来使用,如果有不足之处,请指正,谢谢。</p>
+<a id="more"></a>
+
+<h2 id="OSI七层协议"><a href="#OSI七层协议" class="headerlink" title="OSI七层协议"></a>OSI七层协议</h2><p><img src="https://s1.ax1x.com/2020/05/18/YWo4aj.png" alt=""></p>
+<ul>
+<li>物理层 : 主要负责bit流在端与端之间的传输</li>
+<li>链路层 : 主要解决局域网问题,通过交互机与网卡完成MAC地址的查询</li>
+<li>网络层 : 通过IP协议将局域网连接到Internet上,路由器位于该层</li>
+<li>传输层 : 解决进程间通讯的问题,IP协议只能够完成主机的定位,而TCP/UDP协议能够完成进程间的通讯</li>
+<li>会话层 : 例如当通过协议传输文件时,需要建立一个通讯,这个通讯就是一个会话</li>
+<li>表示层 : 数组的编解码以及加密等内容</li>
+<li>应用层 : 使用端口通讯的性质并满足用户的需求,主要由HTTP1.0/1.1/2.0 HTTPS以及Websocket等</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/05/18/YWohZQ.png" alt=""></p>
+<p>OSI七层模型和五层模型主要是提供一种处理问题的策略方案。而互联网中真正使用的则是TCP/IP四层模型,也是对于前两者的具体实现。</p>
+<h2 id="以太网协议"><a href="#以太网协议" class="headerlink" title="以太网协议"></a>以太网协议</h2><p>以太网协议是将IP数据包封装为帧的过程并传输的协议,准确来说,其并非链路层协议,而是再链路层和物理层都有所体现。所以以太网协议再TCP/IP四层模型中最为恰当,其应该属于网络链路层。</p>
+<p>目前比较通用的以太网协议为TCP/IP协议簇,而其具体数据格式如图。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/Y2eXFA.png" alt=""></p>
+<p>其传输的过程是一个逐渐封装的过程。</p>
+<h2 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h2><h3 id="ARP概述"><a href="#ARP概述" class="headerlink" title="ARP概述"></a>ARP概述</h3><p>网络设备有数据要发送给另一台网络设备时，必须要知道对方的网络层地址（即IP地址）。IP地址由网络层来提供，但是仅有IP地址是不够的，IP数据报文必须封装成帧才能通过数据链路进行发送。数据帧必须要包含目的MAC地址，因此发送端还必须获取到目的MAC地址。通过目的IP地址二获取的MAC地址的过程是由ARP（Address Resolution Protocol）协议来实现的。而RARP协议则是能够将MAC地址映射为一个IP地址。</p>
+<h3 id="ARP-工作流程"><a href="#ARP-工作流程" class="headerlink" title="ARP 工作流程"></a>ARP 工作流程</h3><p>在任何时候，一台主机有IP数据报文发送给另一台主机，它都要知道接收方的逻辑（IP）地址。但是IP地址必须封装成帧才能通过物理网络。这就意味着发送方必须有接收方的物理（MAC）地址，因此需要完成逻辑地址到物理地址的映射。而ARP协议可以接收来自IP协议的逻辑地址，将其映射为相应的物理地址，然后把物理地址递交给数据链路层。</p>
+<h3 id="ARP请求与响应"><a href="#ARP请求与响应" class="headerlink" title="ARP请求与响应"></a>ARP请求与响应</h3><p>当主机需要寻找另一台主机时,会发送ARP请求。由于此时主机只有自己的IP地址和MAC地址以及其目标主机的IP地址,而并不具有对方的MAC地址,所以我们首先需要在局域网中寻找,而这个寻找的过程就是ARP请求。</p>
+<p>主机会使用广播的方式向局域网中各个主机发送ARP请求,只有目标主机会响应该请求。这个响应报文包含接收方的IP地址和物理地址。这个报文利用收到的ARP请求报文中的请求方物理地址以单播的方式直接发送给ARP请求报文的请求方。</p>
+<h3 id="ARP数据报文"><a href="#ARP数据报文" class="headerlink" title="ARP数据报文"></a>ARP数据报文</h3><p><img src="C:%5CUsers%5Cfanhao%5CDesktop%5Caa%5CQQ%E6%88%AA%E5%9B%BE20200515175719.png" alt=""></p>
+<p>硬件类型：16位字段，用来定义运行ARP的网络类型。每个局域网基于其类型被指派一个整数。例如：以太网的类型为1。ARP可用在任何物理网络上。</p>
+<p>协议类型：16位字段，用来定义使用的协议。例如：对IPv4协议这个字段是0800。ARP可用于任何高层协议</p>
+<p>硬件长度：8位字段，用来定义物理地址的长度，以字节为单位。例如：对于以太网的值为6。</p>
+<p>协议长度：8位字段，用来定义逻辑地址的长度，以字节为单位。例如：对于IPv4协议的值为4。</p>
+<p>操作码：16位字段，用来定义报文的类型。已定义的分组类型有两种：ARP请求（1），ARP响应（2）。</p>
+<p>源硬件地址：这是一个可变长度字段，用来定义发送方的物理地址。例如：对于以太网这个字段的长度是6字节。</p>
+<p>源逻辑地址：这是一个可变长度字段，用来定义发送方的逻辑（IP）地址。例如：对于IP协议这个字段的长度是4字节。</p>
+<p>目的硬件地址：这是一个可变长度字段，用来定义目标的物理地址，例如，对以太网来说这个字段位6字节。对于ARP请求报文，这个字段为全0，因为发送方并不知道目标的硬件地址。</p>
+<h2 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h2><p>ICMP协议是为了补充IP协议的不足所存在的。IP协议是不可靠协议,如果发生丢包,并不会通知传输层其情况以及原因。</p>
+<p>因此需要在网络层增添一种能够可靠协议,完成一些针对主机IP的操作。</p>
+<h3 id="ICMP内容"><a href="#ICMP内容" class="headerlink" title="ICMP内容"></a>ICMP内容</h3><ol>
+<li>确认IP包是否成功到达目标地址</li>
+<li>通知在发送过程中IP包被丢弃的原因</li>
+</ol>
+<p>ICMP是基于IP协议工作的，但是它并不是传输层的功能，因此仍然把它归结为网络层协议,ICMP只能搭配IPv4使用，如果是IPv6的情况下, 需要是用ICMPv6。</p>
+<h3 id="ICMP作用"><a href="#ICMP作用" class="headerlink" title="ICMP作用"></a>ICMP作用</h3><p>ICMP可以用来测试请求,例如我们使用的ping操作就是一个发送ICMP报文的操作。同样也可以用ICMP报文来获取连接的时间戳,例如用来测试一次连接的响应时间。</p>
+<ul>
+<li>ping命令会先发送一个 ICMP Echo Request给对端</li>
+<li>对端接收到之后, 会返回一个ICMP Echo Reply</li>
+<li>若没有返回，就是超时了，会认为指定的网络地址不存在</li>
+</ul>
+<h2 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h2><p>IP协议的主要作用有二<strong>寻址路由</strong>和<strong>分段重组</strong>。</p>
+<h3 id="寻址路由"><a href="#寻址路由" class="headerlink" title="寻址路由"></a>寻址路由</h3><p>在Internet中,用IP地址来标识主机,每个IP数据报中,都含有源地址与目标地址，在传输的过程中,会通过多次路由到达目的地址。</p>
+<h3 id="分段重组"><a href="#分段重组" class="headerlink" title="分段重组"></a>分段重组</h3><p>IP数据报会封装上层的不同类型数据,会将长度比较长的数据进行分段发送,在达到目的后再进行重组。</p>
+<h3 id="数据报格式"><a href="#数据报格式" class="headerlink" title="数据报格式"></a>数据报格式</h3><p><img src="https://s1.ax1x.com/2020/05/17/Y2Ryc9.png" alt=""></p>
+<p> (1) <strong>版本</strong>：占4位，指<strong>IP协议的版本</strong>。目前广泛使用的IP协议版本有两种<strong>IPv4</strong>和<strong>IPv6</strong>。</p>
+<p> (2) <strong>首部长度</strong>：占4位，其单位是<strong>4B</strong>。所以<strong>首部长度必须是4B的整数倍</strong>。如首部长度字段的4个二进制位分别是1111（对应十进制是15），则IP协议首部的长度是15 × 4B = 60B（字节）。由于IP数据报首部的固定部分长度固定是20，所以首部字段最小从0101开始。</p>
+<p> (3) <strong>区分服务</strong>：占8位，一般情况下不使用该字段。只有使用区分服务时，这个字段才起作用，如要求当前的数据报设置高优先级优先发送。</p>
+<p> (4) <strong>总长度</strong>：占16位，表示首部和数据部分长度之和，单位是字节。</p>
+<p> (5) 标识、标志、片偏移是关于IP数据报分片的，见下文。</p>
+<p> (6) <strong>生存时间</strong>：占8位，表示数据报在网络中的<strong>寿命</strong>。由发送数据报的源点设置这个字段，其目的是为了防止那些无法交付的数据报无限制的在互联网中兜圈子（例如从路由器R1转发到R2，再转发到R3，然后又转发到R1），因而白白浪费网络资源。<strong>数据报每经过一个路由器，这个值就会减1，当减至0时，就丢弃该数据报。</strong></p>
+<p> (7) <strong>协议</strong>：占8位，协议字段是指出次数据报所携带的数据是使用的协议。这里记两个协议字段的值：<strong>6表示TCP协议，17表示UDP协议。</strong></p>
+<p> (8) <strong>首部校验和</strong>：占16位，<strong>只校验数据报的首部，不检验数据部分</strong>。数据报每经过一个路由器都要重新计算一下首部校验和（一些字段，如生存时间、标志、片偏移可能发生了变化）。</p>
+<p> (9) <strong>源地址和目的地址</strong>：各占32位。</p>
+<p><strong>可变部分</strong></p>
+<p> (1) <strong>可选字段</strong>：长度可变，从1字节~40字节。可变部分是为了<strong>增加IP数据报的功能</strong>，如用来支持排错、测量以及安全等措施。<br>  (2) <strong>填充</strong>：IP数据报的首部长度必须是4B的整数倍，所以如果首部长度不满足4B整数倍时，就使用填充字段将首部填充到4B的整数倍。</p>
+<h3 id="IP数据报分片"><a href="#IP数据报分片" class="headerlink" title="IP数据报分片"></a>IP数据报分片</h3><p>数据链路层将网络层传送的数据报添加头部和尾部封装成以太网帧，数据链路层封装数据帧长度是有限制的，以太网规定其最大传送单元MTU的值是1500字节，如果从网络层传输下来的数据报长度超过MUT值，就必须把过长的数据报进行分片处理。</p>
+<p>数据报中的三个字段标识,标志,偏移量就是用来处理数据分段和重组的。</p>
+<h4 id="标识"><a href="#标识" class="headerlink" title="标识"></a>标识</h4><p>假如有一个数据包数据超过了1500,并且被分割成了3个IP数据报,那么这三个数据报的标识是相同的。标识的作用是用于区分哪些数据报是来自同一个数据包中的内容。</p>
+<h4 id="标志"><a href="#标志" class="headerlink" title="标志"></a>标志</h4><p>标志位仅有两个位,作用如下。</p>
+<blockquote>
+<p> 1) 最低位即第3位记为<strong>MF</strong>（More Fragment），意思是<strong>是否还有更多分片</strong>。当值为1时，表示该分片不是最后一片，后面还有分片，当值为0时，表示这是原数据报分片后的最后一片数据报，后面已经没有更多的分片了。<br>  2) 中间位即第2位记为<strong>DF</strong>（Don’t Fragment），意思是原数据报<strong>能否分片</strong>。当值为1时，表示该数据报不允许分片，当值为0时，表示该数据报允许分片。</p>
+</blockquote>
+<h4 id="片偏移"><a href="#片偏移" class="headerlink" title="片偏移"></a>片偏移</h4><p>占13位，以8B为单位。其表示较长分组分片后，某一片在原分组中的相对位置，也就是说相对于<strong>用户数据字段的起点</strong>，该片从何处开始。这也就是说，<strong>除了最后一个分片，每个分片的长度一定是8B的整数倍。</strong></p>
+<p> 举个例子说明一下，假设一个数据报的总长度是3820个字节，其数据部分为3800字节长（首部仅仅使用固定部分），需要分片为长度不超过1420字节的数据报片。因固定首部长度为20字节，因此每个数据报片的长度不超过1400字节。于是分为3个报片，其数据部分的长度分别为1400、1400、1000字节。原始数据报首部被复制为各个数据报的首部，但是必须修改有关字段。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/Y2f2FK.png" alt=""></p>
+<p>最后可以得到多个IP报如下 : </p>
+<p><img src="https://s1.ax1x.com/2020/05/17/Y2fLY8.png" alt=""></p>
+<h3 id="IP数据报路由转发"><a href="#IP数据报路由转发" class="headerlink" title="IP数据报路由转发"></a>IP数据报路由转发</h3><p>IP数据报的发送需要通过多个路由进行转发,其工作是为每一个IP数据报寻找一条最好的途径。</p>
+<p><strong>路由表</strong></p>
+<p>路由表就是记录了各种传输路径的数据的一张表，分为静态路由表和动态路由表。</p>
+<ul>
+<li>静态路由 : 事先固定好的路由表,不会随着网络结构改变而改变</li>
+<li>动态路由 : 由路由选择算法自动调整的路由表</li>
+</ul>
+<p>而转发过程可以通过ARP协议完成IP到MAC地址的解析,路由表会被存储进入操作系统中,例如Windows中可以使用<code>route</code>命令查看路由表等信息。</p>
+<h2 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h2><p>网络层只能将数据发送给指定的主机,但是真正的程序间通讯一般需要经过端口,而传输层协议就是处理进程间通信的问题。IP协议只能提供不可靠的信息传输,而TCP通过三次握手机制提供了可靠的信息传输。</p>
+<blockquote>
+<p><strong>注意</strong> : 在不可靠的信道上要保证可靠的通讯最少需要三次握手</p>
+</blockquote>
+<h3 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h3><blockquote>
+<p><strong>TCP（Transmission Control Protocol 传输控制协议）是一种面向连接的、可靠的、基于字节流的传输层通信协议。</strong></p>
+</blockquote>
+<ul>
+<li><p>面向连接型的传输协议：每一次完整的数据传输都要经过建立连接、使用连接、终止连接的过程；</p>
+</li>
+<li><p>可靠、出错重传、且每收到一个数据都要给出相应的确认，保证数据传输的可靠性；</p>
+</li>
+<li><p>TCP连接是基于字节流的，而非报文；传输单位为数据段，每次发送的TCP数据段大小和数据段数都是可变的；</p>
+</li>
+<li><p>仅支持单播传输，支持全双工传输。</p>
+</li>
+</ul>
+<h4 id="三次挥手场景"><a href="#三次挥手场景" class="headerlink" title="三次挥手场景"></a>三次挥手场景</h4><p>首先来假设一个场景，你的妈妈给你介绍了一个女孩，你们要一起吃饭，此前你们从来没有见过面。</p>
+<p><strong>第一次挥手</strong></p>
+<p>掏出手机，给女孩发了一条信息 : </p>
+<blockquote>
+<p>你好 , 我们中午一起吃个饭吧 ?</p>
+</blockquote>
+<p>如果女孩很久没有回答你的消息，你就可以确认她没有看到，此时你就可以自己去吃饭了。</p>
+<p>如果她应答了消息，则可以视为第一次握手成功。</p>
+<p><strong>第二次握手</strong></p>
+<p>虽然她回应了消息，但是她可能随便回了一句”哦”，”天气不错”等和吃饭无关的内容，此时可以看做沟通失败，因为她没有对你的消息作出正确的应答。</p>
+<p>如果她回答了”在餐厅见”。那么第二次握手可视作成功。</p>
+<p><strong>第三次握手</strong></p>
+<p>在收到消息后，你忽然接到一个电话，BOSS叫你去开会议，十分紧急，所以你没有给女孩回复，或者回复了”抱歉，暂时有事去不了”，此时可以视作第三次握手失败。</p>
+<p>如果你回复了”OK ，我马上就赶到”。那么第三次握手成功，TCP数据将被发送。</p>
+<hr>
+<p>如果想让两个人之间有效沟通，以上的三次对话是必须的，可以归结为以下 : </p>
+<blockquote>
+<p><strong>为了保证服务端能收接受到客户端的信息并能做出正确的应答而进行前两次(第一次和第二次)握手，为了保证客户端能够接收到服务端的信息并能做出正确的应答而进行后两次(第二次和第三次)握手。</strong></p>
+</blockquote>
+<p>如果把女孩作为客户端，我们作为服务端，可以说 ： </p>
+<p>第一次和第二次握手为了让服务端听懂客户端的请求，第二次和第三次握手为了让客户端听懂服务端的请求。</p>
+<h4 id="三次挥手必要性"><a href="#三次挥手必要性" class="headerlink" title="三次挥手必要性"></a>三次挥手必要性</h4><p>*<em>为什么是三次而非两次 ? *</em></p>
+<blockquote>
+<p> <strong>第三次握手主要为了防止已经失效的报文请求突然传送而产生的错误。</strong></p>
+</blockquote>
+<p>在程序中，如果我们一个消息传送失败，一般来说都会再次进行发送，TCP依旧如此。假如现在A向B传输一段报文，但是由于网络等原因问题，B在规定时间内没有回复，此时A就认为该段报文传送失败了，再次向B发送，传输成功后关闭了链接。</p>
+<p>但是实际第一段报文并没有丢失，只是由于特殊原因在网络中被滞留了，当第二段报文传输完成并关闭了TCP连接时，第一段报文却到达了B。</p>
+<p>假如没有第三次握手的流程，则B会认为A又向自己发送了一条报文，自己应当确认并建立与A的连接，这样就会出现问题。而如果有了第三次握手，由于A并没有建立连接的需求，虽然B收到了过期报文并对A发出建立连接的请求，但是A会无视这个请求，保证了数据的准确性。</p>
+<blockquote>
+<p>在Google  Groups的TopLanguage中看到一帖讨论TCP“三次握手”觉得很有意思。贴主提出“TCP建立连接为什么是三次握手？”的问题，在众多回复中，有一条回复写道：“这个问题的本质是, 信道不可靠, 但是通信双发需要就某个问题达成一致. 而要解决这个问题,  无论你在消息中包含什么信息, 三次通信是理论上的最小值.  所以三次握手不是TCP本身的要求, 而是为了满足”在不可靠信道上可靠地传输信息”这一需求所导致的. 请注意这里的本质需求,信道不可靠,  数据传输要可靠. 三次达到了, 那后面你想接着握手也好, 发数据也好, 跟进行可靠信息传输的需求就没关系了. 因此,如果信道是可靠的,  即无论什么时候发出消息, 对方一定能收到, 或者你不关心是否要保证对方收到你的消息,  那就能像UDP那样直接发送消息就可以了.”。这可视为对“三次握手”目的的另一种解答思路。</p>
+</blockquote>
+<p><strong>特殊值变化</strong></p>
+<p><img src="https://s2.ax1x.com/2020/01/17/1SmGNV.jpg" alt=""></p>
+<p><img src="https://s2.ax1x.com/2020/01/17/1SmrAx.png" alt=""></p>
+<h3 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h3><h4 id="四次挥手过程"><a href="#四次挥手过程" class="headerlink" title="四次挥手过程"></a>四次挥手过程</h4><p>Client作为主动发起端，Server作为被动关闭端。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/YRCEOs.png" alt=""></p>
+<p><strong>第一步，</strong>Client主动发起一个Req给Server，里面包含FIN标识位=1，CLient的Seq序列号N，表示的是当前Client在该连接上的当前序列号。</p>
+<p><strong>第二步，</strong>Server端在收到这个含有FIN的Req消息之后，校验无误之后会立马回复ACK消息给CLient端，消息内部包含ACK标志位为1，同时Seq号码是FIN的请求消息的Seq号+1。此时的Sever同时会主动发个结束标识给Server上面的应用层程序，应用层程序可以决定是立马结束，还是等到服务其上面的该连接中的数据处理完了之后，在发送FIN消息给Client来关掉另外的一半连接。</p>
+<p><strong>第三步，</strong>Server端在处理完该连接上面的Pending住的数据之后，应用程序会close这个连接。Client会主动发起FIN的Req消息给Client端。消息内部带有，FIN=1的结束符标识位，以及Server端的Seq序列号。</p>
+<p><strong>第四步，</strong>Client端在收到对应的FIN消息之后，会主动通知应用层程序，告知这个连接现在需要关闭了。然后，Client会回复ACK消息给Server，以便断开另外一个方向的通道，这个消息包含ACK=1的标识位和FIN的REQ带过来的Seq+1。</p>
+<h4 id="四次挥手原因"><a href="#四次挥手原因" class="headerlink" title="四次挥手原因"></a>四次挥手原因</h4><p>由于TCP建立时是直接建立,但是在关闭时是半关闭状态,前两次挥手是提出断开的一方先关闭,后两次挥手是被动关闭方的响应。</p>
+<p>如果没有第四次挥手,那么如果服务端已经处理完所有的剩余请求,同时发送了一个<code>FIN</code>的报文,但是这个报文丢失了,那么客户端会一直认为服务端并没有处理完剩余的请求,这样就会导致TCP永远处于半关闭状态。</p>
+<h4 id="TIME-WAIT状态"><a href="#TIME-WAIT状态" class="headerlink" title="TIME_WAIT状态"></a>TIME_WAIT状态</h4><p>由于网络情况的波动,如果最后一个ACK由于网络迟滞阻塞在了网络中,那么此时Server会认为发送失败了,重发Fin命令,第二次发送成功,关闭连接。如果没有<code>TIME_WAIT</code>状态,在关闭后,又建立了一个相同端口的TCP，那么此时在网络中阻塞的ACK则又到达了新的TCP连接,由于这是一个FIN的请求,会将新的连接关闭掉。</p>
+<p>所以,<code>TIME_WAIT</code>主要用于等待网络中迟滞消息消失的一个状态。而<code>TIME_WAIT</code>被设置为2MSL的原因是在TCP中规定一个TCP数据报的最大生存时间时2MSL。</p>
+<h4 id="CLOSE-WAIT状态"><a href="#CLOSE-WAIT状态" class="headerlink" title="CLOSE_WAIT状态"></a>CLOSE_WAIT状态</h4><blockquote>
+<p><code>CLOSE_WAIT</code>状态指某种情况下客户端关闭了连接，但是我方忙于读写，没有关闭连接</p>
+</blockquote>
+<p><code>CLOSE_WAIT</code>出现的时间在Server收到了Client发送的FIN之后。而在Server发送了FIN后<code>CLOSE_WAIT</code>状态结束。</p>
+<p>大量的<code>CLOSE_WAIT</code>将严重拖累服务器性能,由于处于<code>CLOSE_WAIT</code>的TCP连接不会被释放,当出现大量<code>CLOSE_WAIT</code>的TCP时,会导致新的TCP连接将无法被建立。</p>
+<p>Linux中,<code>CLOSE_WAIT</code>有默认关闭时间,时间为2小时。</p>
+<h3 id="TCP心跳机制"><a href="#TCP心跳机制" class="headerlink" title="TCP心跳机制"></a>TCP心跳机制</h3><p>心跳机制主要是用于检测客户端与服务端连接状态所设置的一种监听机制,主要流程如下。</p>
+<ul>
+<li>客户端启动一个定时器,并定时向服务器发送心跳包(无实际意义数据)</li>
+<li>设置超时时间</li>
+<li>如果在超时时间内收到了服务器的ACK,则证明连接存活</li>
+<li>如果没有在超时时间内收到ACK，则认为连接已经断开</li>
+</ul>
+<p>而实现TCP心跳机制可以使用两种方式，<strong>应用实现</strong>和<strong>KeepAlive</strong>前者是需要用户自己去实现的。而后者是TCP自身提供的一种策略,默认的时间长度为2小时,可以手动修改。</p>
+<h3 id="TCP拆包与粘包"><a href="#TCP拆包与粘包" class="headerlink" title="TCP拆包与粘包"></a>TCP拆包与粘包</h3><blockquote>
+<p>注意 : TCP是面向流的传输协议,拆包和粘包是无法从协议层面避免的</p>
+</blockquote>
+<p><img src="https://s1.ax1x.com/2020/05/17/YRE43V.png" alt=""></p>
+<h4 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h4><p>图一为TCP正常传输过程,图二则是发生了拆包的过程。由于P1包过大被拆为P1_2和P1_1两个包,发生拆包的原因有两种</p>
+<ul>
+<li>数据包大小超过了MTU最大传输单元的大小(1500byte)</li>
+<li>数据包大小超过了缓冲区大小,需要分批接收</li>
+</ul>
+<p>而图三则发生了粘包的过程。</p>
+<blockquote>
+<p>粘包指服务端读取时无法将多个包的数据进行精准拆分</p>
+</blockquote>
+<p>粘包的发生原因主要是缓冲区会将比较小,并且通讯地址相同的包存入一个包中,尽量保证传输吞吐量或者由于接收端缓冲区收到P1后未及时读取又收到了P2，此时服务端无法分辨P1和P2的界限。</p>
+<h4 id="解决手段"><a href="#解决手段" class="headerlink" title="解决手段"></a>解决手段</h4><ul>
+<li>消息数据的定长，比如定长100字节，不足补空格，接收方收到后解析100字节数据即为完整数据。但这样的做的缺点是浪费了部分存储空间和带宽。</li>
+<li>消息数据使用特定分割符区分界限，比如使用换号符号做分割。</li>
+<li>把消息数据分成消息头和消息体，消息头带消息的长度，接收方收到后根据消息头中的长度解析数据。</li>
+</ul>
+<h3 id="TCP滑动窗口"><a href="#TCP滑动窗口" class="headerlink" title="TCP滑动窗口"></a>TCP滑动窗口</h3><blockquote>
+<p>TCP滑动窗口主要用于发送端与接收端同步二者发送接收速率从而进行流量控制</p>
+</blockquote>
+<p>在TCP连接时发送的SYN=?的值实际上就是滑动窗口的值,由于TCP是面向流的,每次发送多少是可以控制。但是可能由于服务端和客户端缓冲区的大小不同,如果无限制发送,则可能造成一方发送过快另一方无法接收的情况。</p>
+<p>而TCP也能够使用固定窗口,但是会导致一些问题，例如 : 滑动窗口为1,则每次发送一个单位的数据就需要进行一次ACK确认,这样会导致多次确认效率较低,如果窗口过大,则每次都导致发送数据无法占满窗口,浪费带宽。</p>
+<p>为此,滑动窗口根据链路带宽大小,链路是否拥塞以及接收方缓存区大小动态决定。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/YRM7kD.png" alt=""></p>
+<p>第一次传输了三个数据,理论上ACK应该返回X+1即为4,但是返回3,说明最后一个数据没有发送成功,也就是说窗口中只收到了2个数据,那么下次传输会从3开始传输2个数据。</p>
+<p>通过这样的方式动态的变化窗口的大小,保证双方流量控制一致。</p>
+<h3 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h3><h4 id="网络拥塞"><a href="#网络拥塞" class="headerlink" title="网络拥塞"></a>网络拥塞</h4><blockquote>
+<p>在某段时间，若<strong>对网络中某一资源的需求超过了该资源所能提供的可用部分，网络性能就要变坏</strong>，这种情况就叫做<strong>网络拥塞</strong></p>
+</blockquote>
+<p>以TCP为例,当传输失败后,需要重传,这也就是说本来需要传一次的数据变成了传输两次,理论上增加了网络的负担,如果大量失败就又需要重传,当这种情况发生时,会导致重传越多丢失的情况越多,网络会变得更差。如果不对网络拥塞进行控制,网络的吞吐量会大幅度下降。</p>
+<p>在TCP中使用四种方式控制网络拥塞 : <strong>慢开始</strong> , <strong>拥塞控制</strong> , <strong>快重传</strong> , 以及<strong>快恢复</strong>,其中几个重要的概念。</p>
+<ul>
+<li>拥塞窗口<code>cwnd</code> : 类似于滑动窗口的一个动态窗口,根据网路拥塞程度动态变化</li>
+<li>发送窗口<code>swnd</code> : 发送方会将拥塞窗口作为发送窗口</li>
+<li>慢开始门限<code>ssthresh</code> : 拥塞的一个标志量</li>
+</ul>
+<h4 id="慢开始"><a href="#慢开始" class="headerlink" title="慢开始"></a>慢开始</h4><p>当TCP连接建立时,<code>cwnd</code>会被设置为1，每次都发送<code>cwnd</code>大小的数据。而每次收到ACK后<code>cwnd</code>都会成指数型增长。</p>
+<blockquote>
+<p>第一次 <code>cwnd=1</code> 发送1个数据 收到ACK</p>
+<p>第二次 <code>cwnd=2</code> 发送2个数据 收到ACK</p>
+<p>第三次<code>cwnd=4</code> 发送四个数据 收到ACK</p>
+</blockquote>
+<p>当<code>cwnd</code>的值到达慢开始门限时,会使用拥塞避免算法。</p>
+<h4 id="拥塞避免算法"><a href="#拥塞避免算法" class="headerlink" title="拥塞避免算法"></a>拥塞避免算法</h4><p>当<code>cwnd</code>到达门限后，如果依旧按照指数级上升,很容易造成数据量增长过大，带宽不够造成网络拥塞。此时会使用拥塞避免算法。</p>
+<p>到达门限后,<code>cwnd</code>不再按照指数增长而是线性增长，尽量控制网络中数据量的变化不会太大。当网络中发生了拥塞后，会将<code>ssthresh</code>设置为发生拥塞时<code>cwnd</code>的一半。如下图 : </p>
+<p><img src="https://s1.ax1x.com/2020/05/17/YR3Ivd.png" alt=""></p>
+<h4 id="快速重传"><a href="#快速重传" class="headerlink" title="快速重传"></a>快速重传</h4><p>在TCP中有两种重传机制,即超时重传与快速重传 : </p>
+<ul>
+<li>超时重传 : 为每个TCP数据设置一个过期时间(默认2MSL),如果定期内没有返回ACK，则进行重传</li>
+<li>快重传 : 当在短期内收到三次冗余ACK后,立刻进行重传,不再等待超时</li>
+</ul>
+<p>快重传能够针对乱序的TCP信息进行有效的处理,例如窗口大小为4，发送1234四个数据包,2在网络中迟滞或者丢失,但是134到达,接收到应该在收到3时就发送重传信息而非等到窗口内所有的数据发送完成后才进行确认。</p>
+<p>同时发送端收到ACK应该为5,但是当收到的是2号ACK，证明第二个数据包丢失,此时忽略定时,直接进行重传。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/YRGL9S.png" alt=""></p>
+<h4 id="快速恢复"><a href="#快速恢复" class="headerlink" title="快速恢复"></a>快速恢复</h4><p>TCP Reno这个算法定义在<a href="http://tools.ietf.org/html/rfc5681" target="_blank" rel="noopener">RFC5681</a>。快速重传和快速恢复算法一般同时使用。快速恢复算法是认为，你还有3个Duplicated Acks说明网络也不那么糟糕，所以没有必要像RTO超时那么强烈，并不需要重新回到慢启动进行，这样可能降低效率。所以协议栈会做如下工作</p>
+<ol>
+<li>cwnd = cwnd/2 </li>
+<li>sshthresh = cwnd </li>
+</ol>
+<p>然后启动快速恢复算法 : </p>
+<ol>
+<li>设置cwnd = ssthresh＋ACK个数＊MSS（一般情况下会是3个dup ACK）</li>
+<li>重传丢失的数据包（对于重传丢失的那个数据包，可以参考TCP-IP详解：SACK选项）</li>
+<li>如果只收到Dup ACK，那么cwnd = cwnd + 1， 并且在允许的条件下发送一个报文段</li>
+<li>如果收到新的ACK, 设置cwnd = ssthresh， 进入拥塞避免阶段</li>
+</ol>
+<h4 id="全过程"><a href="#全过程" class="headerlink" title="全过程"></a>全过程</h4><p><img src="https://s1.ax1x.com/2020/05/17/YRtEwR.png" alt=""></p>
+<h2 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h2><h3 id="UDP特点"><a href="#UDP特点" class="headerlink" title="UDP特点"></a>UDP特点</h3><ul>
+<li>UDP<strong>无连接</strong>，时间上<strong>不存在建立连接需要的时延</strong>。空间上，TCP需要在端系统中<strong>维护连接</strong>状态，需要一定的开销。此连接装入包括接收和发送缓存，拥塞控制参数和序号与确认号的参数。UCP不维护连接状态，也不跟踪这些参数，开销小。空间和时间上都具有优势。</li>
+<li>分组首部开销小，TCP首部20字节，UDP首部8字节。</li>
+<li><strong>UDP没有拥塞控制</strong>，应用层能够更好的控制要发送的数据和发送时间，网络中的拥塞控制也不会影响主机的发送速率。某些实时应用要求以稳定的速度发送，<strong>能容 忍一些数据的丢失，但是不能允许有较大的时延</strong></li>
+<li>UDP是<strong>面向报文</strong>的，对应用层交下来的报文，添加首部后直接乡下交付为IP层，既不合并，也不拆分</li>
+<li>UDP<strong>常用一次性传输比较少量数据的网络应用</strong>，如DNS,SNMP等</li>
+</ul>
+<h3 id="数据报格式-1"><a href="#数据报格式-1" class="headerlink" title="数据报格式"></a>数据报格式</h3><p>源端口： 源端口号，需要对方回信时选用，不需要时全部置0</p>
+<p>目的端口：目的端口号，在终点交付报文的时候需要用到。</p>
+<p>长度：UDP的数据报的长度（包括首部和数据）其最小值为8（只有首部）</p>
+<p>校验和：检测UDP数据报在传输中是否有错，有错则丢弃。</p>
+<p>数据 : UDP传输的数据</p>
+<h3 id="UDP实现可靠传输"><a href="#UDP实现可靠传输" class="headerlink" title="UDP实现可靠传输"></a>UDP实现可靠传输</h3><p>由于UDP本身是不可靠的传输协议,如果希望实现可靠传输,就需要在应用层对其做拓展,目前有多种可靠的UDP传输协议。</p>
+<h4 id="RUDP"><a href="#RUDP" class="headerlink" title="RUDP"></a>RUDP</h4><blockquote>
+<p><strong><code>RUDP</code></strong>，可靠用户数据包协议，是一种基于可<strong>靠数据协议</strong>（RDP）的<strong>简单分组传输协议</strong>。</p>
+</blockquote>
+<p><strong>可靠性保证</strong></p>
+<p>RUDP保证可靠性使用的是重传机制,RUDP提供了三种重传方式 : 定时重传,请求重传,FEC选择重传</p>
+<p><strong>定时重传</strong></p>
+<p>这种方式依赖于<strong>接收端的ACK和RTO</strong>，<strong>容易产生误判</strong>，主要有两种情况：</p>
+<ul>
+<li>对方收到了数据包，但是ACK发送途中丢失</li>
+<li>ACK在途中，但是发送端的时间已经超过了一个RTO。</li>
+</ul>
+<p><strong>请求重传</strong></p>
+<p><strong>请求重传</strong>就是<strong>接收端</strong>的<strong>发送<code>ACK</code></strong>时携带自己<strong>丢失报文的信息</strong>，因为UDP在网络传输过程中<strong>会乱序会抖动</strong>。</p>
+<p>接收端在通信的过程中要评估网络的jitter time，也就是rtt_var（RTT方差值），当<strong>发现丢包</strong>的时候<strong>记录一个时刻<code>t1</code></strong>，当<code>t1 + rtt_var &lt; curr_t</code>（当前时刻），我们就认为它丢失了，这个时候<strong>后续的<code>ACK</code></strong>就需要携带<strong>这个丢包信息</strong>并更新<strong>丢包时刻<code>t2</code></strong>，后续持续扫描丢包队列，如果他t2 +RTO &lt; curr_t，再次在ACK携带这个丢包信息，依次类推，知道收到报文为止。</p>
+<p><strong>请求重传</strong>这种方式比<strong>定时重传</strong>方式的延迟会大，一般适合于<strong>带宽较大</strong>的传输场景，如：<strong>视频</strong>、<strong>文件传输</strong>和<strong>数据同步</strong>等。</p>
+<p><strong>FEC重传</strong></p>
+<p>在<strong>发送方</strong>发送报文时，会根据<strong>FEC方式</strong>把几个<strong>报文</strong>进行<strong>FEC分组</strong>，通过<strong>XOR</strong>的方式得到<strong>若干个冗余包</strong>，然后一起发往接收端，如果<strong>接收端</strong>发现丢包但能通过<strong>FEC分组</strong>算法<strong>还原</strong>，就不向发送端请求重发，如果分组内包是不能进行FEC恢复，则请求发送端发送原始的数据包。</p>
+<p><strong>FEC分组方式</strong>适合要求<strong>延迟敏感</strong>且<strong>随机丢包</strong>的<strong>传输场景</strong>，在一个<strong>带宽不是很充裕</strong>的条件下，FEC会<strong>增加多余的冗余包</strong>，可能会使得<strong>网络更加不好</strong>。FECC方式不仅可以配合请求重传模式，也可以配合定时重传模式。</p>
+<h4 id="RTP"><a href="#RTP" class="headerlink" title="RTP"></a>RTP</h4><blockquote>
+<p> RTP协议是一种基于UDP的传输协议，RTP本身并不能为按顺序传送数据包提供可靠的传送机制，也不提供流量控制或拥塞控制，它依靠RTCP提供这些服务</p>
+</blockquote>
+<p>对于那些丢失的数据包，不存在由于超时检测而带来的延时，同时，对于那些丢弃的包，也可以由上层根据其重要性来选择性的重传。比如，对于I帧、P帧、B帧数据，由于其重要性依次降低，故在网络状况不好的情况下，可以考虑在B帧丢失甚至P帧丢失的情况下不进行重传，这样，在客户端方面，虽然可能会有短暂的不清晰画面，但却保证了实时性的体验和要求。</p>
+<p>简而言之 , RTP协议将不同的数据报分为不同等级,对于一些特殊情况,会不重传某些数据报。</p>
+<p><strong>RTCP的主要功能：</strong>     服务质量的监视与反馈、媒体间的同步，以及多播组中成员的标识。在RTP会话期 间，各参与者周期性地传送RTCP包。RTCP包中含有已发送的数据包的数量、丢失的数据包的数量等统计资料，因此，各参与者可以利用这些信息动态地改变传输速率，甚至改变有效载荷类型。RTP和RTCP配合使用，它们能以有效的反馈和最小的开销使传输效率最佳化，因而特别适合传送网上的实时数据。</p>
+<h2 id="DNS协议"><a href="#DNS协议" class="headerlink" title="DNS协议"></a>DNS协议</h2><p>DNS协议隶属于TCP/IP协议簇,DNS基于UDP协议,为应用层中的一种协议。ARP作用是通过IP地址寻找局域网中的MAC地址,而DNS协议则是通过域名查询IP地址,其查询过程可以分为迭代查询和递归查询。</p>
+<h3 id="DNS服务器"><a href="#DNS服务器" class="headerlink" title="DNS服务器"></a>DNS服务器</h3><p>一般来说,域名服务器分为以下几大类 : </p>
+<ul>
+<li><p>根域名服务器 : 最高层次的域名服务器，本地域名服务器解析不了的域名就会向其求助</p>
+</li>
+<li><p>顶级域名服务器 : 负责管理在该顶级域名服务器下注册的二级域名</p>
+</li>
+<li><p>权限域名服务器 : 负责一个区的域名解析工作</p>
+</li>
+<li><p>本地域名服务器 : 当一个主机发出DNS查询请求时，这个查询请求首先发给本地域名服务器</p>
+<p>DNS服务器即能够提供<code>域名——IP</code>查找服务器的服务器,而DNS服务器分为多级，以<code>www.baidu.com</code>为例。</p>
+</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/05/17/Y2kGWT.png" alt=""></p>
+<p>每个级别的域名所对应的服务器也是同样级别,并且是以树形结构组成,如下。</p>
+<p><img src="https://s1.ax1x.com/2020/05/17/Y2VN6S.png" alt=""></p>
+<h3 id="查询过程"><a href="#查询过程" class="headerlink" title="查询过程"></a>查询过程</h3><p>DNS的查询过程分为两种,即迭代查询和递归查询。当在浏览器状态栏中输入一个域名时 : </p>
+<ol>
+<li>进行浏览器缓存查询,如果之前被访问过,则直接跳转IP</li>
+<li>进行操作系统查询,例如Windows下的Host文件</li>
+</ol>
+<p>当二者都无法查找到IP地址时,则进行DNS解析,其解析过程如下</p>
+<ul>
+<li>递归查询 : 浏览器只请求最底层的域名服务器一次,然后逐层向上查询,直到根域名服务器,然后再依次返回给下一层服务器,最终返回给浏览器,递归查询的过程中只发送依次DNS请求，其他过程全部由各级域名服务器转发。</li>
+<li>迭代查询 : 浏览器直接向多级域名服务器访问查询,查询失败后再向上一级域名服务器查询,直到最后访问到根服务器。整个过程全部由浏览器来完成。</li>
+</ul>
+<p>而实际查询过程中,是由这二者结合使用。</p>
+<ol>
+<li>主机先向本地域名服务器进行<strong>递归查询</strong></li>
+<li>本地域名服务器采用<strong>迭代查询</strong>，向一个根域名服务器进行查询</li>
+<li>根域名服务器告诉本地域名服务器，下一次应该查询的顶级域名服务器的IP地址</li>
+<li>本地域名服务器向顶级域名服务器进行查询</li>
+<li>顶级域名服务器告诉本地域名服务器，下一步查询权限服务器的IP地址</li>
+<li>本地域名服务器向权限服务器进行查询</li>
+<li>权限服务器告诉本地域名服务器所查询的主机的IP地址</li>
+<li>本地域名服务器最后把查询结果告诉主机</li>
+</ol>
+<h2 id="FTP协议"><a href="#FTP协议" class="headerlink" title="FTP协议"></a>FTP协议</h2><blockquote>
+<p>文件传输协议FTP(File Transfer Protocol)是因特网中使用最广泛的文件传输协议。FTP使用交互式的访问，允许客户指定文件的类型和格式(如指明是否使用ASCII码)，并允许文件具有存取权限(如访问文件的用户必须经过授权，并输入有效的口令)。</p>
+</blockquote>
+<p>*<em>注意 *</em>: FTP基于TCP协议,同时TFTP基于UPD,其设计都为异步的模式</p>
+<p>FTP服务器有两大部分组成：一个<strong>主进程</strong>，负责接受新的请求；还有若干<strong>从属进程</strong>，负责处理单个请求。主进程工作步骤</p>
+<ul>
+<li>开启21端口,让客户端连接</li>
+<li>等待客户端发起请求</li>
+<li>启动从属进程处理客户端请求</li>
+<li>回到等待状态，继续接受其他客户进程发起的请求</li>
+</ul>
+<p>因此,FTP的主进程会话在整个生命周期内都会打开,并且只用来发送/传送请求。当请求到达21端口时,会将请求转发到20端口处理，因此不会导致端口混乱问题出现。</p>
+<h3 id="FTP协议如何传输一个文件直到结束"><a href="#FTP协议如何传输一个文件直到结束" class="headerlink" title="FTP协议如何传输一个文件直到结束"></a>FTP协议如何传输一个文件直到结束</h3><p>通用传输方式是流方式，并且文件的结尾是以关闭数据连接为标志，这意味着对每一个文件传输或目录列表来说都要建立一个全新的数据连接。其一般过程如下：</p>
+<ol>
+<li>正由于是客户发出命令要求建立数据连接，所以数据连接是在客户的控制下建立的。</li>
+<li>客户通常在客户端主机上为所在数据连接端选择一个临时端口号。客户从该端口发布一个被动的打开。</li>
+<li>客户使用PORT命令从控制连接上把端口号发向服务器。</li>
+<li>服务器在控制连接上接收端口号，并向客户端主机上的端口发布一个主动的打开。服务器的数据连接端一直使用端口 20。</li>
+</ol>
+<h2 id="SMTP协议"><a href="#SMTP协议" class="headerlink" title="SMTP协议"></a>SMTP协议</h2><blockquote>
+<p>SMTP称为简单邮件传输协议（Simple Mail Transfer Protocal），目标是向用户提供高效、可靠的邮件传输。</p>
+</blockquote>
+<p>SMTP重要的一个特点是能够在网络主机中接力传输 ,一般有如下两种情况 :</p>
+<ul>
+<li>邮件由客户端发送给服务器</li>
+<li>邮件由服务器发送给另一个服务器</li>
+</ul>
+<h3 id="工作机制"><a href="#工作机制" class="headerlink" title="工作机制"></a>工作机制</h3><p>SMTP具有两种机制,即发送SMTP和接收SMTP，具体工作方式为 : </p>
+<ol>
+<li>发送SMTP在接收到用户的邮件请求后，判断此邮件是否为本地邮件，若是直接投送到用户的邮箱</li>
+<li>向DNS查询远端邮件服务器的MX记录，并建立与远端接收SMTP之间的一个双向传送通道</li>
+<li>SMTP命令由发送SMTP发出，由接收SMTP接收</li>
+<li>SMTP发送者发送MAIL命令指明邮件发送者</li>
+<li>如果SMTP接收者可以接收邮件则返回OK应答,SMTP发送者再发出RCPT命令确认邮件是否接收到,如果SMTP接收者接收，则返回OK应答</li>
+</ol>
+<h3 id="发送过程"><a href="#发送过程" class="headerlink" title="发送过程"></a>发送过程</h3><ol>
+<li>建立TCP连接</li>
+<li>客户端发送HELO命令以标识发件人自己的身份，然后客户端发送MAIL命， 服务器端正希望以OK作为响应，表明准备接收</li>
+<li>客户端发送RCPT命令，以标识该电子邮件的计划接收人，可以有多个RCPT行， 服务器端则表示是否愿意为收件人接收邮件</li>
+<li>协商结束，发送邮件，用命令DATA发送,以<code>.</code>表示邮件结束</li>
+<li>结束此次发送，用QUIT命令退出</li>
+</ol>
+<h2 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h2><blockquote>
+<p>http（超文本传输协议）是一个基于请求与响应模式的、无状态的、应用层的协议，常基于TCP的连接方式，HTTP1.1版本中给出一种持续连接的机制，绝大多数的Web开发，都是构建在HTTP协议之上的Web应用。HTTP协议默认使用80端口</p>
+</blockquote>
+<ol>
+<li>支持客户/服务器模式。</li>
+<li>简单快速：客户向服务器请求服务时，只需传送请求方法和路径。请求方法常用的有GET、HEAD、POST。每种方法规定了客户与服务器联系的类型不同。由于HTTP协议简单，使得HTTP服务器的程序规模小，因而通信速度很快。</li>
+<li>灵活：HTTP允许传输任意类型的数据对象。正在传输的类型由Content-Type加以标记。</li>
+<li>无连接：无连接的含义是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。采用这种方式可以节省传输时间。</li>
+<li>无状态：HTTP协议是无状态协议。无状态是指协议对于事务处理没有记忆能力。缺少状态意味着如果后续处理需要前面的信息，则它必须重传，这样可能导致每次连接传送的数据量增大。另一方面，在服务器不需要先前信息时它的应答就较快。</li>
+</ol>
+<h3 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h3><p>HTTP协议由三部分组成 : </p>
+<ul>
+<li>请求行 : 包含请求方法(GET/POST/…),请求路径以及请求协议(HTTP/1.1 2.0 . . .)</li>
+<li>请求头 : 包含基本信息,主机地址,Cookie,Connection状态等</li>
+<li>请求体 : 请求体中大部分数据为表单数据,按照自己应用实际填写</li>
+</ul>
+<h3 id="常见HTTP请求方法"><a href="#常见HTTP请求方法" class="headerlink" title="常见HTTP请求方法"></a>常见HTTP请求方法</h3><h4 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h4><p>获取资源,当前网络请求中，绝大部分使用的是 GET 方法。</p>
+<h4 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h4><p>POST 主要用来传输数据，而 GET 主要用来获取资源。</p>
+<h4 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h4><p>由于自身不带验证机制，任何人都可以上传文件，因此存在安全性问题，一般不使用该方法。</p>
+<h4 id="PATCH"><a href="#PATCH" class="headerlink" title="PATCH"></a>PATCH</h4><p>PUT 也可以用于修改资源，但是只能完全替代原始资源，PATCH 允许部分修改。</p>
+<h4 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h4><p>与 PUT 功能相反，并且同样不带验证机制。</p>
+<h4 id="CONNECT"><a href="#CONNECT" class="headerlink" title="CONNECT"></a>CONNECT</h4><blockquote>
+<p>要求在与代理服务器通信时建立隧道</p>
+</blockquote>
+<p>使用 SSL（Secure Sockets Layer，安全套接层）和 TLS（Transport Layer Security，传输层安全）协议把通信内容加密后经网络隧道传输。</p>
+<h3 id="HTTP常见状态码"><a href="#HTTP常见状态码" class="headerlink" title="HTTP常见状态码"></a>HTTP常见状态码</h3><table>
+<thead>
+<tr>
+<th>状态码</th>
+<th>类别</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1XX</td>
+<td>Informational（信息性状态码）</td>
+<td>接收的请求正在处理</td>
+</tr>
+<tr>
+<td>2XX</td>
+<td>Success（成功状态码）</td>
+<td>请求正常处理完毕</td>
+</tr>
+<tr>
+<td>3XX</td>
+<td>Redirection（重定向状态码）</td>
+<td>需要进行附加操作以完成请求</td>
+</tr>
+<tr>
+<td>4XX</td>
+<td>Client Error（客户端错误状态码）</td>
+<td>服务器无法处理请求</td>
+</tr>
+<tr>
+<td>5XX</td>
+<td>Server Error（服务器错误状态码）</td>
+<td>服务器处理请求出错</td>
+</tr>
+</tbody></table>
+<h4 id="1XX"><a href="#1XX" class="headerlink" title="1XX"></a>1XX</h4><ul>
+<li><strong>100 Continue</strong> ：表明到目前为止都很正常，客户端可以继续发送请求或者忽略这个响应。</li>
+</ul>
+<h4 id="2XX"><a href="#2XX" class="headerlink" title="2XX"></a>2XX</h4><ul>
+<li><strong>200 OK</strong></li>
+<li><strong>204 No Content</strong> ：请求已经成功处理，但是返回的响应报文不包含实体的主体部分。一般在只需要从客户端往服务器发送信息，而不需要返回数据时使用。</li>
+<li><strong>206 Partial Content</strong> ：表示客户端进行了范围请求，响应报文包含由 Content-Range 指定范围的实体内容。</li>
+</ul>
+<h4 id="3XX"><a href="#3XX" class="headerlink" title="3XX"></a>3XX</h4><ul>
+<li><strong>301 Moved Permanently</strong> ：永久性重定向</li>
+<li><strong>302 Found</strong> ：临时性重定向</li>
+<li><strong>303 See Other</strong> ：和 302 有着相同的功能，但是 303 明确要求客户端应该采用 GET 方法获取资源。</li>
+<li>注：虽然 HTTP 协议规定 301、302 状态下重定向时不允许把 POST 方法改成 GET 方法，但是大多数浏览器都会在 301、302 和 303 状态下的重定向把 POST 方法改成 GET 方法。</li>
+<li><strong>304 Not Modified</strong> ：如果请求报文首部包含一些条件，例如：If-Match，If-Modified-Since，If-None-Match，If-Range，If-Unmodified-Since，如果不满足条件，则服务器会返回 304 状态码。</li>
+<li><strong>307 Temporary Redirect</strong> ：临时重定向，与 302 的含义类似，但是 307 要求浏览器不会把重定向请求的 POST 方法改成 GET 方法。</li>
+</ul>
+<h4 id="4XX"><a href="#4XX" class="headerlink" title="4XX"></a>4XX</h4><ul>
+<li><strong>400 Bad Request</strong> ：请求报文中存在语法错误。</li>
+<li><strong>401 Unauthorized</strong> ：该状态码表示发送的请求需要有认证信息（BASIC 认证、DIGEST 认证）。如果之前已进行过一次请求，则表示用户认证失败。</li>
+<li><strong>403 Forbidden</strong> ：请求被拒绝。</li>
+<li><strong>404 Not Found</strong> : 资源未找到</li>
+</ul>
+<h4 id="5xx"><a href="#5xx" class="headerlink" title="5xx"></a>5xx</h4><ul>
+<li><strong>500 Internal Server Error</strong> ：服务器正在执行请求时发生错误。</li>
+<li><strong>503 Service Unavailable</strong> ：服务器暂时处于超负载或正在进行停机维护，现在无法处理请求。</li>
+</ul>
+<h3 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h3><blockquote>
+<p>HTTP 协议是无状态的，主要是为了让 HTTP 协议尽可能简单，使得它能够处理大量事务。HTTP/1.1 引入 Cookie 来保存状态信息。</p>
+</blockquote>
+<p>Cookie 是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器之后向同一服务器再次发起请求时被携带上，用于告知服务端两个请求是否来自同一浏览器。</p>
+<h4 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h4><ul>
+<li>会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）</li>
+<li>个性化设置（如用户自定义设置、主题等）</li>
+<li>浏览器行为跟踪（如跟踪分析用户行为等）</li>
+</ul>
+<h4 id="Cookie创建"><a href="#Cookie创建" class="headerlink" title="Cookie创建"></a>Cookie创建</h4><p>服务器发送的响应报文包含 Set-Cookie 首部字段，客户端得到响应报文后把 Cookie 内容保存到浏览器中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.0 200 OK</span><br><span class="line">Content-type: text/html</span><br><span class="line">Set-Cookie: yummy_cookie=choco</span><br><span class="line">Set-Cookie: tasty_cookie=strawberry</span><br></pre></td></tr></table></figure>
+
+<p>客户端之后对同一个服务器发送请求时，会从浏览器中取出 Cookie 信息并通过 Cookie 请求首部字段发送给服务器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Cookie分类"><a href="#Cookie分类" class="headerlink" title="Cookie分类"></a>Cookie分类</h4><ul>
+<li>会话性Cookie : 浏览器关闭之后它会被自动删除，也就是说它仅在会话期内有效</li>
+<li>持久性 Cookie : 指定过期时间（Expires）或有效期（max-age）之后就成为了持久性的 Cookie。</li>
+</ul>
+<h3 id="Session"><a href="#Session" class="headerlink" title="Session"></a>Session</h3><p>Session和Cookie都可以实现记录用户状态的功能,而Session是将用户状态的记录存放于服务器上,例如Redis作为Session,存储信息更加安全。</p>
+<p>使用 Session 维护用户登录状态的过程如下：</p>
+<ul>
+<li>用户进行登录时，用户提交包含用户名和密码的表单，放入 HTTP 请求报文中；</li>
+<li>服务器验证该用户名和密码，如果正确则把用户信息存储到 Redis 中，它在 Redis 中的 Key 称为 Session ID；</li>
+<li>服务器返回的响应报文的 Set-Cookie 首部字段包含了这个 Session ID，客户端收到响应报文之后将该 Cookie 值存入浏览器中；</li>
+<li>客户端之后对同一个服务器进行请求时会包含该 Cookie 值，服务器收到之后提取出 Session ID，从 Redis 中取出用户信息，继续之前的业务操作。</li>
+</ul>
+<p>例如使用Redis作为一个Session,可以在Redis中存储Key-value</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KEY USERNAME VALUE TOKEN</span><br></pre></td></tr></table></figure>
+
+<h2 id="HTTP1-X-2-0"><a href="#HTTP1-X-2-0" class="headerlink" title="HTTP1.X/2.0"></a>HTTP1.X/2.0</h2><h3 id="HTTP-1-1变更"><a href="#HTTP-1-1变更" class="headerlink" title="HTTP 1.1变更"></a>HTTP 1.1变更</h3><p>HTTP1.1则在1999年才开始广泛应用于现在的各大浏览器网络请求中，同时HTTP1.1也是当前使用最为广泛的HTTP协议。 </p>
+<h4 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h4><p>由于每次建立TCP连接是一个高代价的操作,在1.1中引入了长连接的机制,默认开启<code>Connection:keep-alive</code>。允许多个请求复用同一个TCP连接,节省HTTP请求的消耗。但是同样带了一些问题。</p>
+<p><strong>队头阻塞</strong></p>
+<p>当多个请求使用同一个TCP连接时,其请求方式就是串行化,这些请求会存入队列中,依次处理。此时如果队头请求失败需要重传，则后续的请求也都需要重新传输，在网络拥塞的情况下，容易造成多次失败。</p>
+<h4 id="部分传输"><a href="#部分传输" class="headerlink" title="部分传输"></a>部分传输</h4><p>HTTP1.0中，存在一些浪费带宽的现象，例如客户端只是需要某个对象的一部分，而服务器却将整个对象送过来了，并且不支持断点续传功能，HTTP1.1则在请求头引入了range头域，它允许只请求资源的某个部分，即返回码是206（Partial Content），这样就方便了开发者自由的选择以便于充分利用带宽和连接。</p>
+<h4 id="虚拟主机及HOST头处理"><a href="#虚拟主机及HOST头处理" class="headerlink" title="虚拟主机及HOST头处理"></a>虚拟主机及HOST头处理</h4><p>在HTTP1.0中认为每台服务器都绑定一个唯一的IP地址，因此，请求消息中的URL并没有传递主机名（hostname）。但随着虚拟主机技术的发展，在一台物理服务器上可以存在多个虚拟主机（Multi-homed Web Servers），并且它们共享一个IP地址。HTTP1.1的请求消息和响应消息都应支持Host头域，且请求消息中如果没有Host头域会报告一个错误（400 Bad Request</p>
+<h4 id="缓存处理"><a href="#缓存处理" class="headerlink" title="缓存处理"></a>缓存处理</h4><p>在HTTP1.0中主要使用header里的If-Modified-Since,Expires来做为缓存判断的标准，HTTP1.1则引入了更多的缓存控制策略例如Entity tag，If-Unmodified-Since, If-Match, If-None-Match等更多可供选择的缓存头来控制缓存策略</p>
+<h4 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h4><p>在HTTP1.1中新增了更多的状态码</p>
+<h3 id="HTTP2-0变更"><a href="#HTTP2-0变更" class="headerlink" title="HTTP2.0变更"></a>HTTP2.0变更</h3><h4 id="长连接多路复用"><a href="#长连接多路复用" class="headerlink" title="长连接多路复用"></a>长连接多路复用</h4><p>HTTP/2多个请求可同时在一个连接上并行执行。某个请求任务耗时严重，不会影响到其它连接的正常执行。</p>
+<h4 id="头部压缩"><a href="#头部压缩" class="headerlink" title="头部压缩"></a>头部压缩</h4><p>如上文中所言，对前面提到过HTTP1.x的header带有大量信息，而且每次都要重复发送，HTTP2.0使用encoder来减少需要传输的header大小，通讯双方各自cache一份header fields表，既避免了重复header的传输，又减小了需要传输的大小。</p>
+<h4 id="二进制传输"><a href="#二进制传输" class="headerlink" title="二进制传输"></a>二进制传输</h4><p>HTTP1.x的解析是基于文本。基于文本协议的格式解析存在天然缺陷，文本的表现形式有多样性，要做到健壮性考虑的场景必然很多，二进制则不同，只认0和1的组合。基于这种考虑HTTP2.0的协议解析决定采用二进制格式，实现方便且健壮。</p>
+<h4 id="服务端推送"><a href="#服务端推送" class="headerlink" title="服务端推送"></a>服务端推送</h4><p>HTTP 2.0具有服务端主动推送功能(并非Websocket的推送),服务端推送能把客户端所需要的资源伴随着index.html一起发送到客户端，省去了客户端重复请求的步骤。正因为没有发起请求，建立连接等操作，所以静态资源通过服务端推送的方式可以极大地提升速度。</p>
+<h2 id="HTTPS协议"><a href="#HTTPS协议" class="headerlink" title="HTTPS协议"></a>HTTPS协议</h2><h3 id="HTTP不足"><a href="#HTTP不足" class="headerlink" title="HTTP不足"></a>HTTP不足</h3><ul>
+<li>使用明文进行通信，内容可能会被窃听；</li>
+<li>不验证通信方的身份，通信方的身份有可能遭遇伪装；</li>
+<li>无法证明报文的完整性，报文有可能遭篡改。</li>
+</ul>
+<p>HTTPS 并不是新协议，而是让 HTTP 先和 SSL（Secure Sockets Layer）通信，再由 SSL 和 TCP 通信，也就是说 HTTPS 使用了隧道进行通信。</p>
+<p>而HTTPS默认使用443端口。</p>
+<h3 id="加密方式"><a href="#加密方式" class="headerlink" title="加密方式"></a>加密方式</h3><h4 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h4><p><img src="https://s1.ax1x.com/2020/05/17/YRhk8O.png" alt=""></p>
+<p>对称密钥加密（Symmetric-Key Encryption），加密和解密使用同一密钥,对称加密的密钥为私钥</p>
+<ul>
+<li>优点：运算速度快；</li>
+<li>缺点：无法安全地将密钥传输给通信方。</li>
+</ul>
+<h4 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h4><p><img src="https://s1.ax1x.com/2020/05/17/YRhMIP.png" alt=""></p>
+<p>非对称密钥加密，又称公开密钥加密（Public-Key Encryption），加密和解密使用不同的密钥。</p>
+<p>公开密钥所有人都可以获得，通信发送方获得接收方的公开密钥之后，就可以使用公开密钥进行加密，接收方收到通信内容后使用私有密钥解密。</p>
+<p>非对称密钥除了用来加密，还可以用来进行签名。因为私有密钥无法被其他人获取，因此通信发送方使用其私有密钥进行签名，通信接收方使用发送方的公开密钥对签名进行解密，就能判断这个签名是否正确。</p>
+<ul>
+<li>优点：可以更安全地将公开密钥传输给通信发送方；</li>
+<li>缺点：运算速度慢。</li>
+</ul>
+<h3 id="HTTPS加密过程"><a href="#HTTPS加密过程" class="headerlink" title="HTTPS加密过程"></a>HTTPS加密过程</h3><p><img src="https://s1.ax1x.com/2020/05/17/YR4fmj.png" alt=""></p>
+<ol>
+<li>首先，客户端发起握手请求，以明文传输请求信息，包含版本信息，加密-套件候选列表，压缩算法候选列表，随机数，扩展字段等信息(<code>这个没什么好说的，就是用户在浏览器里输入一个HTTPS网址，然后连接到服务端的443端口。</code>)</li>
+<li>服务端的配置，采用HTTPS协议的服务器必须要有一套数字证书，可以自己制作，也可以向组织申请。区别就是自己颁发的证书需要客户端验证通过，才可以继续访问，而使用受信任的公司申请的证书则不会弹出提示页面。<code>这套证书其实就是一对公钥和私钥。</code>如果对公钥不太理解，可以想象成一把钥匙和一个锁头，只是世界上只有你一个人有这把钥匙，你可以把锁头给别人，别人可以用这个锁把重要的东西锁起来，然后发给你，因为只有你一个人有这把钥匙，所以只有你才能看到被这把锁锁起来的东西。</li>
+<li>服务端返回协商的信息结果，包括选择使用的协议版本 version，选择的加密套件 cipher suite，选择的压缩算法 compression method、随机数 random_S 以及证书。(<code>这个证书其实就是公钥，只是包含了很多信息，如证书的颁发机构，过期时间等等。</code>)客户端验证证书的合法性，包括可信性，是否吊销，过期时间和域名。(<code>这部分工作是由客户端的SSL/TLS来完成的，首先会验证公钥是否有效，比如颁发机构，过期时间等等，如果发现异常，则会弹出一个警示框，提示证书存在的问题。如果证书没有问题，那么就生成一个随机值。然后用证书（也就是公钥）对这个随机值进行加密。就好像上面说的，把随机值用锁头锁起来，这样除非有钥匙，不然看不到被锁住的内容。</code>)</li>
+<li>客户端使用公匙对对称密匙加密，发送给服务端。(<code>这部分传送的是用证书加密后的随机值，目的是让服务端得到这个随机值，以后客户端和服务端的通信就可以通过这个随机值来进行加密解密了。</code>)</li>
+<li>服务器用私钥解密，拿到对称加密的密匙。(<code>服务端用私钥解密后，得到了客户端传过来的随机值，然后把内容通过该随机值进行对称加密，将信息和私钥通过某种算法混合在一起，这样除非知道私钥，不然无法获取内容，而正好客户端和服务端都知道这个私钥，所以只要加密算法够彪悍，私钥够复杂，数据就够安全。</code>)</li>
+<li>传输加密后的信息，这部分信息就是服务端用私钥加密后的信息，可以在客户端用随机值解密还原。</li>
+<li>客户端解密信息，客户端用之前生产的私钥解密服务端传过来的信息，于是获取了解密后的内容。整个过程第三方即使监听到了数据，也束手无策。</li>
+</ol>
+<p>简单概述 : 由于证书的密钥只有服务端拥有,所以通过第一次非对称加密将一个随机值加密传输给服务器,此时客户端和服务器拥有了同一个随即值,而这个随机值就是对称加密的密钥。</p>
+<h3 id="SSL和TLS协议"><a href="#SSL和TLS协议" class="headerlink" title="SSL和TLS协议"></a>SSL和TLS协议</h3><blockquote>
+<p>SSL(Secure Socket Layer 安全套接层)是TCP/IP协议中基于HTTP之下TCP之上的一个可选协议层,在SSL更新到3.0时， 互联网工程任务组（IETF）对SSL3.0进行了标准化，并添加了少数机制（但是几乎和SSL3.0无差异），并将其更名为TLS1.0(Transport Layer Security 安全传输层协议)，可以说TLS就是SSL的新版本3.1</p>
+</blockquote>
+<p>注意 : 本质上SSL和TLS协议并没有差别,都是用作对提供私密,完整的身份认证。</p>
+<p>SSL/TLS协议的基本思路是采用<a href="http://en.wikipedia.org/wiki/Public-key_cryptography" target="_blank" rel="noopener">公钥加密法</a>，也就是说，客户端先向服务器端索要公钥，然后用公钥加密信息，服务器收到密文后，用自己的私钥解密。</p>
+<h2 id="WebSocket协议"><a href="#WebSocket协议" class="headerlink" title="WebSocket协议"></a>WebSocket协议</h2><blockquote>
+<p><strong>WebSocket</strong>是一种<a href="https://zh.wikipedia.org/wiki/网络传输协议" target="_blank" rel="noopener">网络传输协议</a>，可在单个<a href="https://zh.wikipedia.org/wiki/传输控制协议" target="_blank" rel="noopener">TCP</a>连接上进行<a href="https://zh.wikipedia.org/wiki/全雙工" target="_blank" rel="noopener">全双工</a>通信，位于<a href="https://zh.wikipedia.org/wiki/OSI模型" target="_blank" rel="noopener">OSI模型</a>的<a href="https://zh.wikipedia.org/wiki/应用层" target="_blank" rel="noopener">应用层</a>。</p>
+</blockquote>
+<p>WebSocket使得客户端和服务器之间的数据交换变得更加简单，允许服务端主动向客户端推送数据。在WebSocket API中，浏览器和服务器只需要完成一次握手，两者之间就可以创建持久性的连接，并进行双向数据传输。</p>
+<p>WebSocket协议虽然与HTTP协议不同,但同样使用的是80和443端口,二者最大的区别就是加密通信和明文通讯。</p>
+<p>在一些特定场景下,需要服务器主动向客户端推送消息,虽然在HTTP 2.0中提供了一种推送机制,但是是针对静态资源的而非数据。WebSocket中则能够在建立连接后主动向客户端推送消息，例如在Web聊天室中可以由服务器进行广播操作。</p>
+<h3 id="WebSocket主要特点"><a href="#WebSocket主要特点" class="headerlink" title="WebSocket主要特点"></a>WebSocket主要特点</h3><ol>
+<li>支持双向通信，实时性更强。</li>
+<li>更好的二进制支持。</li>
+<li>较少的控制开销。连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小。在不包含头部的情况下，服务端到客户端的包头只有2~10字节（取决于数据包长度），客户端到服务端的的话，需要加上额外的4字节的掩码。而HTTP协议每次通信都需要携带完整的头部。</li>
+<li>支持扩展。ws协议定义了扩展，用户可以扩展协议，或者实现自定义的子协议。（比如支持自定义压缩算法等）</li>
+<li>WS的连接不能通过中间人来转发，它必须是一个直接连接；</li>
+<li>WS连接建立之后，数据的传输使用帧来传递，不再需要Request消息；</li>
+<li>WS的数据帧有序</li>
+</ol>
+<h3 id="连接建立"><a href="#连接建立" class="headerlink" title="连接建立"></a>连接建立</h3><p>WebSocket复用了HTTP的握手通道。具体指的是，客户端通过HTTP请求与WebSocket服务端协商升级协议。协议升级完成后，后续的数据交换则遵照WebSocket的协议。</p>
+<h4 id="请求升级"><a href="#请求升级" class="headerlink" title="请求升级"></a>请求升级</h4><p>客户端发起HTTP请求,并且协议升级仅支持GET请求方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Host: localhost:8080</span><br><span class="line">Origin: http://127.0.0.1:3000</span><br><span class="line">Connection: Upgrade</span><br><span class="line">Upgrade: websocket</span><br><span class="line">Sec-WebSocket-Version: 13</span><br><span class="line">Sec-WebSocket-Key: w4v7O6xFTi36lq3RNcgctw==</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>Connection: Upgrade</code>：表示要升级协议</li>
+<li><code>Upgrade: websocket</code>：表示要升级到websocket协议。</li>
+<li><code>Sec-WebSocket-Version: 13</code>：表示websocket的版本。如果服务端不支持该版本，需要返回一个<code>Sec-WebSocket-Version</code>header，里面包含服务端支持的版本号。</li>
+<li><code>Sec-WebSocket-Key</code>：与后面服务端响应首部的<code>Sec-WebSocket-Accept</code>是配套的，提供基本的防护，比如恶意的连接，或者无意的连接。</li>
+</ul>
+<blockquote>
+<p>注意，上面请求省略了部分非重点请求首部。由于是标准的HTTP请求，类似Host、Origin、Cookie等请求首部会照常发送。在握手阶段，可以通过相关请求首部进行 安全限制、权限校验等。</p>
+</blockquote>
+<h4 id="响应协议升级"><a href="#响应协议升级" class="headerlink" title="响应协议升级"></a>响应协议升级</h4><p>服务端返回内容如下，状态代码<code>101</code>表示协议切换。到此完成协议升级，后续的数据交互都按照新的协议来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 101 Switching Protocols</span><br><span class="line">Connection:Upgrade</span><br><span class="line">Upgrade: websocket</span><br><span class="line">Sec-WebSocket-Accept: Oy4NRAQ13jhfONC7bP8dTKb4PTU=</span><br></pre></td></tr></table></figure>
+
+<h3 id="心跳检测"><a href="#心跳检测" class="headerlink" title="心跳检测"></a>心跳检测</h3><p>在使用websocket的过程中，有时候会遇到客户端网络关闭的情况，而这时候在服务端并没有触发onclose事件。这样会：</p>
+<ul>
+<li>多余的连接</li>
+<li>服务端会继续给客户端发数据，这些数据会丢失</li>
+</ul>
+<p>所以就需要一种机制来检测客户端和服务端是否处于正常连接的状态。心跳检测就是这样的一种机制，一般来说客户端每过一定时间就进行心跳包发送来检测是否存活。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/OSI%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%8D%8F%E8%AE%AE/" rel="tag"># OSI模型及协议</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/15/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Connector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="Tomcat系列文章:Connector源码分析">
+      <i class="fa fa-chevron-left"></i> Tomcat系列文章:Connector源码分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#OSI七层协议"><span class="nav-number">1.</span> <span class="nav-text">OSI七层协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#以太网协议"><span class="nav-number">2.</span> <span class="nav-text">以太网协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP协议"><span class="nav-number">3.</span> <span class="nav-text">ARP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP概述"><span class="nav-number">3.1.</span> <span class="nav-text">ARP概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP-工作流程"><span class="nav-number">3.2.</span> <span class="nav-text">ARP 工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP请求与响应"><span class="nav-number">3.3.</span> <span class="nav-text">ARP请求与响应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP数据报文"><span class="nav-number">3.4.</span> <span class="nav-text">ARP数据报文</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ICMP协议"><span class="nav-number">4.</span> <span class="nav-text">ICMP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ICMP内容"><span class="nav-number">4.1.</span> <span class="nav-text">ICMP内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ICMP作用"><span class="nav-number">4.2.</span> <span class="nav-text">ICMP作用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP协议"><span class="nav-number">5.</span> <span class="nav-text">IP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#寻址路由"><span class="nav-number">5.1.</span> <span class="nav-text">寻址路由</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分段重组"><span class="nav-number">5.2.</span> <span class="nav-text">分段重组</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据报格式"><span class="nav-number">5.3.</span> <span class="nav-text">数据报格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IP数据报分片"><span class="nav-number">5.4.</span> <span class="nav-text">IP数据报分片</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#标识"><span class="nav-number">5.4.1.</span> <span class="nav-text">标识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#标志"><span class="nav-number">5.4.2.</span> <span class="nav-text">标志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#片偏移"><span class="nav-number">5.4.3.</span> <span class="nav-text">片偏移</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IP数据报路由转发"><span class="nav-number">5.5.</span> <span class="nav-text">IP数据报路由转发</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP协议"><span class="nav-number">6.</span> <span class="nav-text">TCP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三次握手"><span class="nav-number">6.1.</span> <span class="nav-text">三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#三次挥手场景"><span class="nav-number">6.1.1.</span> <span class="nav-text">三次挥手场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三次挥手必要性"><span class="nav-number">6.1.2.</span> <span class="nav-text">三次挥手必要性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四次挥手"><span class="nav-number">6.2.</span> <span class="nav-text">四次挥手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#四次挥手过程"><span class="nav-number">6.2.1.</span> <span class="nav-text">四次挥手过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四次挥手原因"><span class="nav-number">6.2.2.</span> <span class="nav-text">四次挥手原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TIME-WAIT状态"><span class="nav-number">6.2.3.</span> <span class="nav-text">TIME_WAIT状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CLOSE-WAIT状态"><span class="nav-number">6.2.4.</span> <span class="nav-text">CLOSE_WAIT状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP心跳机制"><span class="nav-number">6.3.</span> <span class="nav-text">TCP心跳机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP拆包与粘包"><span class="nav-number">6.4.</span> <span class="nav-text">TCP拆包与粘包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#概念"><span class="nav-number">6.4.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解决手段"><span class="nav-number">6.4.2.</span> <span class="nav-text">解决手段</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP滑动窗口"><span class="nav-number">6.5.</span> <span class="nav-text">TCP滑动窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拥塞控制"><span class="nav-number">6.6.</span> <span class="nav-text">拥塞控制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#网络拥塞"><span class="nav-number">6.6.1.</span> <span class="nav-text">网络拥塞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#慢开始"><span class="nav-number">6.6.2.</span> <span class="nav-text">慢开始</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#拥塞避免算法"><span class="nav-number">6.6.3.</span> <span class="nav-text">拥塞避免算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#快速重传"><span class="nav-number">6.6.4.</span> <span class="nav-text">快速重传</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#快速恢复"><span class="nav-number">6.6.5.</span> <span class="nav-text">快速恢复</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全过程"><span class="nav-number">6.6.6.</span> <span class="nav-text">全过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP"><span class="nav-number">7.</span> <span class="nav-text">UDP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP特点"><span class="nav-number">7.1.</span> <span class="nav-text">UDP特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据报格式-1"><span class="nav-number">7.2.</span> <span class="nav-text">数据报格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP实现可靠传输"><span class="nav-number">7.3.</span> <span class="nav-text">UDP实现可靠传输</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RUDP"><span class="nav-number">7.3.1.</span> <span class="nav-text">RUDP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RTP"><span class="nav-number">7.3.2.</span> <span class="nav-text">RTP</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DNS协议"><span class="nav-number">8.</span> <span class="nav-text">DNS协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DNS服务器"><span class="nav-number">8.1.</span> <span class="nav-text">DNS服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询过程"><span class="nav-number">8.2.</span> <span class="nav-text">查询过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FTP协议"><span class="nav-number">9.</span> <span class="nav-text">FTP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FTP协议如何传输一个文件直到结束"><span class="nav-number">9.1.</span> <span class="nav-text">FTP协议如何传输一个文件直到结束</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SMTP协议"><span class="nav-number">10.</span> <span class="nav-text">SMTP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#工作机制"><span class="nav-number">10.1.</span> <span class="nav-text">工作机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发送过程"><span class="nav-number">10.2.</span> <span class="nav-text">发送过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP协议"><span class="nav-number">11.</span> <span class="nav-text">HTTP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#组成"><span class="nav-number">11.1.</span> <span class="nav-text">组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见HTTP请求方法"><span class="nav-number">11.2.</span> <span class="nav-text">常见HTTP请求方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GET"><span class="nav-number">11.2.1.</span> <span class="nav-text">GET</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#POST"><span class="nav-number">11.2.2.</span> <span class="nav-text">POST</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PUT"><span class="nav-number">11.2.3.</span> <span class="nav-text">PUT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PATCH"><span class="nav-number">11.2.4.</span> <span class="nav-text">PATCH</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DELETE"><span class="nav-number">11.2.5.</span> <span class="nav-text">DELETE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CONNECT"><span class="nav-number">11.2.6.</span> <span class="nav-text">CONNECT</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP常见状态码"><span class="nav-number">11.3.</span> <span class="nav-text">HTTP常见状态码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1XX"><span class="nav-number">11.3.1.</span> <span class="nav-text">1XX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2XX"><span class="nav-number">11.3.2.</span> <span class="nav-text">2XX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3XX"><span class="nav-number">11.3.3.</span> <span class="nav-text">3XX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4XX"><span class="nav-number">11.3.4.</span> <span class="nav-text">4XX</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5xx"><span class="nav-number">11.3.5.</span> <span class="nav-text">5xx</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cookie"><span class="nav-number">11.4.</span> <span class="nav-text">Cookie</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#作用"><span class="nav-number">11.4.1.</span> <span class="nav-text">作用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cookie创建"><span class="nav-number">11.4.2.</span> <span class="nav-text">Cookie创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cookie分类"><span class="nav-number">11.4.3.</span> <span class="nav-text">Cookie分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Session"><span class="nav-number">11.5.</span> <span class="nav-text">Session</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP1-X-2-0"><span class="nav-number">12.</span> <span class="nav-text">HTTP1.X/2.0</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-1-1变更"><span class="nav-number">12.1.</span> <span class="nav-text">HTTP 1.1变更</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#长连接"><span class="nav-number">12.1.1.</span> <span class="nav-text">长连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部分传输"><span class="nav-number">12.1.2.</span> <span class="nav-text">部分传输</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟主机及HOST头处理"><span class="nav-number">12.1.3.</span> <span class="nav-text">虚拟主机及HOST头处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存处理"><span class="nav-number">12.1.4.</span> <span class="nav-text">缓存处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#状态码"><span class="nav-number">12.1.5.</span> <span class="nav-text">状态码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP2-0变更"><span class="nav-number">12.2.</span> <span class="nav-text">HTTP2.0变更</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#长连接多路复用"><span class="nav-number">12.2.1.</span> <span class="nav-text">长连接多路复用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#头部压缩"><span class="nav-number">12.2.2.</span> <span class="nav-text">头部压缩</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二进制传输"><span class="nav-number">12.2.3.</span> <span class="nav-text">二进制传输</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端推送"><span class="nav-number">12.2.4.</span> <span class="nav-text">服务端推送</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS协议"><span class="nav-number">13.</span> <span class="nav-text">HTTPS协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP不足"><span class="nav-number">13.1.</span> <span class="nav-text">HTTP不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#加密方式"><span class="nav-number">13.2.</span> <span class="nav-text">加密方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对称加密"><span class="nav-number">13.2.1.</span> <span class="nav-text">对称加密</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#非对称加密"><span class="nav-number">13.2.2.</span> <span class="nav-text">非对称加密</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS加密过程"><span class="nav-number">13.3.</span> <span class="nav-text">HTTPS加密过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSL和TLS协议"><span class="nav-number">13.4.</span> <span class="nav-text">SSL和TLS协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebSocket协议"><span class="nav-number">14.</span> <span class="nav-text">WebSocket协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebSocket主要特点"><span class="nav-number">14.1.</span> <span class="nav-text">WebSocket主要特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#连接建立"><span class="nav-number">14.2.</span> <span class="nav-text">连接建立</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#请求升级"><span class="nav-number">14.2.1.</span> <span class="nav-text">请求升级</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#响应协议升级"><span class="nav-number">14.2.2.</span> <span class="nav-text">响应协议升级</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#心跳检测"><span class="nav-number">14.3.</span> <span class="nav-text">心跳检测</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
