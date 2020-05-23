@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="CAP原则 CAP原则又称CAP定理，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）。   一致性 : 所有的分布式节点都要保证数据一致性 可用性 : 在集群中一部分节点失效后,剩余节点还能提供同样的服务 分区容忍性 : 当网络出现问题时,服务出现分区的现象  这三个概念所介绍的就是常见的分布式系">
+<meta name="keywords" content="CAP原则,分布式注册中心">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAP原则与Eurake和Zookeeper注册中心">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;23&#x2F;CAP%E5%8E%9F%E5%88%99%E4%B8%8EEurake%E5%92%8CZookeeper%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="CAP原则 CAP原则又称CAP定理，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）。   一致性 : 所有的分布式节点都要保证数据一致性 可用性 : 在集群中一部分节点失效后,剩余节点还能提供同样的服务 分区容忍性 : 当网络出现问题时,服务出现分区的现象  这三个概念所介绍的就是常见的分布式系">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;23&#x2F;YvgH6e.png">
+<meta property="og:updated_time" content="2020-05-23T13:33:55.663Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;23&#x2F;YvgH6e.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/23/CAP%E5%8E%9F%E5%88%99%E4%B8%8EEurake%E5%92%8CZookeeper%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CAP原则与Eurake和Zookeeper注册中心 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/23/CAP%E5%8E%9F%E5%88%99%E4%B8%8EEurake%E5%92%8CZookeeper%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CAP原则与Eurake和Zookeeper注册中心
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-23 21:31:47 / 修改时间：21:33:55" itemprop="dateCreated datePublished" datetime="2020-05-23T21:31:47+08:00">2020-05-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1/" itemprop="url" rel="index"><span itemprop="name">分布式与微服务</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="CAP原则"><a href="#CAP原则" class="headerlink" title="CAP原则"></a>CAP原则</h2><blockquote>
+<p>CAP原则又称CAP定理，指的是在一个分布式系统中，<a href="https://baike.baidu.com/item/一致性/9840083" target="_blank" rel="noopener">一致性</a>（Consistency）、<a href="https://baike.baidu.com/item/可用性/109628" target="_blank" rel="noopener">可用性</a>（Availability）、分区容错性（Partition tolerance）。</p>
+</blockquote>
+<ul>
+<li>一致性 : 所有的分布式节点都要保证数据一致性</li>
+<li>可用性 : 在集群中一部分节点失效后,剩余节点还能提供同样的服务</li>
+<li>分区容忍性 : 当网络出现问题时,服务出现分区的现象</li>
+</ul>
+<p>这三个概念所介绍的就是常见的分布式系统中会经常遇到的问题。</p>
+<a id="more"></a>
+
+<p>首先来说一致性问题,这个问题是最容易理解的，为了达到互联网的高可用，一般来说很多模块都会以集群的形式来部署，类似于Redis的<code>master - slave</code>，虽然在解决了可用性问题并且能够很好的线性拓展，但是由于多台机器部署后通过网络通讯，而网络通讯具有很多不确定性的因素，所以可能导致多个节点的数据不一致。</p>
+<p>而解决数据不一致的方法有很多,但是都有一个大前提，数据不一致时,如果希望进行数据同步，那么此时需要一个时间。</p>
+<p>可用性则指某个节点是否能提供正常的服务。</p>
+<p>这三者中,分区容忍性则是具有决定性因素的一个关键。什么是分区 ？</p>
+<p>假设目前有目前部署了一个集群,其中三个节点在中国，三个节点在美国,当网络出现问题是，中国和美国无法通讯，则出现了分区的情况，在分区的情况下，就出现了之前的三选二的情况。</p>
+<blockquote>
+<p><strong>注意</strong> : CAP的三选二真正的含义是,当P发生时,只能满足C和A中的一项,所以P是一个大前提。</p>
+</blockquote>
+<p>举个简单的例子，A服务器B服务器同步数据，现在A B之间网络断掉了，那么现在发来A一个写入请求，但是B却没有相关的请求，显然，如果A不写，保持一致性，那么我们就失去了A的服务，但是如果A写了，跟B的数据就不一致了，我们自然就丧失了一致性。</p>
+<h2 id="注册中心"><a href="#注册中心" class="headerlink" title="注册中心"></a>注册中心</h2><p>注册中心可以说是微服务架构中的”通讯录“，它记录了服务和服务地址的映射关系。在分布式架构中，服务会注册到这里，当服务需要调用其它服务时，就到这里找到服务的地址，进行调用。</p>
+<p><img src="https://s1.ax1x.com/2020/05/23/YvgH6e.png" alt=""></p>
+<p>注册中心的出现为分布式的架构解决了很多问题。归纳起来可以分为以下几种 : </p>
+<ul>
+<li>服务注册后,注册中心能够让其他消费者发现</li>
+<li>服务宕机后,注册中心能及时让服务下线</li>
+<li>服务能够通过注册中心有效的进行水平拓展</li>
+<li>多个相同服务可以在注册中心实现负载均衡</li>
+<li>服务出现异常时可以进行降级处理</li>
+<li>注册中心能够实现高可用以保证服务调度的稳定性</li>
+</ul>
+<p>目前Spring Cloud支持的几个主流注册中心有<code>Eurake</code>,<code>Zookeeper</code>,<code>Consul</code>以及阿里推出的<code>Nacos</code>。</p>
+<h2 id="Eurake"><a href="#Eurake" class="headerlink" title="Eurake"></a>Eurake</h2><blockquote>
+<p>Eureka是Netflix的一个子模块，也是核心模块之一。Eureka是一个基于REST的服务，用于定位服务，以实现云端中间层服务发现和故障转移。</p>
+</blockquote>
+<p>Eurake分为客户端和服务端,客户端能够将自己的服务注册到Eurake中以供其他消费者消费。服务启动后向Eureka注册，Eureka Server会将注册信息向其他Eureka Server进行同步，当服务消费者要调用服务提供者，则向服务注册中心获取服务提供者地址，然后会将服务提供者地址缓存在本地，下次再调用时，则直接从本地缓存中取，完成一次调用。</p>
+<p>这里引出了一个常见的问题。</p>
+<blockquote>
+<p>当注册中心挂掉后,服务是否还能够继续调用?</p>
+</blockquote>
+<p>答案是肯定的。当Eurake Client第一次连接到服务端时,会将注册表(服务对应端口)拉取到本地存入缓存，而如果短时间内注册中心挂掉，消费者首先会读取本地的缓存获取服务的RESTful API。</p>
+<p>Eurake Client同步机制是一种<strong>全量+增量</strong>的机制，这种机制类似于Redis中的Master和Slave的同步机制。当客户端第一次连接时,会对Eurake服务端做一个全量同步,将注册表完全同步到本地缓存，但是这个过程中可能出现Eurake中服务状态变更,因此防止出现数据不一致,在之后每30秒都会进行一次增量同步。</p>
+<p>同时为了保证服务端中的所有服务都是可用的,服务端提供了保护机制,每30S对服务生产者发送一个心跳包，如果在90S内没有收到心跳，服务端则认为该服务提供者掉线，将对其进行注销处理，可以使用如下参数开启Eurake开启保护模式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eureka.server.enable-self-preservation=true</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong> : Eurake保证AP原则</p>
+<p>Eureka各个节点都是平等的，几个节点挂掉不会影响正常节点的工作，剩余的节点依然可以提供注册和查询服务。而Eureka的客户端在向某个Eureka注册或时如果发现连接失败，则会自动切换至其它节点，只要有一台Eureka还在，就能保证注册服务可用(保证可用性)，只不过查到的信息可能不是最新的(不保证强一致性)。除此之外，Eureka还有一种自我保护机制，如果在15分钟内超过85%的节点都没有正常的心跳，那么Eureka就认为客户端与注册中心出现了网络故障，此时会出现以下几种情况：</p>
+<ol>
+<li>Eureka不再从注册列表中移除因为长时间没收到心跳而应该过期的服务</li>
+<li>Eureka仍然能够接受新服务的注册和查询请求，但是不会被同步到其它节点上(即保证当前节点依然可用)</li>
+<li>当网络稳定时，当前实例的注册信息会被同步到其它节点中</li>
+</ol>
+<p>Eurake同样能够配置集群,和Zookeeper不同的是,Eurake的集群中并没有leader和follower这个概念，所有的节点都是同级别的，只要集群中存活一个节点整个注册中心的服务就是可用的。</p>
+<h2 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h2><blockquote>
+<p>什么是Zookeeper ? </p>
+</blockquote>
+<p>Zookeeper提供了一套完整的文件系统+监控机制，能够完成分布式调度，注册中心，分布式锁等多种功能，是非常常见的分布式中间件。而本文主要总结Zookeeper作为注册中心的一些内容。</p>
+<p>Zookeeper作为服务注册中心与Eurake重要的一个区别在于,Zookeeper选择的是CP原则，即能够保证数据的一致性和分区容错。而Zookeeper实现特点也和其选举有关。</p>
+<p>在ZK集群中，会有多个follower,一个leader(这里不涉及观察者,因为它不参与选举)。而ZK的官方建议是一定要使用奇数个节点。</p>
+<blockquote>
+<p>ZK为什么要使用奇数个节点来做集群?</p>
+</blockquote>
+<p>这和ZK的选举票数有关,ZK规定，只有当某个节点获得超过总票数的1/2时才会被选举为leader,这里需要注意，一定是超过，等于的情况是不行的。而这个选举策略就决定了为什么使用奇数个。</p>
+<p>在分布式的系统中，会出现一种由于网络连接的问题出现系统服务分区的情况，在这里称之为<strong>脑裂</strong>。</p>
+<p>假如存在多个ZK节点，但是由于网络的原因，分为了A,B两个分区，此时AB无法通讯，则必然会出现数据不一致的情况，这时就发生了脑裂，而如果网络恢复后，强行合并多个节点可能造成数据冲突等复杂问题，所以脑裂在很大程度上会给系统造成非常严重的问题。</p>
+<p>为了避免脑裂的出现,ZK使用了这种选举机制。由于总结点数是奇数，一旦出现脑裂的情况，节点必然分为一个多一个少，举个例子。</p>
+<p>现有ZK集群，集群中共7个节点。发生脑裂后分为了集群A(3个节点),集群B(四个节点)。此时进行选举，选举成功条件是<code>票数 &gt; 3.5</code>，而集群A中所有票都不够，只有B中能够产生leader。而此时则集群A不可用。因此避免了脑裂问题。</p>
+<p>同时这个选举过程的评判方式不同，每个节点都会有自己的事务ID，投票时会选择事务ID最新的一个节点投票，来保证事务尽量使最近发生的事务，减少数据丢失。</p>
+<p>而如果是偶数节点会发生是什么?我们假设有8个节点分裂为4和4.那么成功条件<code>票数 &gt; 4</code>而这两个集群中没有一个节点符合要求，所以整个集群都不可用。</p>
+<p>由此可见，ZK的节点数量上设计是非常精妙的，但这同时也是ZK无法保证可用性的原因，因为一点出现分区的情况，那么必然会有一部分节点不可用，但是由于可用部分的节点能够正常通讯，所以才保证了数据的一致性，也就是说，为何ZK能够实现CP原则。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CAP%E5%8E%9F%E5%88%99/" rel="tag"># CAP原则</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/" rel="tag"># 分布式注册中心</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/" rel="prev" title="OSI七层模型及各层协议归纳总结">
+      <i class="fa fa-chevron-left"></i> OSI七层模型及各层协议归纳总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CAP原则"><span class="nav-number">1.</span> <span class="nav-text">CAP原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注册中心"><span class="nav-number">2.</span> <span class="nav-text">注册中心</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eurake"><span class="nav-number">3.</span> <span class="nav-text">Eurake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zookeeper"><span class="nav-number">4.</span> <span class="nav-text">Zookeeper</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
