@@ -161,6 +161,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/23/MVCC%E7%89%88%E6%9C%AC%E9%93%BE%E5%8F%8ARead-View/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/23/MVCC%E7%89%88%E6%9C%AC%E9%93%BE%E5%8F%8ARead-View/" class="post-title-link" itemprop="url">MVCC版本链及Read View</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-23 20:00:01" itemprop="dateCreated datePublished" datetime="2020-04-23T20:00:01+08:00">2020-04-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-26 12:12:23" itemprop="dateModified" datetime="2020-04-26T12:12:23+08:00">2020-04-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>MVCC版本控制是一种Mysql实现隔离级别的机制,其利用版本链以及对应的undo日志,通过快照读取的方法来控制各个级别的事务所能够读取到的信息。</p>
+<p>从事务隔离级别问题来说,MVCC能够解决脏读,不可重复读的问题,但是对于幻读则无能为力,所以这里也会顺带总结一下关于数据库幻读的解决方法,便于读者整理完整的思路。</p>
+<p>作者本身对于Mysql理解不深,如果有表述错误或者不当的地方,请及时指出,非常感谢您的阅读。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/23/MVCC%E7%89%88%E6%9C%AC%E9%93%BE%E5%8F%8ARead-View/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/18/ThreadPoolExcutor/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -933,92 +1016,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/" class="post-title-link" itemprop="url">G1收集器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-21 11:35:18" itemprop="dateCreated datePublished" datetime="2020-02-21T11:35:18+08:00">2020-02-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:17:05" itemprop="dateModified" datetime="2020-04-26T12:17:05+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">JVM学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><blockquote>
-<p>G1收集器在JDK 9中已经成为了默认收集器，正式取代了CMS</p>
-</blockquote>
-<p>G1收集器(Grabge Firest)它是一款面向服务端应用的垃圾收集器，在多 CPU 和大内存的场景下有很好的性能。</p>
-<h2 id="G1-Region区域"><a href="#G1-Region区域" class="headerlink" title="G1 Region区域"></a>G1 Region区域</h2><p>在之前的垃圾回收器中，垃圾分代都是按照下图思路分配，老年代，年轻代都是一整块内存，收集时也是针对整块内存进行收集。</p>
-<p><img src="https://s2.ax1x.com/2020/02/20/3eaCGt.png" alt=""></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1090,7 +1087,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1103,7 +1100,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-count">38</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
