@@ -161,6 +161,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/05/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/11/05/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">Java多线程基础总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-11-05 20:24:28" itemprop="dateCreated datePublished" datetime="2019-11-05T20:24:28+08:00">2019-11-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-26 12:18:44" itemprop="dateModified" datetime="2020-04-26T12:18:44+08:00">2020-04-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">Java基础技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="线程与进程"><a href="#线程与进程" class="headerlink" title="线程与进程"></a>线程与进程</h3><hr>
+<p>  这两个概念很容易理解，我们可以认为线程为进程的子集，一个进程可以包含多个线程，这些线程独立工作，执行着不同的任务。在内存方面，每个进程拥有自己的内存空间，而所有线程则拥有同一片内存空间。<br></p>
+<p>  <strong>Java中多线程内存模型</strong></p>
+<p>  我们在聊多线程具体内容前，有必要总结一下内存模型。由于Java程序运行与虚拟机之上，所以我们可以通过计算机的类比来理解。当一条线程运行时，其过程应该是从内存获取共享变量副本，将该副本存于CPU内的高速缓存（cache）之中 。CPU执行完成后再将数据写回主存中。有关缓存一致性的问题请移步<a href="http://154.8.224.32:8080/blog1.0/blog/7" target="_blank" rel="noopener" title="Volitile关键字">Volitile关键字</a><br></p>
+<p><a href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548325577822&di=ad2b32eba51591ce859d5df5e042f6d6&imgtype=0&src=http%3A%2F%2Fupload-images.jianshu.io%2Fupload_images%2F14958097-c527f8f5dbe6d352.png" target="_blank" rel="noopener"><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1548325577822&di=ad2b32eba51591ce859d5df5e042f6d6&imgtype=0&src=http%3A%2F%2Fupload-images.jianshu.io%2Fupload_images%2F14958097-c527f8f5dbe6d352.png" alt=""></a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2019/11/05/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80%E6%80%BB%E7%BB%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/01/Hyrule-Modbus%E7%9B%91%E6%8E%A7%E5%B9%B3%E5%8F%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -480,20 +565,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">39</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

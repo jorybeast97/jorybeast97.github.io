@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="复习总结时发现之前写过不少关于操作系统的相关知识点,但是零零碎碎，复习起来没有一个完整的体系。趁着周六没有课，将这些内容做了归纳和总结，输出成为一篇万字的总结长文，以供自己复习和别人参考。 操作系统虽然并不陌生，但是一个Java程序员可能很少真的和操作系统去打交道，我们日常大部分的事情都被JVM很好的完成了，以至于我们并没有真正的去理解和操作过底层的内容，但是操作系统却实实在在为我们程序服务，例如">
+<meta name="keywords" content="操作系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统常见知识点详细总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;05&#x2F;30&#x2F;%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="复习总结时发现之前写过不少关于操作系统的相关知识点,但是零零碎碎，复习起来没有一个完整的体系。趁着周六没有课，将这些内容做了归纳和总结，输出成为一篇万字的总结长文，以供自己复习和别人参考。 操作系统虽然并不陌生，但是一个Java程序员可能很少真的和操作系统去打交道，我们日常大部分的事情都被JVM很好的完成了，以至于我们并没有真正的去理解和操作过底层的内容，但是操作系统却实实在在为我们程序服务，例如">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;30&#x2F;tMHZbd.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;15&#x2F;837LO1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8Gtnte.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8GYasx.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8JoaMd.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8J7cuj.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8JjeGq.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;16&#x2F;8YA501.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;15&#x2F;88nYEq.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;15&#x2F;881P8P.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;17&#x2F;8tXIx0.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;17&#x2F;8NzjVf.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;17&#x2F;8UFTT1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;17&#x2F;8UEiQS.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;17&#x2F;8U1Hzj.png">
+<meta property="og:image" content="c:%5CUsers%5Cfanhao%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200302175911329.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s2.ax1x.com&#x2F;2020&#x2F;03&#x2F;02&#x2F;3WXBJf.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s2.ax1x.com&#x2F;2020&#x2F;03&#x2F;02&#x2F;3WXDW8.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;03&#x2F;14&#x2F;8M5cjO.png">
+<meta property="og:updated_time" content="2020-05-30T08:45:30.137Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;05&#x2F;30&#x2F;tMHZbd.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>操作系统常见知识点详细总结 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          操作系统常见知识点详细总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-30 15:43:51 / 修改时间：16:45:30" itemprop="dateCreated datePublished" datetime="2020-05-30T15:43:51+08:00">2020-05-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>复习总结时发现之前写过不少关于操作系统的相关知识点,但是零零碎碎，复习起来没有一个完整的体系。趁着周六没有课，将这些内容做了归纳和总结，输出成为一篇万字的总结长文，以供自己复习和别人参考。</p>
+<p>操作系统虽然并不陌生，但是一个Java程序员可能很少真的和操作系统去打交道，我们日常大部分的事情都被JVM很好的完成了，以至于我们并没有真正的去理解和操作过底层的内容，但是操作系统却实实在在为我们程序服务，例如<code>Unsafe</code>类中会使用到很多本地方法，如操作系统的<code>malloc</code>函数来为缓冲区分配堆外内存来实现<code>Zero Copy</code>，同时在很多框架中我们也能看到操作系统中的一些体系架构，因此，深入理解和学习操作系统算是一种十分具有性价比的学习内容。</p>
+<p>本文将主要从一下几个方面来总结操作系统的相关知识 : </p>
+<ul>
+<li>操作系统 : 操作系统概念,Kernel概念及特征</li>
+<li>内存管理 : 内存构成，虚拟内存技术，页帧页表设计以及页面置换算法</li>
+<li>线程与进程 : 二者概念，生命周期，进程调度算法以及进程间通讯方式</li>
+<li>系统IO : BIO和NIO模型，Linux中的NIO三种模型select，poll，epoll</li>
+</ul>
+<p>本文篇幅很长，并且基本都是高度精炼概括的总结，需要时间较长，请安心阅读。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h2><blockquote>
+<p><strong>操作系统主要是管理，分配，调用应用程序，同时能够在硬件接口和应用程序之间提供服务的应用程序</strong></p>
+</blockquote>
+<p><strong>为什么需要操作系统 ？</strong></p>
+<p>操作系统本质上是一个能够和硬件沟通和调度的一个应用程序，而我们可以通过C语言等这类能够和硬件直接交互的语言来编写我们的软件。但是操作系统解决了一些我们常见的问题。</p>
+<ol>
+<li>应用程序之间的内存管理和分配</li>
+<li>应用程序之间的IO操作，包括但不限于磁盘IO，网络IO</li>
+<li>应用程序的CPU资源调度和管理</li>
+<li>. . . . . .</li>
+</ol>
+<p>虽然我们能够通过自己编写程序来完成这些操作甚至针对我们自己程序进行优化,但是当我们希望快速构建一个程序,亦或者我们的语言无法直接对硬件进行控制,那么我们就需要操作系统.</p>
+<p>一般来说,操作系统主要分为两种 :</p>
+<ul>
+<li>批处理系统 : 用户将一批作业提交给操作系统后就不再干预，由操作系统控制它们自动运行。</li>
+<li>分时系统 : 多个程序分时（分时间片）共享硬件和软件资源。</li>
+</ul>
+<p>早期的大型机是典型的批处理系统,当时的系统设计就是为了计算大量的数据,因此,系统的高吞吐量才是设计的目标。而随着PC的普及，用户需要在操作系统中运行越来越多的程序，系统就需要对各个应用程序进行分时调度，这个阶段分时系统得到了蓬勃的发展。</p>
+<h3 id="内核态"><a href="#内核态" class="headerlink" title="内核态"></a>内核态</h3><p>什么是内核态 ？ </p>
+<blockquote>
+<p><strong>内核态：控制计算机的硬件资源，并提供上层应用程序运行的环境。</strong></p>
+</blockquote>
+<p><img src="https://s1.ax1x.com/2020/05/30/tMHZbd.png" alt=""></p>
+<p>我们能从图中看出，内核态是整个操作系统中最核心的位置，而设置内核态主要为了做一些安全性的保护。</p>
+<p>在CPU的所有指令中，有一些指令是非常危险的，如果错用，将导致整个系统崩溃。所以，CPU将指令分为<strong>特权指令和非特权指令</strong>，对于那些危险的指令，只允许操作系统及其相关模块使用，普通的应用程序只能使用那些不会造成灾难的指令。</p>
+<p>我们经常会听到一个概念——用户态内核态转换。用户态到内核态转化并不是随意发生的，一般来说分为三种情况。</p>
+<ol>
+<li>系统调用 ：这是一种比较常见的操作，例如Java中获取Sync失败后阻塞，会被系统调用进入内核态</li>
+<li>异常事件： 当CPU正在执行运行在用户态的程序时，突然发生某些预先不可知的异常事件，这个时候就会触发从当前用户态执行的进程转向内核态执行相关的异常事件，典型的如缺页异常</li>
+<li>外围设备的中断：当外围设备完成用户的请求操作后，会像CPU发出中断信号，此时，CPU就会暂停执行下一条即将要执行的指令，转而去执行中断信号对应的处理程序，如果先前执行的指令是在用户态下，则自然就发生从用户态到内核态的转换。</li>
+</ol>
+<p><strong>系统调用的本质其实也是中断</strong>，相对于外围设备的硬中断，这种中断称为软中断。从触发方式和效果上来看，这三种切换方式是完全一样的，都相当于是执行了一个中断响应的过程。但是从触发的对象来看，<strong>系统调用是进程主动请求切换的，而异常和硬中断则是被动的。</strong></p>
+<h3 id="Kernel四个特征"><a href="#Kernel四个特征" class="headerlink" title="Kernel四个特征"></a>Kernel四个特征</h3><ul>
+<li>并发 : 在<strong>一段时间</strong>内能够有多个程序运行(并行指在一个时间点上多个程序运行,需要多个CPU)</li>
+<li>共享 : 系统资源可以被多个程序共享，同时访问和互斥共享</li>
+<li>异步 : 程序能够走走停停，不是一贯到底</li>
+<li>虚拟 : 能够虚拟出其他的操作系统或者内存等内容</li>
+</ul>
+<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><blockquote>
+<p>内存(Memory)也被称为<a href="https://baike.baidu.com/item/内存储器/834392" target="_blank" rel="noopener">内存储器</a>和<a href="https://baike.baidu.com/item/主存储器/10635399" target="_blank" rel="noopener">主存储器</a>，其作用是用于暂时存放CPU中的运算数据，以及与<a href="https://baike.baidu.com/item/硬盘/159825" target="_blank" rel="noopener">硬盘</a>等<a href="https://baike.baidu.com/item/外部存储器/4843180" target="_blank" rel="noopener">外部存储器</a>交换的数据。只要计算机在运行中，操作系统就会把需要运算的数据从内存调到CPU中进行运算，当运算完成后CPU再将结果传送出来，内存的运行也决定了计算机的稳定运行。</p>
+</blockquote>
+<p>内存这部分内容是操作系统的重点部分，我们的程序基本都运行在内存之上，而随着CS的发展，又出现了虚拟内存等技术，因此这部分的学习需要有一个思路。</p>
+<ul>
+<li>传统内存分配方式导致的碎片应该如何处理 ？</li>
+<li>虚拟内存解决了什么 ？ </li>
+<li>什么是页帧页表 ？ </li>
+<li>常见的页面置换算法的进化过程</li>
+<li>等等</li>
+</ul>
+<p>这是我自己的一个学习思路，个人认为在学习一个东西的时候，虽然有很长的历史并且我们对于之前的版本并不需要投入很多精力，但是需要了解，因为想要构成一个体系，记忆清晰就需要归纳总结缺点和解决方式，就像页面置换算法中，从最开始的FIFO导致<code>Belady</code>现象，到后面的LRU，LFU导致的轮询消耗，最后通过时钟算法解决，后期又通过二次机会法对时钟算法进行了进一步优化。通过这种方式，能够有效提升一个人对于某个技术的理解和基因加深。</p>
+<h3 id="四个特点"><a href="#四个特点" class="headerlink" title="四个特点"></a>四个特点</h3><ul>
+<li><strong>抽象</strong> : 应用程序访问到的地址空间应该是逻辑地址空间而非真实的地址空间</li>
+<li><strong>保护</strong> : 应用程序不能访问到不属于自己的内存地址</li>
+<li><strong>共享</strong> : 能够安全可靠让进程之间完成交互数据传递</li>
+<li><strong>虚拟化</strong> : 能够虚拟化出更大的内存空间</li>
+</ul>
+<h3 id="虚拟化内存原理"><a href="#虚拟化内存原理" class="headerlink" title="虚拟化内存原理"></a>虚拟化内存原理</h3><p>当我们需要将一个应用程序加载到内存中的时候，发现内存空间不足，但是这个程序不会立即执行，可以先将他加载到磁盘上，然后需要时加载进入内存，再将不需要立即执行的任务加载到磁盘中，这样能够加载更多的程序，但是在执行效率上时不会改变的，因为真正的物理内存是不会发生变化。</p>
+<p>虚拟内存空间可以为硬盘+内存的大小。</p>
+<p><img src="https://s1.ax1x.com/2020/03/15/837LO1.png" alt=""></p>
+<p>磁盘中主要防止访问较少，热度低，当前利用率不高的数据，而内存尽量防止利用率高的数据。</p>
+<h4 id="覆盖技术"><a href="#覆盖技术" class="headerlink" title="覆盖技术"></a>覆盖技术</h4><p>把程序按照自身逻辑结构分为多个模块，每次不会将所有模块全部加载如系统(类似于类加载机制)，只有当使用到该模块和依赖模块时才会将其加载进入内存中。在Java中，虽然在编译期间会编译为<code>.class</code>文件，但是只有使用到的时候才会加载进入内存中，如果不需要也可以进行类卸载，但是实际中一般不会卸载类。</p>
+<h4 id="交换技术-Unix"><a href="#交换技术-Unix" class="headerlink" title="交换技术(Unix)"></a>交换技术(Unix)</h4><p>操作系统将一个完整的应用程序置换到外存中(整个地址空间),称之为<code>sweep-out</code>，当需要使用这部分内容是再导入内存中<code>sweep-in</code>，导出粒度一般大于页帧大小，性能消耗取决于内存中应用地址空间大小。</p>
+<p>交换技术有以下几个问题 : </p>
+<ol>
+<li>何时交换 : 只有当内存不足的时候才能够交换，换入换出需要进行读写，消耗性能很大</li>
+<li>交换区大小 : 必须保证能够将内存中的数据全部写入交换区，需要维护一个足够大的交换区</li>
+<li>程序<code>sweep-in</code>重定位 : 当换出再换入后，可能程序在内存中位置已经改变，就需要重新定位，可以使用页表机制通过<code>Table</code>进行映射(动态地址映射)</li>
+</ol>
+<h4 id="虚存管理技术"><a href="#虚存管理技术" class="headerlink" title="虚存管理技术"></a>虚存管理技术</h4><p>覆盖技术需要手动完成，而交换技术需要交换整个应用的内存空间，所以希望能够有一种技术既能够像覆盖技术一样动态加载所需要的模块，又能像交换技术一样将暂时不适用的应用交换到磁盘中，虚存管理完成了这点。</p>
+<p><strong>执行流程</strong></p>
+<ol>
+<li>在装入程序时，并不会将程序完整装入，只需要装入当前执行程序和依赖程序，保证程序能够正常启动即可</li>
+<li>程序在运行的过程中，发现访问的数据或者指令不存在，则触发缺页中断，将内容加载进入内存</li>
+<li>操作系统会观察程序，当一些程序暂时不需要使用内存并不运行时，会将其换出到磁盘上以获得更多空间</li>
+</ol>
+<p><strong>程序局部性原理</strong></p>
+<ul>
+<li>时间局部性 : 一条指令的一次执行和下一次执行集中在一个短时期内</li>
+<li>空间局部性 : 执行当前指令和附近指令，所访问的内存区域都在临近区域</li>
+</ul>
+<p>当满足这两个局部性时，虚存管理才能够良好运行，因为当两个数据分布很远时，系统不得不将两个数据块导入内存以供使用，如果两个数据在一块内存块中，只需要加载一个即可。</p>
+<p><strong>虚存技术特点</strong></p>
+<ul>
+<li>具有大的用户空间 : 大小为硬盘+内存</li>
+<li>部分交换 : 不交换整个应用程序，只交换页或者段</li>
+<li>不连续 : 内存空间分配不连续，虚拟内存不连续</li>
+</ul>
+<p><strong>缺页中断</strong></p>
+<p>虚存管理将内存按照块划分存储进入磁盘，当读取数据时发现数据不在内存中而在磁盘上会触发缺页中断，系统会中断程序运行，将磁盘中数据读入内存，再次执行。当时间局部性和空间局部性满足度差时，会频繁触发缺页中断，效率会变得很低。</p>
+<p><img src="https://s1.ax1x.com/2020/03/16/8Gtnte.png" alt=""></p>
+<h4 id="页表管理"><a href="#页表管理" class="headerlink" title="页表管理"></a>页表管理</h4><p><img src="https://s1.ax1x.com/2020/03/16/8GYasx.png" alt=""></p>
+<h3 id="局部页面置换算法"><a href="#局部页面置换算法" class="headerlink" title="局部页面置换算法"></a>局部页面置换算法</h3><p>当缺页中断发生需要调入新的页面，但是内存已满则需要调出已有页，需要选择调出哪个。</p>
+<p>页面置换算法目标在于尽量减少对于硬盘上的页面读写，减少换入换出次数，提高性能，并且需要锁定常驻内存，例如操作系统的内存地址，确保操作系统能够正常工作。</p>
+<h4 id="最优页面置换算法-评价标准"><a href="#最优页面置换算法-评价标准" class="headerlink" title="最优页面置换算法(评价标准)"></a>最优页面置换算法(评价标准)</h4><p>当一个缺页产生时，对于保存在内存中的一个页面，计算下次访问该页的时间，还需要等待多长时间，选择等待时间最长的那个页面，作为置换页面。这只是一种理想情况，系统无从知道一个页面之后多长时间会被访问。</p>
+<h4 id="FIFO"><a href="#FIFO" class="headerlink" title="FIFO"></a>FIFO</h4><p>将所有的页维护在一个队列中，每次替换存活时间最长的一个页，将换入的页放入队列末尾，这种方法性能较差，调出的可能是经常访问的页。</p>
+<h4 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h4><p>LRU<code>Least Recently Used</code>，当一个缺页产生，选择最久未被使用的一个页进行替换，LRU算法是通过过去的状态来决定对哪个页进行替换，替换效果很好，但是在实际中需要使用队列或者栈来维护每一个页帧的最近使用时间，而每一次访问都需要对链表进行完全遍历，找到对应页帧进行时间的更新，这个操作消耗非常大，通常不会被采用</p>
+<h4 id="时钟算法"><a href="#时钟算法" class="headerlink" title="时钟算法"></a>时钟算法</h4><p><img src="https://s1.ax1x.com/2020/03/16/8JoaMd.png" alt=""></p>
+<p><strong>ACCESS标记位</strong></p>
+<p>在页表中，会有映射标记，访问标记和物理页地址。</p>
+<ul>
+<li>映射标记 : 该页是否在内存中有映射，没有的化使用会触发缺页中断</li>
+<li>访问标记 : 该页是否被访问，被访问后会置为1</li>
+<li>物理页地址 : 逻辑内存根据TABLE查找到的物理页地址</li>
+</ul>
+<p>而时钟算法会利用访问标记来完成时间记录，在内部会维护一个环形链表，将这些页标签存入其中，每当时钟扫描到一个访问标记为0的页时会将其置换，遇到访问为1的页会将其置为0。指针循环访问这些页。</p>
+<p>这样能够保证访问次数多的页能够比较容易被标记为1，存活的概率会更大，同生能够保证一个较少的消耗。</p>
+<h4 id="二次机会法"><a href="#二次机会法" class="headerlink" title="二次机会法"></a>二次机会法</h4><p>当程序对某个页进行了写操作，会将<code>access</code>和<code>dirty</code>都置为1，这两位的作用如下两种情况 : </p>
+<ul>
+<li>程序对页只读 : 当程序将硬盘上的内容写入内存，但是只读，由于数据未发生变化，那么再次置换本页时只需要将内存中内容丢弃即可。</li>
+<li>程序对页写入 : 当程序对页进行了写操作，表明内存中的数据和硬盘不一致，再次置换时，就需要将内容重新写入到硬盘中</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/03/16/8J7cuj.png" alt=""></p>
+<p>在二次机会算法中，只有当<code>access</code>和<code>dirty</code>都是0时才会被置换，而每次指针扫过，都会将<code>access</code>或者<code>dirty</code>中某个1置为0。在这种算法下，只读页会优先换出，写入页会滞后换出，可以说是对时钟算法的一种增强。</p>
+<h4 id="LFU"><a href="#LFU" class="headerlink" title="LFU"></a>LFU</h4><p>LFU<code>Least Frequently Used</code>算法指当缺页中断发生时，选择访问次数最少的那个页面进行替换，在每个页内部维护一个计数器，当被访问时，计数器加一，每次替换时，都选择最小的页进行替换。</p>
+<p>LRU和LFU一样，因为维护计数器，会消耗大量的资源。</p>
+<h4 id="Belady现象"><a href="#Belady现象" class="headerlink" title="Belady现象"></a>Belady现象</h4><blockquote>
+<p>采用FIFO算法时，给程序分配的页越多，反而出现缺页的情况越严重</p>
+</blockquote>
+<p>由于FIFO算法不会根据页访问频率时间来决定替换，而是根据先后顺序，当分配越多时，链表中存储头部越多，更加容易被新的页替换掉，所以当分配的页越多，越容易初恋缺页。</p>
+<p>因此，Belady主要出现原因是对内存动态划分的缺少。</p>
+<h3 id="全局页面替换算法"><a href="#全局页面替换算法" class="headerlink" title="全局页面替换算法"></a>全局页面替换算法</h3><blockquote>
+<p>程序对于内存的使用时动态变化的，可能在开始时需要大量内存，但是后期是使用的很少，所以需要全局页面置换算法来完成。</p>
+</blockquote>
+<h4 id="工作集"><a href="#工作集" class="headerlink" title="工作集"></a>工作集</h4><p>一个进程当前正在使用的逻辑页面的集合。可以理解为一个滑动窗口，近期访问的页是否在这个滑动窗口中。如下图</p>
+<p><img src="https://s1.ax1x.com/2020/03/16/8JjeGq.png" alt=""></p>
+<h4 id="常驻集"><a href="#常驻集" class="headerlink" title="常驻集"></a>常驻集</h4><p>常驻集指当前时刻，实际驻留在物理内存中的页面的集合</p>
+<p>我们希望工作集尽量能够和常驻集进行重叠，当二者不重叠时，则会触发缺页中断。</p>
+<h4 id="工作集页置换算法"><a href="#工作集页置换算法" class="headerlink" title="工作集页置换算法"></a>工作集页置换算法</h4><p>在局部页面置换算法中，一般只有内存不够使用才进行页面置换，但是在全局算法中，一般一个页在之后一段时间内不会被使用，就需要被移出内存，如下图。</p>
+<p><img src="https://s1.ax1x.com/2020/03/16/8YA501.png" alt=""></p>
+<p>维护一个滑动窗口，这个滑动窗口内时应用程序所需要使用到的页，当其中有的页不在内存中，则需要从磁盘引入，如果执行过后，该页在滑动窗口内不存在，如A在滑动窗口中没有再次重复，则A这个页会被置换到磁盘中。</p>
+<p>工作集窗口主要就是维护当前及之后一段时间内所需要的页，当之后没有某个页时，这个页会被置换到磁盘。</p>
+<h3 id="逻辑地址-amp-物理地址"><a href="#逻辑地址-amp-物理地址" class="headerlink" title="逻辑地址 &amp; 物理地址"></a>逻辑地址 &amp; 物理地址</h3><p>一般应用程序所使用的地址空间都是逻辑地址空间，类似于数组的线性结构，通过起始地址和偏移量来规定大小。</p>
+<p>而在操作系统中会维护一个逻辑地址空间和物理地址空间的表来体现对应关系。</p>
+<h3 id="内存碎片问题"><a href="#内存碎片问题" class="headerlink" title="内存碎片问题"></a>内存碎片问题</h3><p>内存碎片有两种 : 内碎片和外碎片</p>
+<ul>
+<li>内碎片 : 系统给应用程序分配的内存应用程序无法完全使用，内部浪费了一部分内存，属于内碎片</li>
+<li>外碎片 : 某些未分配的内存太小，无法再分配给其他的应用使用，产生了外碎片</li>
+</ul>
+<h3 id="页表机制"><a href="#页表机制" class="headerlink" title="页表机制"></a>页表机制</h3><p>大部分操作系统对于内存碎片解决办法是内存段+页表的模式，首先OS为每个应用程序分配一段内存，然后这段内存会被分为许多个很小的<strong>页帧(Frame)</strong>，同样创建一个逻辑内存，逻辑内存中的划分是连接有序的，然后维护一张页表，来连接逻辑内存和物理内存的地址关系。</p>
+<p><img src="https://s1.ax1x.com/2020/03/15/88nYEq.png" alt=""></p>
+<p>页表机制带来的好处是能够最大程度减少内存碎片的存在，虽然再逻辑内存中，应用程序是按照一整块内存分配，但是在物理内存中，这些分配被打乱，分配在不同的页帧上<code>frame</code>，每个页帧一般都不会很大，即使页帧无法完全使用，所造成的浪费也是可以接受的。</p>
+<p>但是页表机制也会带来一些问题，例如会消耗额外的内存，每次分配内存都需要多查找一次页表然后再通过页表查找物理内存，会消耗额外的时间。</p>
+<h4 id="一级页表和二级页表"><a href="#一级页表和二级页表" class="headerlink" title="一级页表和二级页表"></a>一级页表和二级页表</h4><p>如果页表中<code>offset</code>偏移量为8KB，那么我们寻址一个数据需要扫描这8KB内容，是比较浪费时间的，而二级页表中维护了这8KB内容的<code>offset</code>，例如我们希望找一个变量<code>num</code>，首先找到这个变量在一级页表中的173位置，然还再进入二级页表找到它的位置，整体结构类似于<code>Map&lt;Integer,Map&lt;Integer,address&gt;&gt;</code>，能够有效提升查询效率，当然也浪费了一定存储空间。</p>
+<p>同理，可以在二级页表中维护更为详细的地址，这样就形成了树形的多级页表</p>
+<p><img src="https://s1.ax1x.com/2020/03/15/881P8P.png" alt=""></p>
+<h3 id="一般分配方式"><a href="#一般分配方式" class="headerlink" title="一般分配方式"></a>一般分配方式</h3><ul>
+<li>最优满足分配 : 将剩余内存中的地址选择一块最小的能够满足应用程序的内存，能够保留较大的整块内存，但是内存碎片较多</li>
+<li>最差满足分配 : 每次都选择最大的内存地址分配内存，然还拆分，产生碎片更少，但是不会剩下大块的内存空间</li>
+</ul>
+<p>为了清理内存碎片，有两种方法</p>
+<ul>
+<li>内存压缩方法 : 将内存中的内存段迁移，将碎片压成一块完整内存，只有在程序不处于正在执行的状态才能移动，如果内存已经爆满，则无法压缩</li>
+<li>置换方法 : 利用虚拟内存，将一些暂停的程序移动到磁盘上，然后移动内存完成碎片清理</li>
+</ul>
+<hr>
+<h2 id="进程和线程"><a href="#进程和线程" class="headerlink" title="进程和线程"></a>进程和线程</h2><h3 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h3><p>由于进程之间拥有各自的内存空间，当需要进程通讯时，就需要操作系统进行调度，提高了进程间访问数据的代价。而线程共享同一片内存区域，访问无阻碍，能有效提高并发的效率。</p>
+<p>线程是进程的组成部分，是其中的一条执行流程。</p>
+<ul>
+<li>一个进程中可以拥有多个线程</li>
+<li>各个线程并发执行</li>
+<li>各个线程之间可以访问共享地址的资源</li>
+</ul>
+<h3 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h3><blockquote>
+<p>进程 : 一个具有一定独立功能的程序在一个数据集合上的一次动态执行过程，一个进程应该包括程序代码，程序数据，程序计数器，寄存器例如堆/栈，系统资源(内存，网络，文件系统)</p>
+</blockquote>
+<p>程序是静态的代码，进程是程序执行的过程，所以程序是产生进程的基础，一个程序拥有多个进程。</p>
+<p>进程在执行的过程中有<strong>核心态</strong>和<strong>用户态</strong></p>
+<ul>
+<li>核心态 : 执行一些操作系统的功能，例如文件读取，线程阻塞等情况</li>
+<li>用户态 : 使用自身的功能，例如修改自身程序变量等</li>
+</ul>
+<p>进程的特点 : </p>
+<ul>
+<li>动态性 : 进程能够被动态的创建和销毁</li>
+<li>并发性 : 进程能够被独立调度并占有处理器</li>
+<li>独立性 : 多个进程相互不影响</li>
+<li>制约性 : 因为访问共享数据或进程间同步而相互制约</li>
+</ul>
+<h3 id="进程的生命周期"><a href="#进程的生命周期" class="headerlink" title="进程的生命周期"></a>进程的生命周期</h3><p><img src="https://s1.ax1x.com/2020/03/17/8tXIx0.png" alt=""></p>
+<h4 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h4><p>进程创建主要有三个情况</p>
+<ul>
+<li>系统初始化时会创建<code>init</code>进程</li>
+<li>用户创建使用应用程序时创建新的进程</li>
+<li>一个进程调用创建进程方法，例如<code>fork</code>时，创建进程</li>
+</ul>
+<h4 id="进程就绪与运行"><a href="#进程就绪与运行" class="headerlink" title="进程就绪与运行"></a>进程就绪与运行</h4><p>当进程创建完成后，进入<code>ready</code>状态，此时需要等待操作系统分配时间片，如果分配到则运行，如果没有分配到就进入阻塞(等待)</p>
+<h4 id="进程等待"><a href="#进程等待" class="headerlink" title="进程等待"></a>进程等待</h4><p>一般如下情况会导致进程等待，在等待状态时不消耗CPU的资源，进入等待状态会让出CPU执行权</p>
+<ol>
+<li>请求的系统服务无法立刻完成</li>
+<li>启动某种操作，无法立刻完成</li>
+<li>需要的数据还未到达</li>
+</ol>
+<h4 id="进程结束"><a href="#进程结束" class="headerlink" title="进程结束"></a>进程结束</h4><ul>
+<li>正常退出(自愿)</li>
+<li>错误退出(自愿,程序出现异常)</li>
+<li>致命错误(强制杀死)</li>
+<li>被其他进程杀死(强制性的)</li>
+</ul>
+<h4 id="进程挂起和进程阻塞"><a href="#进程挂起和进程阻塞" class="headerlink" title="进程挂起和进程阻塞"></a>进程挂起和进程阻塞</h4><p><strong>进程阻塞</strong> : 进程阻塞指该进程所需要的条件无法立即获得，进入等待状态，让出CPU执行权，但是依旧占用内存</p>
+<p><strong>进程挂起</strong> : 进程挂起指进程进入挂起状态，不在占用内存空间，该进程映像在磁盘之上</p>
+<p>进程挂起有两种状态 : </p>
+<ul>
+<li>阻塞挂起 : 此时进程在外存并等待某个事件</li>
+<li>就绪挂起 : 进程在外存，但是一旦写入内存后就能够运行</li>
+</ul>
+<p><strong>挂起(Suspend)</strong></p>
+<blockquote>
+<p>把一个进程从内存转为外存的过程称为挂起</p>
+</blockquote>
+<ul>
+<li>阻塞到阻塞挂起 : 但一个进程处于阻塞状态，挂起后依旧是阻塞状态</li>
+<li>就绪到就绪挂起 : 当由高优先级就绪状态和低优先级就绪状态的进程，系统会挂起低优先级的就绪状态进程</li>
+<li>运行到就绪挂起 : 对于抢占系统，可能根据优先级将运行状态的进程挂起为就绪状态</li>
+<li>阻塞到就绪挂起 : 在外存中，某个阻塞挂起状态的线程所需的资源满足，系统会将阻塞挂起状态改为就绪挂起状态</li>
+</ul>
+<h3 id="进程创建函数"><a href="#进程创建函数" class="headerlink" title="进程创建函数"></a>进程创建函数</h3><h4 id="fork"><a href="#fork" class="headerlink" title="fork"></a>fork</h4><p>当一个进程调用了fork函数后，会根据当前进程创建一个几乎一样的子进程，这两个进程可以做同样的事情，但是如果传参不同结果可能不同。</p>
+<p>进程调用<code>fork()</code>后，系统会给新的进程分配资源，并将当前进程的数据复制到新的进程之中，相当于克隆了自己。</p>
+<p><code>fork()</code>函数调用后，会产生两个返回值 : </p>
+<ul>
+<li>在父进程中返回子进程的进程id(pid)</li>
+<li>在子进程中，fork返回0</li>
+<li>如果出现错误，fork返回负值</li>
+</ul>
+<p>而<code>fork()</code>可能出错有两种原因 : </p>
+<ol>
+<li>当前进程数量已经到达系统规定上限</li>
+<li>系统内存不足，无法再进行进程创建</li>
+</ol>
+<h4 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h4><p>当进程调用了<code>fork()</code>后会将父进程的资源全部复制，但是大部分情况我们都希望子进程运行的是和父进程不同的内容，例如参数不同，处理的IO不同(Redis中的多路复用)，所以在子进程中调用<code>exec()</code>方法能够重新加载代码段，但是同样会带来一些问题。</p>
+<ul>
+<li>每次都要复制父进程的内容但是不适用，消耗资源</li>
+<li>子进程可能关闭打开的文件和连接</li>
+</ul>
+<h4 id="vfork"><a href="#vfork" class="headerlink" title="vfork"></a>vfork</h4><p><code>vfork</code>函数是轻量级的<code>fork()</code>，vfork只创建一个进程的系统调用，而不会复制内存中的数据，并且创建后立刻调用<code>exec()</code></p>
+<h3 id="常见进程调度算法"><a href="#常见进程调度算法" class="headerlink" title="常见进程调度算法"></a>常见进程调度算法</h3><p>一个CPU核心只能在同一时间处理一个进程的请求，如何分配处理时间是操作系统需要关注的重点，一般有如下几种算法。</p>
+<h4 id="FCFS先到先服务算法"><a href="#FCFS先到先服务算法" class="headerlink" title="FCFS先到先服务算法"></a>FCFS先到先服务算法</h4><p><img src="https://s1.ax1x.com/2020/03/17/8NzjVf.png" alt=""></p>
+<p>FCFS<code>First Come First Service</code>算法是最简单的调度算法，所有的进程就绪后都会进入队列排队，CPU资源分配过程严格按照队列顺序。</p>
+<ul>
+<li>优点 : 实现简单，有利于长作业</li>
+<li>缺点 : 效率低，容易造成任务积压</li>
+</ul>
+<p>FCFS是典型适用于CPU繁忙场景，该模型能够减少多个任务之间的挂起切换等情况，能够提高CPU在一段时间之内的吞吐量。但是不利于I/O繁忙或者高响应模型，因为只有一个任务执行完成后才能执行另一个，这样会导致出现长任务阻塞后面任务执行，响应较慢。</p>
+<h4 id="时间片轮询算法"><a href="#时间片轮询算法" class="headerlink" title="时间片轮询算法"></a>时间片轮询算法</h4><p><img src="https://s1.ax1x.com/2020/03/17/8UFTT1.png" alt=""></p>
+<p>时间片轮询算法是一种分时系统所使用的算法，系统会为每个进程分配相同的时间片，当执行完当前事件后切换下一个进程，如果在时间内任务未完成，则会被添加到队列末尾等待下一次时间片的分配。</p>
+<p>在时间片轮询算法中，时间片大小的选择是非常重要的，如果选择太大，则可能进程提早执行完成，CPU空耗，如果太小则会造成太多的切换损耗性能。</p>
+<h4 id="SJF短作业优先算法"><a href="#SJF短作业优先算法" class="headerlink" title="SJF短作业优先算法"></a>SJF短作业优先算法</h4><p><img src="https://s1.ax1x.com/2020/03/17/8UEiQS.png" alt=""></p>
+<p>短作业优先(SJF)调度算法是从后备队列中选择一个或若干个估计运行时间最短的作业，将它们调入内存运行。而短进程优先(SPF)调度算法，则是从就绪队列中选择一个估计运行时间最短的进程，将处理机分配给它，使之立即执行，直到完成或发生某事件而阻塞时，才释放处理机。</p>
+<p> 短作业优先调度算法是一个非抢占策略，他的原则是下一次选择预计处理时间最短的进程，因此短进程将会越过长作业，跳至队列头。该算法即可用于作业调度，也可用于进程调度。但是他对长作业不利，不能保证紧迫性作业（进程）被及时处理，作业的长短只是被估算出来的。</p>
+<p>缺点 : </p>
+<ul>
+<li>该算法对长作业不利，SJF调度算法中长作业的周转时间会增加。更严重的是，如果有一长作业进入系统的后备队列，由于调度程序总是优先调度那些 (即使是后进来的）短作业，将导致长作业长期不被调度（“饥饿”现象，注意区分“死锁”。后者是系统环形等待，前者是调度策略问题）。</li>
+<li>该算法完全未考虑作业的紧迫程度，因而不能保证紧迫性作业会被及时处理。</li>
+<li>由于作业的长短只是根据用户所提供的估计执行时间而定的，而用户又可能会有意或无意地缩短其作业的估计运行时间，致使该算法不一定能真正做到短作业优先调度。</li>
+</ul>
+<h4 id="最短剩余时间算法"><a href="#最短剩余时间算法" class="headerlink" title="最短剩余时间算法"></a>最短剩余时间算法</h4><p>最短剩余时间是针对最短进程优先增加了抢占机制的版本。在这种情况下，进程调度总是选择预期剩余时间最短的进程。当一个进程加入到就绪队列时，他可能比当前运行的进程具有更短的剩余时间，因此只要新进程就绪，调度程序就能可能抢占当前正在运行的进程。像最短进程优先一样，调度程序正在执行选择函数是必须有关于处理时间的估计，并且存在长进程饥饿的危险。</p>
+<h4 id="高响应比率算法"><a href="#高响应比率算法" class="headerlink" title="高响应比率算法"></a>高响应比率算法</h4><blockquote>
+<p>比率公式 R = (w+s)/s  （R为响应比，w为等待处理的时间，s为预计的服务时间）</p>
+</blockquote>
+<p>如果该进程被立即调用，则R值等于归一化周转时间（周转时间和服务时间的比率）。R最小值为1.0，只有第一个进入系统的进程才能达到该值。调度规则为：当前进程完成或被阻塞时，选择R值最大的就绪进程，它说明了进程的年龄。当偏向短作业时，长进程由于得不到服务，等待时间不断增加，从而增加比值，最终在竞争中赢了短进程。和最短进程优先、最短剩余时间优先一样，使用最高响应比策略需要估计预计服务时间。</p>
+<p> 高响应比优先调度算法主要用于作业调度，该算法是对FCFS调度算法和SJF调度算法的一种综合平衡，同时考虑每个作业的等待时间和估计的运行时间。在每次进行作业调度时，先计算后备作业队列中每个作业的响应比，从中选出响应比最高的作业投入运行。</p>
+<ul>
+<li>当作业的等待时间相同时，则要求服务时间越短，其响应比越高，有利于短作业。</li>
+<li>当要求服务时间相同时，作业的响应比由其等待时间决定，等待时间越长，其响应比越高，因而它实现的是先来先服务。</li>
+<li>对于长作业，作业的响应比可以随等待时间的增加而提高，当其等待时间足够长时，其响应比便可升到很高，从而也可获得处理机。克服了饥饿状态，兼顾了长作业。</li>
+</ul>
+<h4 id="优先级调度算法"><a href="#优先级调度算法" class="headerlink" title="优先级调度算法"></a>优先级调度算法</h4><p>优先级调度算法又称优先权调度算法，该算法既可以用于作业调度，也可以用于进程调度，该算法中的优先级用于描述作业运行的紧迫程度。</p>
+<p>在作业调度中，优先级调度算法每次从后备作业队列中选择优先级最髙的一个或几个作业，将它们调入内存，分配必要的资源，创建进程并放入就绪队列。在进程调度中，优先级调度算法每次从就绪队列中选择优先级最高的进程，将处理机分配给它，使之投入运行。</p>
+<p>根据新的更高优先级进程能否抢占正在执行的进程，可将该调度算法分为：</p>
+<ul>
+<li>非剥夺式优先级调度算法。当某一个进程正在处理机上运行时，即使有某个更为重要或紧迫的进程进入就绪队列，仍然让正在运行的进程继续运行，直到由于其自身的原因而主动让出处理机时（任务完成或等待事件），才把处理机分配给更为重要或紧迫的进程。</li>
+<li>剥夺式优先级调度算法。当一个进程正在处理机上运行时，若有某个更为重要或紧迫的进程进入就绪队列，则立即暂停正在运行的进程，将处理机分配给更重要或紧迫的进程。</li>
+</ul>
+<p>而根据进程创建后其优先级是否可以改变，可以将进程优先级分为以下两种：</p>
+<ul>
+<li>静态优先级。优先级是在创建进程时确定的，且在进程的整个运行期间保持不变。确定静态优先级的主要依据有进程类型、进程对资源的要求、用户要求。</li>
+<li>动态优先级。在进程运行过程中，根据进程情况的变化动态调整优先级。动态调整优先级的主要依据为进程占有CPU时间的长短、就绪进程等待CPU时间的长短。</li>
+</ul>
+<h4 id="多级反馈队列调度算法-重点"><a href="#多级反馈队列调度算法-重点" class="headerlink" title="多级反馈队列调度算法(重点)"></a>多级反馈队列调度算法(重点)</h4><p><img src="https://s1.ax1x.com/2020/03/17/8U1Hzj.png" alt=""></p>
+<p>多级反馈队列算法，不必事先知道各种进程所需要执行的时间，他是当前被公认的一种较好的进程调度算法。</p>
+<p>多级反馈队列调度算法的实现思想如下：</p>
+<ol>
+<li>应设置多个就绪队列，并为各个队列赋予不同的优先级，第1级队列的优先级最高，第2级队列次之，其余队列的优先级逐次降低。</li>
+<li>赋予各个队列中进程执行时间片的大小也各不相同，在优先级越高的队列中，每个进程的运行时间片就越小。例如，第2级队列的时间片要比第1级队列的时间片长一倍， ……第i+1级队列的时间片要比第i级队列的时间片长一倍。</li>
+<li>当一个新进程进入内存后，首先将它放入第1级队列的末尾，按FCFS原则排队等待调度。当轮到该进程执行时，如它能在该时间片内完成，便可准备撤离系统；如果它在一个时间片结束时尚未完成，调度程序便将该进程转入第2级队列的末尾，再同样地按FCFS 原则等待调度执行；如果它在第2级队列中运行一个时间片后仍未完成，再以同样的方法放入第3级队列……如此下去，当一个长进程从第1级队列依次降到第 n 级队列后，在第 n 级队列中便釆用时间片轮转的方式运行。</li>
+<li>仅当第1级队列为空时，调度程序才调度第2级队列中的进程运行；仅当第1 ~ (i-1)级队列均为空时，才会调度第i级队列中的进程运行。如果处理机正在执行第i级队列中的某进程时，又有新进程进入优先级较高的队列（第 1 ~ (i-1)中的任何一个队列），则此时新进程将抢占正在运行进程的处理机，即由调度程序把正在运行的进程放回到第i级队列的末尾，把处理机分配给新到的更高优先级的进程。</li>
+</ol>
+<hr>
+<h2 id="进程通信-IPC"><a href="#进程通信-IPC" class="headerlink" title="进程通信(IPC)"></a>进程通信(IPC)</h2><p>由于进程的特点是内存空间互不干扰，所以当进程之间需要通信的时候，不能够像线程一样直接读取对方的内容，所以操作系统必须实现进程间通讯的功能。</p>
+<p>一般来说有管道，消息队列，信号量，共享内存,Socket和streams等方式来实现进程间的通讯。</p>
+<h4 id="匿名管道-amp-命名管道"><a href="#匿名管道-amp-命名管道" class="headerlink" title="匿名管道 &amp; 命名管道"></a>匿名管道 &amp; 命名管道</h4><p>匿名管道是在内核中创建一块固定大小的缓冲区，程序具有读取和写入的权力，匿名管道有如下特点</p>
+<ul>
+<li>只能在具有血缘关系的进程间使用，一般是在<code>fork</code>中通讯</li>
+<li>半双工，只能够单向通讯，而如果希望双向通讯，则需要维护两个管道</li>
+<li>自带同步互斥机制</li>
+<li>生命周期随内核</li>
+</ul>
+<p>而命名管道可以理解为一种能够在所有线程之间通讯的匿名管道，没有了进程血缘限制。</p>
+<h4 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h4><p>系统会在内存中创建一个队列链表，其中每个元素都是一个数据报，不同的线程可以访问队列获取他们需要的信息。</p>
+<p>消息队列具有上限长度，当到达上限后，进程无法再写入消息数据报。</p>
+<ol>
+<li>消息队列是面向记录的，其中的消息具有特定的格式以及特定的优先级。</li>
+<li>消息队列独立于发送与接收进程。进程终止时，消息队列及其内容并不会被删除。</li>
+<li>消息队列可以实现消息的随机查询,消息不一定要以先进先出的次序读取,也可以按消息的类型读取。</li>
+<li>消息队列实现了双向通讯</li>
+</ol>
+<h4 id="信号量"><a href="#信号量" class="headerlink" title="信号量"></a>信号量</h4><p>在内核中创建一个信号量集合（本质是个数组），数组的元素（信号量）都是1，使用P操作进行-1，使用V操作+1，</p>
+<ol>
+<li><code>P(sv)</code> 如果sv的值⼤大于零，就给它减1；如果它的值为零，就挂起该进程的执⾏ 。</li>
+<li><code>V(sv)</code> 如果有其他进程因等待sv而被挂起，就让它恢复运⾏，如果没有进程因等待sv⽽挂起，就给它加1。</li>
+</ol>
+<p>当PV操作作用于同一进程，实现了互斥，作用于不同进程，实现了同步</p>
+<blockquote>
+<p>互斥指两个进程不能同时访问某个资源，同步则更进一步，指多个进程按照某个顺序访问某个资源</p>
+</blockquote>
+<h4 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h4><p>将同一块物理内存一块映射到不同的进程的虚拟地址空间中，实现不同进程间对同一资源的共享，共享内存可以说是最有用的进程间通信方式，也是最快的IPC形式。</p>
+<ul>
+<li>不用从用户态到内核态频繁切换和拷贝数据，直接内存读取</li>
+<li>共享内存是临界资源，操作时必须保证原子性。一般使用信号量和互斥锁</li>
+<li>生命周期随内核</li>
+</ul>
+<h4 id="Socket-amp-Streams"><a href="#Socket-amp-Streams" class="headerlink" title="Socket &amp; Streams"></a>Socket &amp; Streams</h4><p>其他四种通信方式是适用于本机进程，当进程在不同机器上，可以使用socket和strams来完成，使用IP地址和端口号来对指定机器中的某个线程进行通讯，严格来说这种通讯方式算TCP网络通讯。</p>
+<hr>
+<h2 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h2><h3 id="BIO-和-NIO"><a href="#BIO-和-NIO" class="headerlink" title="BIO 和 NIO"></a>BIO 和 NIO</h3><p>阻塞IO和非阻塞IO最大的区别是面向不同</p>
+<ul>
+<li>BIO面向流，只能保证单工通讯，需要有输入流和输出流</li>
+<li>NIO面向缓冲区，能双向通讯，需要使用channel技术</li>
+</ul>
+<p><img src="C:%5CUsers%5Cfanhao%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20200302175911329.png" alt=""></p>
+<p>流类似于水管，所有信息都已byte的形式来发送，程序通过byte数组接收。</p>
+<p>而通道本身如同铁路，自身并不具有信息承载的能力，缓冲区类似于火车，将信息填满缓冲区后，缓冲区在通道中传输。</p>
+<p>在Java中可以通过<code>allocate</code>方法获取buffer。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getBuffer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h3><p>缓冲区的核心属性</p>
+<ul>
+<li>capacity : 容量，缓冲区中最大存储数据容量 ，一旦声明，不能改变(缓冲区底层就是数组，数组长度不能改变)</li>
+<li>limit : 表示缓冲区中可以操作数据的大小(limit后数据不能进行读写)</li>
+<li>position : 缓冲区中正在操作的位置 (position &lt; limit &lt;capacity)</li>
+<li>mark : 标记当前position的位置，通过remark回到原来的位置</li>
+</ul>
+<p>有两种缓冲区，直接缓冲与非直接缓冲</p>
+<ol>
+<li>直接缓冲区 : 将缓冲区建立在OS的物理内存中(创建销毁消耗资源，不易控制)</li>
+<li>非直接缓冲区 : 将缓冲区建立在JVM的内存模型中(效率低一点)</li>
+</ol>
+<h3 id="分散读取与聚集写入"><a href="#分散读取与聚集写入" class="headerlink" title="分散读取与聚集写入"></a>分散读取与聚集写入</h3><ul>
+<li>分散读取 : 将通道中的数据读取到多个缓冲区中</li>
+<li>聚集写入 : 将多个缓冲区数据聚集到一个通道中</li>
+</ul>
+<h3 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h3><p>阻塞式 : </p>
+<p><img src="https://s2.ax1x.com/2020/03/02/3WXBJf.png" alt=""></p>
+<p>每次调用IO后，都会先访问应用进程内核，如果没有数据，则等待，有数据，内核开始向应用进程复制，复制完成后，应用进程恢复，整个过程中都是阻塞的，例如Socket，在accept过程中，无法调用其他操作。</p>
+<p>好处 : </p>
+<ul>
+<li>操作简单，实现方便</li>
+</ul>
+<p>劣势 : </p>
+<ul>
+<li>虽然可以使用多线程解决阻塞问题，但是仍然会有线程被阻塞，浪费线程资源</li>
+</ul>
+<p>非阻塞 : </p>
+<p><img src="https://s2.ax1x.com/2020/03/02/3WXDW8.png" alt=""></p>
+<p>系统会通过轮询的方式来访问内核，查看是否准备完成，完成则进行复制。</p>
+<p>好处 : </p>
+<ul>
+<li>线程不被阻塞，在非复制过程中，能够执行其他任务</li>
+</ul>
+<p>坏处 : </p>
+<ul>
+<li>轮询会浪费CPU执行时间，降低吞吐量</li>
+<li>轮询时间过长可能导致任务早已准备完，但是延后，时间过短消耗CPU资源过大</li>
+</ul>
+<h3 id="select-poll-epoll-重点"><a href="#select-poll-epoll-重点" class="headerlink" title="select/poll/epoll(重点)"></a>select/poll/epoll(重点)</h3><h4 id="阻塞IO复制过程"><a href="#阻塞IO复制过程" class="headerlink" title="阻塞IO复制过程"></a>阻塞IO复制过程</h4><ul>
+<li>等待数据传输到内核空间(<code>kernel</code>)</li>
+<li>内核空间中数据复制到用户空间(<code>user space</code>)</li>
+</ul>
+<p>在线程阻塞期间并不会浪费CPU资源,CPU只是不会再执行IO操作。</p>
+<h4 id="Select"><a href="#Select" class="headerlink" title="Select"></a>Select</h4><p><img src="https://s1.ax1x.com/2020/03/14/8M5cjO.png" alt=""></p>
+<p>应用线程申请IO后将有select处理，select监控多个IO。select会代替应用线程进行阻塞，当数据在内核空间中拷贝完毕时，将通知应用线程，然后应用线程阻塞复制。</p>
+<p>缺点 : </p>
+<ul>
+<li>根据<code>fd_size</code>的定义，它的大小为32个整数大小，所以最多只能够监控1024个文件描述符</li>
+<li>每次判断有哪些事件发生是一个成本很高的操作，因为采用轮询方式(对fd数组轮询)，CPU消耗</li>
+</ul>
+<h4 id="Poll"><a href="#Poll" class="headerlink" title="Poll"></a>Poll</h4><p>poll的原理与select非常相似，差别如下：</p>
+<ul>
+<li>描述fd集合的方式不同，poll使用 pollfd 结构而不是select结构fd_set结构，所以poll是链式的，没有最大连接数的限制</li>
+<li>poll有一个特点是水平触发，也就是通知程序fd就绪后，这次没有被处理，那么下次poll的时候会再次通知同个fd已经就绪。</li>
+</ul>
+<p>假设现实中，有1百万个客户端同时与一个服务器保持着tcp连接，而每一个时刻，通常只有几百上千个tcp连接是活跃的，这时候我们仍然使用select/poll机制，kernel必须在搜寻完100万个fd之后，才能找到其中状态是active的，这样资源消耗大而且效率低下。</p>
+<h4 id="Epoll"><a href="#Epoll" class="headerlink" title="Epoll"></a>Epoll</h4><p>总结一下select/poll缺点，需要主动轮询，监控数量有限，需要将fd复制进入kernel。</p>
+<p>在epoll中提供了如下三个函数</p>
+<p><code>int epoll_create(int size)</code> : 建立一个epoll对象，并传回id</p>
+<p><code>int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)</code> : 事件注册函数，将监听事件和需要监听的fd交给epoll的对象</p>
+<p><code>int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)</code>等待注册的事件被触发或者timeout时发生</p>
+<p>这三个函数解决了以上这些问题 : </p>
+<ol>
+<li>epoll使用监听对象来监听fd，没有上限，最大数量和机器内存有关(约1G = 10w个)</li>
+<li>epoll不需要每次都将fd_set复制进入内核空间，在注册时就已经完成复制</li>
+<li>epoll是被动触发方式，内部维护了一个<strong>就绪队列</strong>，当一个任务完成时将自己主动加入队列，epoll工作就是查看这个队列有没有就绪的fd。</li>
+<li>虽然epoll。poll。epoll都需要查看是否有fd就绪，但是epoll之所以是被动触发，就在于它只要去查找就绪队列中有没有fd，就绪的fd是主动加到队列中，epoll不需要一个个轮询确认。 换一句话讲，就是select和poll只能通知有fd已经就绪了，但不能知道究竟是哪个fd就绪，所以select和poll就要去主动轮询一遍找到就绪的fd。而epoll则是不但可以知道有fd可以就绪，而且还具体可以知道就绪fd的编号，所以直接找到就可以，不用轮询。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/26/Zookeeper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93/" rel="prev" title="Zookeeper学习笔记总结">
+      <i class="fa fa-chevron-left"></i> Zookeeper学习笔记总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#操作系统"><span class="nav-number">1.</span> <span class="nav-text">操作系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内核态"><span class="nav-number">1.1.</span> <span class="nav-text">内核态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kernel四个特征"><span class="nav-number">1.2.</span> <span class="nav-text">Kernel四个特征</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存"><span class="nav-number">2.</span> <span class="nav-text">内存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#四个特点"><span class="nav-number">2.1.</span> <span class="nav-text">四个特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟化内存原理"><span class="nav-number">2.2.</span> <span class="nav-text">虚拟化内存原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#覆盖技术"><span class="nav-number">2.2.1.</span> <span class="nav-text">覆盖技术</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#交换技术-Unix"><span class="nav-number">2.2.2.</span> <span class="nav-text">交换技术(Unix)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚存管理技术"><span class="nav-number">2.2.3.</span> <span class="nav-text">虚存管理技术</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#页表管理"><span class="nav-number">2.2.4.</span> <span class="nav-text">页表管理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#局部页面置换算法"><span class="nav-number">2.3.</span> <span class="nav-text">局部页面置换算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#最优页面置换算法-评价标准"><span class="nav-number">2.3.1.</span> <span class="nav-text">最优页面置换算法(评价标准)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FIFO"><span class="nav-number">2.3.2.</span> <span class="nav-text">FIFO</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LRU"><span class="nav-number">2.3.3.</span> <span class="nav-text">LRU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#时钟算法"><span class="nav-number">2.3.4.</span> <span class="nav-text">时钟算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二次机会法"><span class="nav-number">2.3.5.</span> <span class="nav-text">二次机会法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LFU"><span class="nav-number">2.3.6.</span> <span class="nav-text">LFU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Belady现象"><span class="nav-number">2.3.7.</span> <span class="nav-text">Belady现象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全局页面替换算法"><span class="nav-number">2.4.</span> <span class="nav-text">全局页面替换算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#工作集"><span class="nav-number">2.4.1.</span> <span class="nav-text">工作集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常驻集"><span class="nav-number">2.4.2.</span> <span class="nav-text">常驻集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#工作集页置换算法"><span class="nav-number">2.4.3.</span> <span class="nav-text">工作集页置换算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#逻辑地址-amp-物理地址"><span class="nav-number">2.5.</span> <span class="nav-text">逻辑地址 &amp; 物理地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存碎片问题"><span class="nav-number">2.6.</span> <span class="nav-text">内存碎片问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#页表机制"><span class="nav-number">2.7.</span> <span class="nav-text">页表机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#一级页表和二级页表"><span class="nav-number">2.7.1.</span> <span class="nav-text">一级页表和二级页表</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一般分配方式"><span class="nav-number">2.8.</span> <span class="nav-text">一般分配方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程和线程"><span class="nav-number">3.</span> <span class="nav-text">进程和线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程"><span class="nav-number">3.1.</span> <span class="nav-text">线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程"><span class="nav-number">3.2.</span> <span class="nav-text">进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程的生命周期"><span class="nav-number">3.3.</span> <span class="nav-text">进程的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进程创建"><span class="nav-number">3.3.1.</span> <span class="nav-text">进程创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进程就绪与运行"><span class="nav-number">3.3.2.</span> <span class="nav-text">进程就绪与运行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进程等待"><span class="nav-number">3.3.3.</span> <span class="nav-text">进程等待</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进程结束"><span class="nav-number">3.3.4.</span> <span class="nav-text">进程结束</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进程挂起和进程阻塞"><span class="nav-number">3.3.5.</span> <span class="nav-text">进程挂起和进程阻塞</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程创建函数"><span class="nav-number">3.4.</span> <span class="nav-text">进程创建函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fork"><span class="nav-number">3.4.1.</span> <span class="nav-text">fork</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exec"><span class="nav-number">3.4.2.</span> <span class="nav-text">exec</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vfork"><span class="nav-number">3.4.3.</span> <span class="nav-text">vfork</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见进程调度算法"><span class="nav-number">3.5.</span> <span class="nav-text">常见进程调度算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FCFS先到先服务算法"><span class="nav-number">3.5.1.</span> <span class="nav-text">FCFS先到先服务算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#时间片轮询算法"><span class="nav-number">3.5.2.</span> <span class="nav-text">时间片轮询算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SJF短作业优先算法"><span class="nav-number">3.5.3.</span> <span class="nav-text">SJF短作业优先算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#最短剩余时间算法"><span class="nav-number">3.5.4.</span> <span class="nav-text">最短剩余时间算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高响应比率算法"><span class="nav-number">3.5.5.</span> <span class="nav-text">高响应比率算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优先级调度算法"><span class="nav-number">3.5.6.</span> <span class="nav-text">优先级调度算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多级反馈队列调度算法-重点"><span class="nav-number">3.5.7.</span> <span class="nav-text">多级反馈队列调度算法(重点)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程通信-IPC"><span class="nav-number">4.</span> <span class="nav-text">进程通信(IPC)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#匿名管道-amp-命名管道"><span class="nav-number">4.0.1.</span> <span class="nav-text">匿名管道 &amp; 命名管道</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息队列"><span class="nav-number">4.0.2.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#信号量"><span class="nav-number">4.0.3.</span> <span class="nav-text">信号量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#共享内存"><span class="nav-number">4.0.4.</span> <span class="nav-text">共享内存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Socket-amp-Streams"><span class="nav-number">4.0.5.</span> <span class="nav-text">Socket &amp; Streams</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IO"><span class="nav-number">5.</span> <span class="nav-text">IO</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BIO-和-NIO"><span class="nav-number">5.1.</span> <span class="nav-text">BIO 和 NIO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓冲区"><span class="nav-number">5.2.</span> <span class="nav-text">缓冲区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分散读取与聚集写入"><span class="nav-number">5.3.</span> <span class="nav-text">分散读取与聚集写入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#阻塞与非阻塞"><span class="nav-number">5.4.</span> <span class="nav-text">阻塞与非阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-poll-epoll-重点"><span class="nav-number">5.5.</span> <span class="nav-text">select/poll/epoll(重点)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#阻塞IO复制过程"><span class="nav-number">5.5.1.</span> <span class="nav-text">阻塞IO复制过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Select"><span class="nav-number">5.5.2.</span> <span class="nav-text">Select</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Poll"><span class="nav-number">5.5.3.</span> <span class="nav-text">Poll</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Epoll"><span class="nav-number">5.5.4.</span> <span class="nav-text">Epoll</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -161,6 +161,97 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/23/%E8%87%AA%E5%B7%B1%E5%86%99%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%87%8D%E5%85%A5%E5%85%AC%E5%B9%B3%E9%94%81-MagnoliaLock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/23/%E8%87%AA%E5%B7%B1%E5%86%99%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%87%8D%E5%85%A5%E5%85%AC%E5%B9%B3%E9%94%81-MagnoliaLock/" class="post-title-link" itemprop="url">自己写一个可重入公平锁----MagnoliaLock</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-02-23 20:08:26" itemprop="dateCreated datePublished" datetime="2020-02-23T20:08:26+08:00">2020-02-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-26 12:27:27" itemprop="dateModified" datetime="2020-04-26T12:27:27+08:00">2020-04-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E4%B8%83%E6%9D%82%E5%85%AB%E7%9A%84%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">杂七杂八的工具</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>如何学好一个东西的结构,最直接的办法就是自己再去造一个,何况造轮子绝对是一项技术活。</p>
+</blockquote>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><p><img src="https://s2.ax1x.com/2020/02/23/33CMD0.png" alt=""></p>
+<p>首先来回顾一下我们可重入的公平锁的几个特性 : </p>
+<ul>
+<li>拥有一个锁的状态量，这个状态量可以被一个线程重入，并且是线程安全的，一旦锁被持有，只能由锁持有者重入</li>
+<li>拥有一个同步队列，能够将没有抢到锁的线程排列入队</li>
+<li>CAS，通过Unsafe类封装一个CAS操作</li>
+<li>公平的对线程进行锁的获取</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/02/23/%E8%87%AA%E5%B7%B1%E5%86%99%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%87%8D%E5%85%A5%E5%85%AC%E5%B9%B3%E9%94%81-MagnoliaLock/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -918,89 +1009,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/11/10/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/" class="post-title-link" itemprop="url">Volatile关键字</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-11-10 13:35:23" itemprop="dateCreated datePublished" datetime="2019-11-10T13:35:23+08:00">2019-11-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:25:20" itemprop="dateModified" datetime="2020-04-26T12:25:20+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">Java基础技术</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>  Volatile 在Java是可视化的意思，字面意思来说就是被该关键字所修饰的变量能被看见。听上去类似static，但是这个可视化是对于访问该变量的各个线程来讲的。<br></p>
-<p>  在了解该关键字前，我们需要先看一下线程的内存模型。<br></p>
-<p>  当我们执行操作时，会从内存中读取或者写入数据，但是与CPU的执行速度相比，其读取和写入速度要慢很多，如果直接从内存中读取，会造成CPU执行速度下降，性能浪费。所有我们会先将需要的数据存储到CPU的高速缓存中，在这里进行数据处理，当处理完毕后，再将高速缓存的内容写入内存中。<br></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/11/10/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1072,20 +1080,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">39</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
