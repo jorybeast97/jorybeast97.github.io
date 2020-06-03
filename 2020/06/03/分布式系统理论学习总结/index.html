@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="虽然之前在实验室开发一些项目时多多少少接触过分布式系统，但是大部分情况都集中于技术实现层次，如果通俗点来讲，我们所做的只不过是在Spring Boot微服务中添加一些注解来开启Spring Cloud的一些功能。最近恰好看到一篇关于分布式学习路线的指导文章，其中有一句话给我留下很深的印象  分布式系统理论学习的深度将决定你能在分布式方面有多大作为  分布式系统概念比较繁杂，本文仅从自己学习的方面进">
+<meta name="keywords" content="分布式理论">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式系统理论学习总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;06&#x2F;03&#x2F;%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="虽然之前在实验室开发一些项目时多多少少接触过分布式系统，但是大部分情况都集中于技术实现层次，如果通俗点来讲，我们所做的只不过是在Spring Boot微服务中添加一些注解来开启Spring Cloud的一些功能。最近恰好看到一篇关于分布式学习路线的指导文章，其中有一句话给我留下很深的印象  分布式系统理论学习的深度将决定你能在分布式方面有多大作为  分布式系统概念比较繁杂，本文仅从自己学习的方面进">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;03&#x2F;tabm1U.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;03&#x2F;taqZVA.png">
+<meta property="og:updated_time" content="2020-06-03T13:19:24.851Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;03&#x2F;tabm1U.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>分布式系统理论学习总结 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          分布式系统理论学习总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-03 21:18:26 / 修改时间：21:19:24" itemprop="dateCreated datePublished" datetime="2020-06-03T21:18:26+08:00">2020-06-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1/" itemprop="url" rel="index"><span itemprop="name">分布式与微服务</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>虽然之前在实验室开发一些项目时多多少少接触过分布式系统，但是大部分情况都集中于技术实现层次，如果通俗点来讲，我们所做的只不过是在Spring Boot微服务中添加一些注解来开启Spring Cloud的一些功能。最近恰好看到一篇关于分布式学习路线的指导文章，其中有一句话给我留下很深的印象</p>
+<blockquote>
+<p><strong>分布式系统理论学习的深度将决定你能在分布式方面有多大作为</strong></p>
+</blockquote>
+<p>分布式系统概念比较繁杂，本文仅从自己学习的方面进行总结，如有不足和错误的地方，请及时指正。</p>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><blockquote>
+<p>I need to improve my proficiency in distributed systems theory.</p>
+<p>Where do I start? Any recommended books?</p>
+</blockquote>
+<p>这是Twitter上的一个问题,恰好我在 Google 分布式系统方面的文章时看到了这条Tw，更巧的是，一位博主专门为这条推特写了一篇文章，这篇文章大大减缓了我学习分布式系统理论的难度曲线。</p>
+<p>分布式系统所涉及到的内容非常繁杂，如果想要理解透彻，最扎实而有效的方法必然是阅读大量的paper，但是很可惜，大部分人并没有那么好的理解能力，亦或者没有那么充裕的时间来阅读每一篇高质量的paper，因此，作者提出了一个更为简洁的学习层次。</p>
+<ul>
+<li>基础 : 从术语方面来了解分布式系统的常用概念,例如可伸缩性,可用性,性能,延迟以及容错能力等</li>
+<li>抽象模型 : 从分布式的一些理论模型来了解分布式系统的抽象概念,例如CAP,BASE等常见模型</li>
+<li>时间和顺序 : 分布式时间顺序相关概念模型</li>
+<li>分布式事务 : 分布式常见的事务解决方案，从2PC,3PC再到Paxos等用于保证单副本一致性的方法</li>
+<li>弱一致性 : 基于BASE理论所出现的解决方案,例如CRDT和CALM定理</li>
+</ul>
+<p>我自己的学习路线也是按照这篇文章给出的线路进行整理。</p>
+<a id="more"></a>
+
+<h2 id="分布式基础概念"><a href="#分布式基础概念" class="headerlink" title="分布式基础概念"></a>分布式基础概念</h2><blockquote>
+<p><strong>分布式系统</strong>有很多不同的定义，一般认为：“一个分布式系统是一些独立的计算机集合，但是对这个系统的用户来说，系统就像一台<a href="https://wiki.mbalib.com/wiki/计算机" target="_blank" rel="noopener">计算机</a>一样。”这个定义有两方面的含义：第一，从硬件角度来讲，每台<a href="https://wiki.mbalib.com/wiki/计算机" target="_blank" rel="noopener">计算机</a>都是自主的；第二，从软件角度来讲，用户将整个系统看做是一台计算机。这两者都是必需的，缺一不可。</p>
+</blockquote>
+<p>时势造英雄，分布式系统的繁盛也是如此。</p>
+<p>早期单机系统足以满足需求，但是随着流量增大，计算能力需求的增长，集群的出现短暂的解决了问题。但是当业务越来越复杂，仅仅增加集群能够带来的性能提升已经由线性成为对数函数，甚至在后期提升变得微乎其微，同时，系统的稳定性和可用性也不能得到很好的保证。</p>
+<p>而分布式系统的出现很好的解决了这些问题，有关分布式系统发展和壮大的历史过程，这里不过多总结，给出一篇文章<a href="https://mp.weixin.qq.com/s/tl_gPIQ_-DwhdrZkQZgHqQ" target="_blank" rel="noopener">分布式发展过程</a>。</p>
+<h3 id="SOA到MSA服务进化"><a href="#SOA到MSA服务进化" class="headerlink" title="SOA到MSA服务进化"></a>SOA到MSA服务进化</h3><p>分布式的进化并不是一蹴而就，而是经历了一个发展过程，而这个过程就是SOA到MSA的进化</p>
+<h4 id="SOA面向服务架构"><a href="#SOA面向服务架构" class="headerlink" title="SOA面向服务架构"></a>SOA面向服务架构</h4><p>由于业务发展到一定层度后，需要对服务进行解耦，进而把一个单一的大系统按逻辑拆分成不同的子系统，通过服务接口来通讯，面向服务的设计模式，最终需要总线集成服务，而且大部分时候还共享数据库，出现单点故障的时候会导致总线层面的故障，更进一步可能会把数据库拖垮，所以才有了更加独立的设计方案的出现。</p>
+<p><img src="https://s1.ax1x.com/2020/06/03/tabm1U.png" alt=""></p>
+<h4 id="MSA微服务架构"><a href="#MSA微服务架构" class="headerlink" title="MSA微服务架构"></a>MSA微服务架构</h4><p>微服务是真正意义上的独立服务，从服务入口到数据持久层，逻辑上都是独立隔离的，无需服务总线来接入，但同时增加了整个分布式系统的搭建和管理难度，需要对服务进行编排和管理，所以伴随着微服务的兴起，微服务生态的整套技术栈也需要无缝接入，才能支撑起微服务的治理理念。</p>
+<p><img src="https://s1.ax1x.com/2020/06/03/taqZVA.png" alt=""></p>
+<p>与集中系统相比,分布式系统具有以下几种特点 : </p>
+<ol>
+<li>经济 : 随着微处理机技术的发展，PC硬件的价格大幅度下降。分布式系统通常就是在一个系统中使用集中在一起的大量廉价计算机硬件，可以得到比单个大型集中式系统好的多的性能。例如购买一台大型机的价格可能足够我们搭建上百台性能不错的PC，而如果使用这些PC来构建分布式系统，计算能力会强于一台大型机。</li>
+<li>可靠：分布式系统中工作负载都是分散在多台机器上，单个机器故障只会使一台机器停机，而不会影响其他机器，从而获得很高的可靠性。在系统中多台机器同时出现故障的概率是很低的，理想情况下，某一时刻如果有5％的计算机出现故障，系统仍能继续工作。因此对于关键性的应用，一般都采用分布式系统来获得高可靠性。</li>
+<li>易扩充：分布式系统允许系统在需求增长时逐渐进行扩充。因此在分布式系统组成后，可以方便地添加若干台计算机，既不用修改软件，也不用另行设计硬件，具有很好的线性拓展能力。</li>
+<li>灵活性：分布式系统中将多台计算机连在一起，可以使工作能够在最合适的计算机上完成，可以使用最有效的方式将计算能力分配到可用的机器上，即使某些计算机失效也可以使其工作在其他计算机上得到补偿。</li>
+</ol>
+<p>这些显著的特点非常适合互联网公司的需求，例如在双十一时，订单系统的压力会倍增，因此我们可以通过增添订单系统的节点来提升订单系统的能力，仅从服务层面来讲，这种性能的增长几乎是线性的(忽略带宽以及数据库限制)。同时这些机器成本都很低廉，例如一台8核心16线程64G的服务器配合SSD仅仅不到1w元就能够完成很多任务。</p>
+<h3 id="常见概念"><a href="#常见概念" class="headerlink" title="常见概念"></a>常见概念</h3><p>在分布式系统中,有些关键词是必须要了解的。例如节点，网络，负载均衡，弹性伸缩，鉴权，熔断，服务发现与注册，网关等。这些不同的名词同时构成了分布式的各个细节。而本节中主要总结一些常见的概念，类似于CAP, BASE等概念将在后面详细阐述。</p>
+<h3 id="节点"><a href="#节点" class="headerlink" title="节点"></a>节点</h3><p>传统的节点也就是一台单体的物理机，所有的服务都揉进去包括服务和数据库；随着虚拟化的发展，单台物理机往往可以分成多台虚拟机，实现资源利用的最大化，节点的概念也变成单台虚拟机上面服务；近几年容器技术逐渐成熟后，服务已经彻底容器化，也就是节点只是轻量级的容器服务。总体来说，节点就是能提供单位服务的逻辑计算资源的集合。</p>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p>分布式根基就是网络，如果没有网络，各个节点就无法把计算机联合起来一起工作。一般来说分为三种网络工作方式</p>
+<ul>
+<li><strong>同步网络</strong> : 节点同步执行，使用全局锁，消息延迟有限</li>
+<li><strong>半同步网络</strong> : 锁的范围放宽</li>
+<li><strong>异步网络</strong> : 节点独立执行，无全局锁，消息延迟无上限</li>
+</ul>
+<p>一般来说，分布式系统中使用TCP或者UDP来实现网络通讯。</p>
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><blockquote>
+<p><strong>负载平衡</strong>（Load balancing）是一种<a href="https://zh.wikipedia.org/wiki/计算机" target="_blank" rel="noopener">计算机</a>技术，用来在多个计算机（<a href="https://zh.wikipedia.org/wiki/计算机集群" target="_blank" rel="noopener">计算机集群</a>）、网络连接、CPU、磁盘驱动器或其他资源中分配负载，以达到最优化资源使用、最大化吞吐率、最小化响应时间、同时避免过载的目的。 使用带有负载平衡的多个服务器组件，取代单一的组件，可以通过<a href="https://zh.wikipedia.org/wiki/冗餘" target="_blank" rel="noopener">冗余</a>提高可靠性。负载平衡服务通常是由专用软件和硬件来完成。 主要作用是将大量作业合理地分摊到多个操作单元上进行执行，用于解决互联网架构中的<strong>高并发</strong>和<strong>高可用</strong>的问题。</p>
+</blockquote>
+<p>对于互联网服务，负载平衡器通常是一个软件程序，这个程序侦听一个外部端口，互联网用户可以通过这个端口来访问服务，而作为负载平衡器的软件会将用户的请求转发给后台内网服务器，内网服务器将请求的响应返回给负载平衡器，负载平衡器再将响应发送到用户，这样就向互联网用户隐藏了内网结构，阻止了用户直接访问后台（内网）服务器，使得服务器更加安全，可以阻止对核心网络栈和运行在其它端口服务的攻击。</p>
+<p>当所有后台服务器出现故障时，有些负载平衡器会提供一些特殊的功能来处理这种情况。例如转发请求到一个备用的负载平衡器、显示一条关于服务中断的消息等。负载平衡器使得IT团队可以显著提高容错能力。它可以自动提供大量的容量以处理任何应用程序流量的增加或减少。</p>
+<h3 id="弹性伸缩"><a href="#弹性伸缩" class="headerlink" title="弹性伸缩"></a>弹性伸缩</h3><blockquote>
+<p><strong>弹性伸缩</strong>, 是<a href="https://zh.wikipedia.org/wiki/云计算" target="_blank" rel="noopener">云计算</a>中的一种常用方法，通过该方法，服务器池中的计算资源量（通常根据有效的服务器数量来衡量）会根据服务器池中的负载进行动态伸缩。 它与<a href="https://zh.wikipedia.org/wiki/负载均衡" target="_blank" rel="noopener">负载均衡</a>紧密相关，并以此为基础。</p>
+</blockquote>
+<p>弹性伸缩UAS（UCloud Auto Scaling）是根据用户提前设置的规则，动态调整负载均衡集群下计算资源，形成既能满足用户高峰业务时的扩容需求，又能在用户非高峰业务时的成本控制，增加当前计算资源的利用率。</p>
+<p>弹性伸缩具有以下几种优点 <a href="https://zh.wikipedia.org/wiki/%E5%BC%B9%E6%80%A7%E4%BC%B8%E7%BC%A9" target="_blank" rel="noopener">维基百科:弹性伸缩</a></p>
+<ul>
+<li>对于服务运行在自建机房的公司，弹性伸缩通常意味着允许一些服务器在低负载时进入睡眠状态，从而节省电费（以及用于冷却机器的水费和水费）。<a href="https://zh.wikipedia.org/wiki/弹性伸缩#cite_note-facebook-3" target="_blank" rel="noopener">[3]</a></li>
+<li>对于使用在托管在云上的机房的公司而言，自动扩展可能意味着更低的费用，因为大多数云提供商都基于总使用量而不是最大容量进行收费。<a href="https://zh.wikipedia.org/wiki/弹性伸缩#cite_note-newvem-4" target="_blank" rel="noopener">[4]</a></li>
+<li>即使对于不能在任何给定时间减少运行或支付的总计算能力的公司，它们也可以在低流量时降低服务器的负载。<a href="https://zh.wikipedia.org/wiki/弹性伸缩#cite_note-5" target="_blank" rel="noopener">[5]</a></li>
+<li>弹性伸缩解决方案（例如Amazon Web Services提供的解决方案）还可以用来替换异常状态的实例，从而在一定程度上防止硬件，网络和应用程序故障。<a href="https://zh.wikipedia.org/wiki/弹性伸缩#cite_note-cloudonaut-6" target="_blank" rel="noopener">[6]</a></li>
+<li>在生产工作负载经常变化且不可预测的情况下，弹性伸缩可以提供更长的正常运行时间和更高的可用性。</li>
+</ul>
+<p>弹性伸缩与每天，每周或每年固定的服务器使用周期不同，它可以响应实际的使用模式，从而减少了因流量负载而配置的服务器太少或太多的潜在弊端。例如，如果流量通常在午夜时分较低，则静态伸缩方案可能会将某些服务器安排在夜间休眠，但这可能会导致在用户碰巧在夜间需要使用服务时（例如由于病毒性传播的新闻）出现宕机。与之相度的，弹性伸缩可以更好地应对预期外的流量高峰。</p>
+<h3 id="熔断"><a href="#熔断" class="headerlink" title="熔断"></a>熔断</h3><p>熔断机制的灵感来源于保险丝，电路中配备一个保险丝，当用电过载或是短路时，保险丝熔断，切断电路，避免发生损坏电器甚至引起火灾。分布式的熔断机制也是如此，当服务超载时可以保护系统，防止系统被拖垮。</p>
+<p>在分布式系统中，各个服务之间的调用通过网络来进行，而网络本身具有不稳定性。当某个基础服务出现延迟时，如果没有熔断保护，则后续的服务都会等待该服务的结果，而逐层延迟，就会导致整个服务的瘫痪。</p>
+<p>一般来说，熔断器分为以下几种状态 : </p>
+<p>1 关闭状态，在此状态下，请求可以正常通过，同时会有一个计数器记录请求成功与失败的数量，当某个时间段内，失败的比例大于某阀值，切换到打开状态，同时启动计时器，这时所有的请求直接返回错误或是走降级处理。待计时器结束后，切换到半开状态，会透过一部分请求，若有请求成功，说明后段服务已恢复，将状态置为断开状态。否则置为打开状态，并且重置计时器。</p>
+<p>2 半开状态，此状态下有一部分请求可以通过，根据请求的结果来决定切换的状态。</p>
+<h3 id="服务注册与发现"><a href="#服务注册与发现" class="headerlink" title="服务注册与发现"></a>服务注册与发现</h3><p>分布式系统中，服务提供者和消费者是两个重点部分。归根结底就是消费者消费服务，如果直接进行调用，整个过程就成为了一个静态过程，死板而不易维护。</p>
+<p>在微服务里，其目标之一就是使系统能够独立开发、部署及升级扩展，随着系统的进一步复杂，服务位置也发生变更，那么静态配置就会变得十分鸡肋，此时我们需要变更我们的策略，那就是在消费其他服务的时候采用静态配置。</p>
+<p>分布式系统维护一个注册中心，负责处理服务注册，消费，调用负载均衡以及服务状态监控等功能。</p>
+<h3 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h3><p>API网关是一个服务器，是系统的唯一入口。从面向对象设计的角度看，它与外观模式类似。API网关封装了系统内部架构，为每个客户端提供一个定制的API。它可能还具有其它职责，如身份验证、监控、负载均衡、缓存、请求分片与管理、静态响应处理。</p>
+<p>API网关方式的核心要点是，所有的客户端和消费端都通过统一的网关接入微服务，在网关层处理所有的非业务功能。通常，网关也是提供REST/HTTP的访问API。服务端通过API-GW注册和管理服务。</p>
+<h2 id="分布式一致性与共识性"><a href="#分布式一致性与共识性" class="headerlink" title="分布式一致性与共识性"></a>分布式一致性与共识性</h2><p>在分布式中，运行着多个相互关联的节点。</p>
+<p><strong>一致性是指</strong>分布式系统中的多个服务节点，给定一系列的操作，在约定协议的保障下，使它们<strong>对外界呈现的状态是一致的。</strong>换句话说<strong>，也就是</strong>保证集群中所有服务节点中的<strong>数据完全相同</strong>并且能够<strong>对某个提案（Proposal）达成一致</strong>。</p>
+<blockquote>
+<p><strong>注意，在开始学习中，我们很容易混淆两个概念分布式数据一致性和分布式事务一致性，二者是从两种不同的角度描述一致性</strong></p>
+<ul>
+<li>分布式事务一致性，指的是“操作序列在多个服务节点中执行的顺序是一致的“</li>
+<li>分布式数据一致性，指的是“数据在多份副本中存储时，各副本中的数据是一致的’”</li>
+</ul>
+<p>如果保证了分布式事务的一致性，就能够保证分布式数据的一致性</p>
+</blockquote>
+<h3 id="分布式数据一致性要求"><a href="#分布式数据一致性要求" class="headerlink" title="分布式数据一致性要求"></a>分布式数据一致性要求</h3><p>在分布式系统中，要达成一致性，需要满足三个要求</p>
+<ol>
+<li>有序性 : 数据一致性需要在有限时间内完成</li>
+<li>约同性 : 不同的节点最终的结果是一致的</li>
+<li>合法性 : 决策的结果应该是某个节点所提出来的</li>
+</ol>
+<p>也就是说，在分布式系统中，如果一个由节点提出的提案，能够用在有限的时间内，达到一致性的结果，我们就说该提案达到了一致性。</p>
+<h3 id="一致性分类"><a href="#一致性分类" class="headerlink" title="一致性分类"></a>一致性分类</h3><p>一般来讲，分布式的一致性分为四种。严格一致性，强一致性，弱一致性和最终一致性。</p>
+<h3 id="严格一致性"><a href="#严格一致性" class="headerlink" title="严格一致性"></a>严格一致性</h3><p><strong>严格一致性是分布式系统中的一种理想状态</strong></p>
+<p>严格一致性的要求在于，对于数据<code>m</code>的任何操作将返回最近一次对于<code>m</code>的操作结果所对应的值。</p>
+<p>严格一致性中存在着对于时间的严重依赖。简单来说，在分布式中有诸多的节点，当对某个节点的数据进行操作时，要求在同时对其他节点进行相同的操作。如果一个数据项被改变了，那么无论数据项改变之后多久执行读操作，无论哪些进程执行读操作，无论这些进程的位置如何，所有在该数据项上执行的后续读操作都将得到新数值。</p>
+<p>严格一致性，是在系统不发生任何故障，而且所有节点之间的通信无需任何时间这种理想的条件下，才能达到。这个时候整个系统其实就等价于一台机器了。在现实中，是不可能达到的。</p>
+<p>然而，在实际情况中，<strong>越强的一致性要求往往会造成越弱的处理性能，以及越差的可扩展性。</strong></p>
+<h3 id="强一致性"><a href="#强一致性" class="headerlink" title="强一致性"></a>强一致性</h3><p>相比较严格一致性，强一致性对于时间上的限制不再那么苛刻。当满足强一致性时，需要满足以下要求 : </p>
+<blockquote>
+<p>当分布式系统中更新操作完成之后，任何多个进程或线程，访问系统都会获得最新的值。</p>
+</blockquote>
+<p>强一致性中分为两种情况 : </p>
+<ul>
+<li><strong>顺序一致性</strong></li>
+<li><strong>线性一致性</strong></li>
+</ul>
+<blockquote>
+<p><strong>顺序一致性</strong>是指任何执行结果都是相同的，就好像所有进程对数据存储的读、写操作是按某种序列顺序执行的，并且每个进程的操作按照程序所指定的顺序出现在这个序列中 。</p>
+</blockquote>
+<p>什么是顺序一致性 ? 我们这里举一个例子</p>
+<p>假设现在存在两个线程A和B，有两个初始值<strong>x=y=0</strong>，两个线程分别执行以下两条指令。</p>
+<table>
+<thead>
+<tr>
+<th align="center">线程A</th>
+<th align="center">线程B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">X=1</td>
+<td align="center">Y=1</td>
+</tr>
+<tr>
+<td align="center">ThreadA=Y</td>
+<td align="center">ThreadB=X</td>
+</tr>
+</tbody></table>
+<p>由于多线程的执行顺序并不一定，所以可能出现几种可能。</p>
+<table>
+<thead>
+<tr>
+<th align="center">情况1</th>
+<th align="center">情况2</th>
+<th align="center">情况3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">X=1</td>
+<td align="center">Y=1</td>
+<td align="center">X=1</td>
+</tr>
+<tr>
+<td align="center">ThreadA=Y</td>
+<td align="center">ThreadB=X</td>
+<td align="center">Y=1</td>
+</tr>
+<tr>
+<td align="center">Y=1</td>
+<td align="center">X=1</td>
+<td align="center">ThreadA=X</td>
+</tr>
+<tr>
+<td align="center">ThreadB=X</td>
+<td align="center">Thread=Y</td>
+<td align="center">ThreadB=Y</td>
+</tr>
+<tr>
+<td align="center">结果 : ThreadA = 0   ThreadB = 1</td>
+<td align="center">结果 : ThreadA = 1   ThreadB = 0</td>
+<td align="center">结果 : ThreadA = 1   ThreadB = 1</td>
+</tr>
+</tbody></table>
+<p>我们能够看到，上述过程虽然是正常执行，但是由于多个线程的执行顺序不同，最终结果也发生了变化。</p>
+<p><strong>所谓的顺序一致性，</strong>其实就是规定了一下两个条件：<br><strong>（1）每个线程内部的指令都是按照程序规定的顺序（program order）执行的（单个线程的视角）</strong><br><strong>（2）线程执行的交错顺序可以是任意的，但是所有线程所看见的整个程序的总体执行顺序都是一样的（整个程序的视角）</strong></p>
+<p>总结来说，<strong>顺序一致性，要求所有线程所见的整个程序的总体执行顺序是一样的。也就是说，顺序一致性保证的是对一系列地址访问的一致性。</strong></p>
+<p><strong>线性一致性</strong>假设操作具有一个<strong>全局有效时钟的时间戳</strong>，但是这个时钟仅具有有限的精确度。要求时间戳在前的进程先执行。线性化是<strong>根据一系列同步时钟</strong>确定序列顺序的 。</p>
+<h3 id="弱一致性"><a href="#弱一致性" class="headerlink" title="弱一致性"></a>弱一致性</h3><p><strong>弱一致性</strong>是指系统并不保证后续进程或线程的访问都会返回最新的更新的值。系统在数据成功吸入之后，不承诺立即可以读到最新写入的值，也不会具体承诺多久读到。但是会尽可能保证在某个时间级别（秒级）之后。可以让数据达到一致性状态。<strong>也就是说</strong>，如果能容忍后续的部分或者全部访问不到，则是弱一致性。</p>
+<h3 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h3><p><strong>最终一致性</strong>是弱一致性的特定形式。系统保证在没有后续更新的前提下，系统最终返回上一次更新操作的值。 <strong>也就是说</strong>，如果经过一段时间后要求能访问到更新后的数据，则是最终一致性。</p>
+<p>在最终一致性的要求下，如果没有故障发生，不一致窗口的时间主要受通信延迟，系统负载和复制副本的个数影响。DNS是一个典型的最终一致性系统。</p>
+<h3 id="共识性"><a href="#共识性" class="headerlink" title="共识性"></a>共识性</h3><blockquote>
+<p><strong>共识性</strong>描述了分布式系统中多个节点之间，彼此对某个状态达成一致结果的过程。 在实践中，要保障系统满足不同程度的一致性，核心过程往往需要通过共识算法来达成。</p>
+</blockquote>
+<p>共识算法解决的是对某个提案（proposal）大家达成一致意见的过程。提案的含义在分布式系统中十分宽泛，如多个事件发生的顺序、某个键对应的值、谁是领导……等等。可以认为任何可以达成一致的信息都是一个提案。对于分布式系统来讲，各个节点通常都是相同的确定性状态机模型（又称为状态机复制问题，state-machine replication），从相同初始状态开始接收相同顺序的指令，则可以保证相同的结果状态。因此，系统中多个节点最关键的是对多个事件的顺序进行共识，即排序。</p>
+<p><strong>一致性</strong>往往指分布式系统中多个副本<strong>对外呈现的数据的状态</strong>。如前面提到的顺序一致性、线性一致性，描述了多个节点对数据状态的维护能力。</p>
+<p><strong>共识性</strong>则描述了分布式系统中多个节点之间，彼此对某个状态达成一致结果的过程。</p>
+<p>因此，<strong>一致性描述的是结果状态</strong>，<strong>共识则是一种手段</strong>。<strong>达成某种共识并不意味着就保障了一致性（这里的一致性指强一致性）。只能说共识机制，能够实现某种程度上的一致性。</strong></p>
+<h2 id="CAP-amp-BASE"><a href="#CAP-amp-BASE" class="headerlink" title="CAP &amp; BASE"></a>CAP &amp; BASE</h2><p>在传统的数据库中，ACID能够保证数据的强一致性，而在分布式系统中，同样具有强一致性等概念。</p>
+<p>CAP理论在P不发生时,如果CA同时满足，就是强一致性的模型，而当网络情况不佳，亦或者业务不需要严重依赖强一致性，那么可以使用BASE模型来满足最终一致性。</p>
+<h3 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h3><blockquote>
+<p>CAP原则又称CAP定理，指的是在一个分布式系统中，<a href="https://baike.baidu.com/item/一致性/9840083" target="_blank" rel="noopener">一致性</a>（Consistency）、<a href="https://baike.baidu.com/item/可用性/109628" target="_blank" rel="noopener">可用性</a>（Availability）、分区容错性（Partition tolerance）。</p>
+</blockquote>
+<ul>
+<li>一致性 : 所有的分布式节点都要保证数据一致性</li>
+<li>可用性 : 在集群中一部分节点失效后,剩余节点还能提供同样的服务</li>
+<li>分区容忍性 : 当网络出现问题时,服务出现分区的现象</li>
+</ul>
+<p>这三个概念所介绍的就是常见的分布式系统中会经常遇到的问题。</p>
+<p>首先来说一致性问题,这个问题是最容易理解的，为了达到互联网的高可用，一般来说很多模块都会以集群的形式来部署，类似于Redis的<code>master - slave</code>，虽然在解决了可用性问题并且能够很好的线性拓展，但是由于多台机器部署后通过网络通讯，而网络通讯具有很多不确定性的因素，所以可能导致多个节点的数据不一致。</p>
+<p>而解决数据不一致的方法有很多,但是都有一个大前提，数据不一致时,如果希望进行数据同步，那么此时需要一个时间。</p>
+<p>可用性则指某个节点是否能提供正常的服务。</p>
+<p>这三者中,分区容忍性则是具有决定性因素的一个关键。什么是分区 ？</p>
+<p>假设目前有目前部署了一个集群,其中三个节点在中国，三个节点在美国,当网络出现问题是，中国和美国无法通讯，则出现了分区的情况，在分区的情况下，就出现了之前的三选二的情况。</p>
+<blockquote>
+<p><strong>注意</strong> : CAP的三选二真正的含义是,当P发生时,只能满足C和A中的一项,所以P是一个大前提。</p>
+</blockquote>
+<p>举个简单的例子，A服务器B服务器同步数据，现在A B之间网络断掉了，那么现在发来A一个写入请求，但是B却没有相关的请求，显然，如果A不写，保持一致性，那么我们就失去了A的服务，但是如果A写了，跟B的数据就不一致了，我们自然就丧失了一致性。</p>
+<h3 id="BASE理论"><a href="#BASE理论" class="headerlink" title="BASE理论"></a>BASE理论</h3><blockquote>
+<p>eBay的架构师Dan Pritchett源于对大规模分布式系统的实践总结，在ACM上发表文章提出BASE理论，BASE理论是对CAP理论的延伸，核心思想是即使无法做到强一致性（Strong Consistency，<a href="http://www.hollischuang.com/archives/666" target="_blank" rel="noopener">CAP</a>的一致性就是强一致性），但应用可以采用适合的方式达到最终一致性（Eventual Consitency）。</p>
+</blockquote>
+<p><strong>BASE是指基本可用（Basically Available）、软状态（ Soft State）、最终一致性（ Eventual Consistency）。</strong></p>
+<p><strong>基本可用（Basically Available）</strong></p>
+<p>基本可用是指分布式系统在出现部分故障时，允许损失部分可用性，即保证核心的可用性。例如当某系统正常情况下服务响应小于0.5s，但是在高峰情况下，当服务相应在2s内也能够满足。</p>
+<p><strong>软状态（ Soft State）</strong></p>
+<p>软状态是指允许系统存在中间状态，而该中间状态不会影响系统整体可用性。分布式存储中一般一份数据至少会有三个副本，允许不同节点间副本同步的延时就是软状态的体现。</p>
+<p><strong>最终一致性（ Eventual Consistency）</strong></p>
+<p>最终一致性是指系统中的所有数据副本经过一定时间后，最终能够达到一致的状态。弱一致性和强一致性相反，最终一致性是弱一致性的一种特殊情况。</p>
+<h2 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h2><p>分布式事务的基本理论要求为 : 基本遵循CAP理论，采用柔性事物特征，软状态或者最终一致性特点保证分布式事物一致性问题。</p>
+<p>之前提到了CAP和BASE，而这两者则是一种理论，有一句非常著名的话叫做，<strong>天上飞的概念必定有落地的实现</strong>，而分布式的事务算法就是具体的实现方法。</p>
+<h3 id="两阶段提交-2PC"><a href="#两阶段提交-2PC" class="headerlink" title="两阶段提交(2PC)"></a>两阶段提交(2PC)</h3><p>两阶段提交是一种经典的强一致性的分布式事务算法。2PC中具有两种节点</p>
+<ul>
+<li>中心化协调者节点(coordinator) </li>
+<li>参与者节点(partcipant)</li>
+</ul>
+<p>2PC主要分为两个阶段，第一阶段为投票阶段，第二阶段为提交/执行阶段。</p>
+<p>第一阶段为投票阶段，一般分为三步。</p>
+<ol>
+<li>事务询问 : 协调者 向所有的 参与者 发送事务预处理请求，称之为Prepare，并开始等待各 参与者 的响应。</li>
+<li>执行本地事务 : 各个参与者节点执行本地事务操作,但在执行完成后并不会真正提交数据库本地事务，而是先向协调者报告说：“我这边可以处理了/我这边不能处理”。</li>
+<li>向协调者反馈询问响应 : 如果 参与者 成功执行了事务操作,那么就反馈给协调者 Yes 响应,表示事务可以执行,如果没有 参与者 成功执行事务,那么就反馈给协调者 No 响应,表示事务不可以执行。</li>
+</ol>
+<p>这一阶段最主要的目的就是协调者了解参与者节点的事务执行情况。当这个阶段执行完成后，将进入下个阶段<strong>执行/提交阶段</strong></p>
+<p>当所有的参与者节点都返回了YES，说明所有的节点都能够成功执行事务，此时协调者向所有参与者发出Commit的请求，如果此时任何一个参与者在执行Commit是发生了异常并向协调者返回了NO，则协调者会向所有的参与者发送RoolBack请求。</p>
+<p>虽然2PC能够保证强一致性，但是同样具有一些缺点。</p>
+<p><strong>性能问题</strong></p>
+<p>由于需要保证强一致性，所以不论在第一阶段还是第二阶段，所有的参与者节点都会被锁住，只有当协调者节点发送Commit后，才能够被提交，整个过程比较漫长，耗费性能。</p>
+<p><strong>单节点故障</strong></p>
+<p>同样因为强一致性，所以无论是协调者节点还是参与者节点发生故障后，都会出现问题。例如当参与者节点出现问题后，事务将无法被提交(在第一阶段就会收到NO而被终止)，进而导致协调者阻塞。而如果协调者宕机，无法发送请求，则所有未提交的参与者都进入了阻塞状态。</p>
+<h3 id="三阶段提交-3PC"><a href="#三阶段提交-3PC" class="headerlink" title="三阶段提交(3PC)"></a>三阶段提交(3PC)</h3><p>三阶段提交协议（3PC）主要是为了解决两阶段提交协议的阻塞问题，2pc存在的问题是当协作者崩溃时，参与者不能做出最后的选择。因此参与者可能在协作者恢复之前保持阻塞。三阶段提交（Three-phase commit），是二阶段提交（2PC）的改进版本。</p>
+<p>和二阶段不同的是，3PC将2PC的准备阶段一分为二，所以3PC一共分为CanCommit、PreCommit、DoCommit三个阶段。</p>
+<p><strong>CanCommit</strong></p>
+<p>之前2PC的一阶段是本地事务执行结束后，最后不Commit,等其它服务都执行结束并返回Yes，由协调者发生commit才真正执行commit。而这里的CanCommit指的是 <strong>尝试获取数据库锁</strong> 如果可以，就返回Yes。</p>
+<ul>
+<li>事务询问 <strong>协调者</strong> 向 <strong>参与者</strong> 发送CanCommit请求。询问是否可以执行事务提交操作。然后开始等待 <strong>参与者</strong> 的响应。</li>
+<li>响应反馈 <strong>参与者</strong> 接到CanCommit请求之后，正常情况下，如果其自身认为可以顺利执行事务，则返回Yes响应，并进入预备状态。否则反馈No</li>
+</ul>
+<p><strong>PreCommit</strong></p>
+<p>在阶段一中，如果所有的参与者都返回Yes的话，那么就会进入PreCommit阶段进行事务预提交。这里的<strong>PreCommit阶段</strong> 跟上面的第一阶段是差不多的，只不过这里 <strong>协调者和参与者都引入了超时机制</strong> （2PC中只有协调者可以超时，参与者没有超时机制）。</p>
+<p><strong>DoCommit</strong></p>
+<p>该阶段和2PC中的第二阶段相同。</p>
+<blockquote>
+<p>相比较2PC而言,3PC主要对协调者和参与者节点都增添了超时机制，通过超时的设置，解决了参与者无法与协调者沟通的情况下占有资源而阻塞的情况，通过超时放弃的方式来保证参与者节点的可用性</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%90%86%E8%AE%BA/" rel="tag"># 分布式理论</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/" rel="prev" title="操作系统常见知识点详细总结">
+      <i class="fa fa-chevron-left"></i> 操作系统常见知识点详细总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式基础概念"><span class="nav-number">2.</span> <span class="nav-text">分布式基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SOA到MSA服务进化"><span class="nav-number">2.1.</span> <span class="nav-text">SOA到MSA服务进化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SOA面向服务架构"><span class="nav-number">2.1.1.</span> <span class="nav-text">SOA面向服务架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MSA微服务架构"><span class="nav-number">2.1.2.</span> <span class="nav-text">MSA微服务架构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常见概念"><span class="nav-number">2.2.</span> <span class="nav-text">常见概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#节点"><span class="nav-number">2.3.</span> <span class="nav-text">节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络"><span class="nav-number">2.4.</span> <span class="nav-text">网络</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#负载均衡"><span class="nav-number">2.5.</span> <span class="nav-text">负载均衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弹性伸缩"><span class="nav-number">2.6.</span> <span class="nav-text">弹性伸缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#熔断"><span class="nav-number">2.7.</span> <span class="nav-text">熔断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务注册与发现"><span class="nav-number">2.8.</span> <span class="nav-text">服务注册与发现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网关"><span class="nav-number">2.9.</span> <span class="nav-text">网关</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式一致性与共识性"><span class="nav-number">3.</span> <span class="nav-text">分布式一致性与共识性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式数据一致性要求"><span class="nav-number">3.1.</span> <span class="nav-text">分布式数据一致性要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一致性分类"><span class="nav-number">3.2.</span> <span class="nav-text">一致性分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#严格一致性"><span class="nav-number">3.3.</span> <span class="nav-text">严格一致性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#强一致性"><span class="nav-number">3.4.</span> <span class="nav-text">强一致性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弱一致性"><span class="nav-number">3.5.</span> <span class="nav-text">弱一致性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最终一致性"><span class="nav-number">3.6.</span> <span class="nav-text">最终一致性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#共识性"><span class="nav-number">3.7.</span> <span class="nav-text">共识性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CAP-amp-BASE"><span class="nav-number">4.</span> <span class="nav-text">CAP &amp; BASE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CAP理论"><span class="nav-number">4.1.</span> <span class="nav-text">CAP理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BASE理论"><span class="nav-number">4.2.</span> <span class="nav-text">BASE理论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分布式事务"><span class="nav-number">5.</span> <span class="nav-text">分布式事务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#两阶段提交-2PC"><span class="nav-number">5.1.</span> <span class="nav-text">两阶段提交(2PC)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三阶段提交-3PC"><span class="nav-number">5.2.</span> <span class="nav-text">三阶段提交(3PC)</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
