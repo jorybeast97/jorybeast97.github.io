@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Reactor模型概览 The reactor design pattern is an event handling pattern for handling service requests delivered concurrently to a service handler by one or more inputs. The service handler then demultiple">
+<meta name="keywords" content="Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty Reactor模型">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;Netty-Reactor%E6%A8%A1%E5%9E%8B&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="Reactor模型概览 The reactor design pattern is an event handling pattern for handling service requests delivered concurrently to a service handler by one or more inputs. The service handler then demultiple">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;t6rnPO.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;t66FMQ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;t6gzI1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;t6znxO.png">
+<meta property="og:updated_time" content="2020-06-06T13:33:37.764Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;06&#x2F;t6rnPO.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Netty Reactor模型 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Netty Reactor模型
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-06 21:32:21 / 修改时间：21:33:37" itemprop="dateCreated datePublished" datetime="2020-06-06T21:32:21+08:00">2020-06-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web%E6%A1%86%E6%9E%B6/" itemprop="url" rel="index"><span itemprop="name">Web框架</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Reactor模型概览"><a href="#Reactor模型概览" class="headerlink" title="Reactor模型概览"></a>Reactor模型概览</h2><blockquote>
+<p>The reactor <a href="https://en.wikipedia.org/wiki/Design_pattern_(computer_science)" target="_blank" rel="noopener">design pattern</a> is an <a href="https://en.wikipedia.org/wiki/Event_handling" target="_blank" rel="noopener">event handling</a> pattern for handling service requests delivered <a href="https://en.wikipedia.org/wiki/Concurrency_(computer_science)" target="_blank" rel="noopener">concurrently</a> to a service handler by one or more inputs. The service handler then <a href="https://en.wikipedia.org/wiki/Demultiplex" target="_blank" rel="noopener">demultiplexes</a> the incoming requests and dispatches them synchronously to the associated request handlers.<a href="https://en.wikipedia.org/wiki/Reactor_pattern#cite_note-1" target="_blank" rel="noopener">[1]</a></p>
+</blockquote>
+<p><strong>反应器模式</strong>（Reactor pattern）是一种为处理服务请求<a href="https://zh.wikipedia.org/wiki/并发" target="_blank" rel="noopener">并发</a> 提交到一个或者多个服务处理程序的事件设计模式。当请求抵达后，服务处理程序使用解多路分配策略，然后同步地派发这些请求至相关的请求处理程序。</p>
+<p>先来回忆一个场景，当出现一个网络连接，并发送数据时，都应该经历哪些步骤 ？</p>
+<p>一般来说，需要接收连接，读取数据，解码，执行业务逻辑，编码，发送这几个阶段。而如果将所有阶段都集中处理，会让整个逻辑链变得复杂而不可拓展。因此可以将各个步骤交由不同模块来完成，有些类似于责任链。</p>
+<p>而 Reactor Pattern 实际上就是对上述场景提出的一种设计模式，既然是设计模式，就是十分高度抽象的，一般来说，最简单的Reactor中应该具有以下几个部分。</p>
+<ul>
+<li>Reactor : 负责处理IO事件,将事件分发给绑定的Handler处理</li>
+<li>Handler : 事件处理器,负责对某些事件进行具体的业务处理</li>
+<li>Acceptor : 负责接收并将事件注册进入Reactor，并交由Reactor处理</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6rnPO.png" alt=""></p>
+<p>该图主要是最简单的Reactor模型，而实际开发和Netty框架中，Reactor设计更为精妙和繁杂，增添了诸多细节例如NIO事件驱动，多Reactor线程池以及各类编解码器。</p>
+<a id="more"></a>
+
+<h3 id="单线程Reactor模型"><a href="#单线程Reactor模型" class="headerlink" title="单线程Reactor模型"></a>单线程Reactor模型</h3><p>由于使用了事件驱动，所以能够使用单一线程监听多个IO事件，结合Acceptor，就能够将整个模型进行拓展。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t66FMQ.png" alt=""></p>
+<p>该图即是我对于单线程Reactor模型的理解，需要理解的一个点是，Acceptor 和 Handler 本质上是一类事务，只不过是处理不同的事件。如果了解 Redis 的IO模型，会对该图有更深的理解，Redis中使用的就是类似于图中的IO多路复用，如果将编解码，读写过程合一，也能够看作一个单线程的 Reactor 模型。</p>
+<p>虽然单线程的 Reactor 模型足够简单，也能够凭借Selector应对一定数量的并发，但是由于Selector是单线程设计，这样就无法充分利用多核CPU的性能，同时，如果并发量十分巨大(例如常见的游戏服务器)，那么单个线程无法应对所有的IO请求，同时，只要该线程出错，那么整个通讯模块都将无法使用。</p>
+<h3 id="多线程Reactor模型"><a href="#多线程Reactor模型" class="headerlink" title="多线程Reactor模型"></a>多线程Reactor模型</h3><p>正是因为单线程Reactor中的一些缺点，所以又出现了Reactor多线程模型，还是来看一张图。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6gzI1.png" alt=""></p>
+<p>如果搭建过 Netty 服务器的话，对于这个模型来说会更加熟悉。回忆一下，在 Netty 中，我们在Server端一般会创建两个<code>NioEventLoop</code>,分别为Boss和Worker，而其中的Boss则只负责注册IO请求，而Worker线程则负责对IO请求进行读写，过滤，编解码等操作。</p>
+<p>Reactor 多线程模型同理，Worker线程能够使用线程池负责，当注册线程将一个事件注册到Set中，之后就会由Worker来完成该事件的相关响应。</p>
+<blockquote>
+<p><strong>注意 : 多线程模型中，可以拥有多个工作线程，但是一个IO事件只能够注册到其中的一个工作组中，否则会出现并发异常</strong></p>
+</blockquote>
+<h3 id="主从多Reactor模型"><a href="#主从多Reactor模型" class="headerlink" title="主从多Reactor模型"></a>主从多Reactor模型</h3><p>虽然一般的多线程Reactor模型已经能够完成大部分的性能需求，但是在一些特殊场景下，多线程模型还是无法很好的适应。</p>
+<p>一般来说 Server 服务器都会开启一个端口来接收TCP连接通讯，但是如果我们希望开启多个端口，绑定多个注册线程，就可以使用到主从多Reactor模型，该模型和多线程模型很相似，只不过Selector由单一线程变成了线程池，并且每个线程都绑定了不同的端口并有自己的Worker工作线程组。</p>
+<h2 id="Netty-Reactor"><a href="#Netty-Reactor" class="headerlink" title="Netty Reactor"></a>Netty Reactor</h2><p>Netty相比较于其他框架，学习难度相对来说比较高，我自己在学习的过程中，发现一个很大的问题就是在于，Netty对于底层的封装很完善，而又在Handler中配备了<code>channelActive</code>，<code>channelRead</code>非常便捷的方法来屏蔽底层实现，这样带来的结果就是，虽然Netty上手很容易，但是想要再往深处学习，会感觉有些无从下手。</p>
+<p>之前有看过《 Netty 实战》一书，其中花了很大篇幅来讲解如何搭建各种各样的服务器，如何配置<code>ChannelInitializer</code>以及<code>Handler</code>，但是对于Netty底层的相关和整个Netty的设计框架概览来说，有些简略，这就造成了我看完这本书后，能够搭建一个Netty服务器，但是时间一长，那些API忘掉后，有感觉什么都没有掌握。</p>
+<p>那么先从一个简单的服务器来看下，Netty都需要哪些组件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ModbusServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建boss和work两个group,一个负责接收TCP连接,一个负责处理IO相关操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup bossGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup workGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//省略port，host等配置文件读取</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ChannelFuture channelFuture = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ServerBootstrap bootstrap = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">            bootstrap.group(bossGroup, workGroup)</span><br><span class="line">                .channel(NioServerSocketChannel.class)</span><br><span class="line">                .localAddress(<span class="keyword">new</span> InetSocketAddress(host, port))</span><br><span class="line">                .childHandler(serverInitializer);</span><br><span class="line">            channelFuture = bootstrap.bind().sync();</span><br><span class="line">            channel = channelFuture.channel();</span><br><span class="line">            logger.info(<span class="string">"===========Netty Start Successful==========="</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            logger.error(<span class="string">"==============Netty Start Failed============"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> channelFuture;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        shutdownGracefully()</span><br><span class="line">        <span class="comment">// . . . . . .</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个非常典型的 Netty 服务器程序，其中省略了一些相关的代码，并不影响阅读。</p>
+<p>Netty通过<code>bootstrap</code>完成Group，端口，host以及Handler和serverInitializer的绑定，在之后的消息发送过程中会按照配置的拦截器完成对于数据的处理。</p>
+<h3 id="BossGroup-和-WorkGroup"><a href="#BossGroup-和-WorkGroup" class="headerlink" title="BossGroup 和 WorkGroup"></a>BossGroup 和 WorkGroup</h3><blockquote>
+<p>Why we need bossGroup and workGroup ? </p>
+</blockquote>
+<p>这个问题是一个很经典的问题，在很多平台上都有不同的人给出了不同的解释，当然，在Netty官网中的Doc中也给出了解释。</p>
+<blockquote>
+<p><a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> is a multithreaded event loop that handles I/O operation. Netty provides various <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementations for different kind of transports. We are implementing a server-side application in this example, and therefore two <a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> will be used. The first one, often called ‘boss’, accepts an incoming connection. The second one, often called ‘worker’, handles the traffic of the accepted connection once the boss accepts the connection and registers the accepted connection to the worker. How many Threads are used and how they are mapped to the created <a href="https://netty.io/4.1/api/io/netty/channel/Channel.html" target="_blank" rel="noopener"><code>Channel</code></a>s depends on the <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementation and may be even configurable via a constructor.</p>
+</blockquote>
+<p>总结来说，Boss线程将负责接收IO请求并将其注册的channel传递给Worker线程，具体的IO活动将由Worker处理，同时，出现多少线程将由IO连接数来决定，同时也可以使用构造器来限制。</p>
+<h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><p>现在已经知道了BossGroup和WorkGroup的作用，那么用一张图来展示下其结构。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6znxO.png" alt=""></p>
+<p>这是一张非常经典的Netty Reactor模型结构，netty线程模型采用“服务端监听线程”和“IO线程”分离的方式，与多线程Reactor模型类似。抽象出NioEventLoop来表示一个不断循环执行处理任务的线程，每个NioEventLoop有一个selector，用于监听绑定在其上的socket链路。</p>
+<h3 id="Selector源码"><a href="#Selector源码" class="headerlink" title="Selector源码"></a>Selector源码</h3><p>select如何去做一个IO切换操作，我们能够通过源码来看到。Netty中使用的是JAVA NIO中Selector的模型。我们来看下其中的重点内容。</p>
+<p>SocketChannel、ServerSocketChannel和Selector的实例初始化都通过SelectorProvider类实现，其中Selector是整个NIO Socket的核心实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">provider</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        <span class="keyword">if</span> (provider != <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> provider;</span><br><span class="line">        <span class="keyword">return</span> AccessController.doPrivileged(</span><br><span class="line">            <span class="keyword">new</span> PrivilegedAction&lt;&gt;() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> SelectorProvider <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderFromProperty())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderAsService())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    provider = sun.nio.ch.DefaultSelectorProvider.create();</span><br><span class="line">                    <span class="keyword">return</span> provider;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的式,Provider在Win和Linux下有不同的实现，查看<code>create()</code>就能看到。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> sun.nio.ch.WindowsSelectorProvider();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而底层则用的是<code>Unsafe</code>申请一块物理内存来存放dispatch，剩下的就是C语言实现的操作系统层面的API。</p>
+<p>在获得一个Selector后，需要做的事情就是将Channel注册进入Selector。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> SelectionKey <span class="title">register</span><span class="params">(Selector sel, <span class="keyword">int</span> ops, Object att)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> ClosedChannelException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (regLock) &#123;</span><br><span class="line">        SelectionKey k = findKey(sel);</span><br><span class="line">        <span class="keyword">if</span> (k != <span class="keyword">null</span>) &#123;</span><br><span class="line">            k.interestOps(ops);</span><br><span class="line">            k.attach(att);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// New registration</span></span><br><span class="line">            <span class="keyword">synchronized</span> (keyLock) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedChannelException();</span><br><span class="line">                k = ((AbstractSelector)sel).register(<span class="keyword">this</span>, ops, att);</span><br><span class="line">                addKey(k);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> k;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>如果该channel和selector已经注册过，则直接添加事件和附件。</li>
+<li>否则通过selector实现注册过程。</li>
+</ol>
+<p>下面来看下Netty的doSelect过程，这个过程使用的是JAVA NIO底层的Selector来完成。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">doSelect</span><span class="params">(Consumer&lt;SelectionKey&gt; action, <span class="keyword">long</span> timeout)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> IOException</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</span><br><span class="line">        <span class="keyword">synchronized</span> (selectedKeys) &#123;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line">            <span class="keyword">int</span> numKeySelected;</span><br><span class="line">            <span class="keyword">if</span> (timeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                numKeySelected = selectNow();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                numKeySelected = select(timeout);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// copy selected-key set as action may remove keys</span></span><br><span class="line">            Set&lt;SelectionKey&gt; keysToConsume = Set.copyOf(selectedKeys);</span><br><span class="line">            <span class="keyword">assert</span> keysToConsume.size() == numKeySelected;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// invoke action for each selected key</span></span><br><span class="line">            keysToConsume.forEach(k -&gt; &#123;</span><br><span class="line">                action.accept(k);</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedSelectorException();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> numKeySelected;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要重点关注的就是<code>Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</code>，这个set就是存放每一个channel对应的selectedKeys，每次请求到达服务器，都是从connect开始，connect成功后，服务端开始准备accept，准备就绪，开始读数据，并处理，最后写回数据返回。一共有四种事件。</p>
+<ol>
+<li><strong>connect</strong> ：客户端连接服务端事件，对应值为SelectionKey.OP_CONNECT(8) </li>
+<li><strong>accept</strong> ：服务端接收客户端连接事件，对应值为SelectionKey.OP_ACCEPT(16) </li>
+<li><strong>read</strong> ：读事件，对应值为SelectionKey.OP_READ(1) </li>
+<li><strong>write</strong> ：写事件，对应值为SelectionKey.OP_WRITE(4)</li>
+</ol>
+<p>服务端操作过程。</p>
+<p>1、创建ServerSocketChannel实例，并绑定指定端口； 2、创建Selector实例； 3、将serverSocketChannel注册到selector，并指定事件OP_ACCEPT，最底层的socket通过channel和selector建立关联； 4、如果没有准备好的socket，select方法会被阻塞一段时间并返回0； 5、如果底层有socket已经准备好，selector的select方法会返回socket的个数，而且selectedKeys方法会返回socket对应的事件（connect、accept、read or write）； 6、根据事件类型，进行不同的处理逻辑；</p>
+<p>在步骤3中，selector只注册了serverSocketChannel的OP_ACCEPT事件 1、如果有客户端A连接服务，执行select方法时，可以通过serverSocketChannel获取客户端A的socketChannel，并在selector上注册socketChannel的OP_READ事件。 2、如果客户端A发送数据，会触发read事件，这样下次轮询调用select方法时，就能通过socketChannel读取数据，同时在selector上注册该socketChannel的OP_WRITE事件，实现服务器往客户端写数据。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.lvbby.com/p/md/1902031144157633974003" target="_blank" rel="noopener">绿皮 : Netty系列</a></li>
+<li><a href="https://www.jianshu.com/p/38b56531565d" target="_blank" rel="noopener">Netty Reactor模型</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Netty/" rel="tag"># Netty</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/" rel="prev" title="分布式系统理论学习总结">
+      <i class="fa fa-chevron-left"></i> 分布式系统理论学习总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Reactor模型概览"><span class="nav-number">1.</span> <span class="nav-text">Reactor模型概览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单线程Reactor模型"><span class="nav-number">1.1.</span> <span class="nav-text">单线程Reactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多线程Reactor模型"><span class="nav-number">1.2.</span> <span class="nav-text">多线程Reactor模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从多Reactor模型"><span class="nav-number">1.3.</span> <span class="nav-text">主从多Reactor模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Netty-Reactor"><span class="nav-number">2.</span> <span class="nav-text">Netty Reactor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BossGroup-和-WorkGroup"><span class="nav-number">2.1.</span> <span class="nav-text">BossGroup 和 WorkGroup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模型结构"><span class="nav-number">2.2.</span> <span class="nav-text">模型结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Selector源码"><span class="nav-number">2.3.</span> <span class="nav-text">Selector源码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
