@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。 如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并">
+<meta name="keywords" content="ZGC垃圾收集器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Z Garbage Collector染色指针及读屏障总结">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。 如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;t20EAP.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;wiki.openjdk.java.net&#x2F;s&#x2F;en_US&#x2F;7901&#x2F;0059a6c4a9a3d763ef46aeebecc5e24fefd039f0&#x2F;_&#x2F;images&#x2F;icons&#x2F;emoticons&#x2F;check.svg">
+<meta property="og:image" content="https:&#x2F;&#x2F;wiki.openjdk.java.net&#x2F;s&#x2F;en_US&#x2F;7901&#x2F;0059a6c4a9a3d763ef46aeebecc5e24fefd039f0&#x2F;_&#x2F;images&#x2F;icons&#x2F;emoticons&#x2F;check.svg">
+<meta property="og:image" content="https:&#x2F;&#x2F;wiki.openjdk.java.net&#x2F;s&#x2F;en_US&#x2F;7901&#x2F;0059a6c4a9a3d763ef46aeebecc5e24fefd039f0&#x2F;_&#x2F;images&#x2F;icons&#x2F;emoticons&#x2F;check.svg">
+<meta property="og:image" content="https:&#x2F;&#x2F;wiki.openjdk.java.net&#x2F;s&#x2F;en_US&#x2F;7901&#x2F;0059a6c4a9a3d763ef46aeebecc5e24fefd039f0&#x2F;_&#x2F;images&#x2F;icons&#x2F;emoticons&#x2F;check.svg">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;t25Z4g.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;t2otXR.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRCci4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRCodO.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRCqWd.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRPc0f.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRmVXQ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;b0417665-12be-4e91-a524-ded685cdc986.png">
+<meta property="og:updated_time" content="2020-06-07T15:03:18.880Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;t20EAP.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Z Garbage Collector染色指针及读屏障总结 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Z Garbage Collector染色指针及读屏障总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-07 23:01:10 / 修改时间：23:03:18" itemprop="dateCreated datePublished" datetime="2020-06-07T23:01:10+08:00">2020-06-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">JVM学习笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
+<p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Fegin概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
+<p>虽然 G1很美好，并且也是目前使用非常多的GC收集器，但是还是有不少的缺点。</p>
+<ul>
+<li>由于G1使用三色算法，不可避免地会产生浮动垃圾</li>
+<li>G1同样无法避免Full GC，那么当堆十分巨大地时候(上百GB)，STW的停顿时间同样是不可忽略的</li>
+<li>由于使用了Remember Set记录跨代引用信息，会产生1% ~ 20%的额外内存消耗</li>
+</ul>
+<p>如果说 G1 是现在流行的收集器，那么 GC 就可以说是来自未来的怪兽。为什么这么形容 ? 先来看一张 SPECjbb给出的测评结果。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/t20EAP.png" alt=""></p>
+<p>一目了然，ZGC的强大之处在于，无论堆有多大，其GC停顿时间都没有超过10ms。</p>
+<p>一图胜千言，同样，该机构也做了很多的测评结果，都发布在<code>The Z Garbage Collector - An Introduction</code>这一文档中。</p>
+<blockquote>
+<p>文档地址 : <a href="http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf" target="_blank" rel="noopener">http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf</a></p>
+</blockquote>
+<p>如果足够细心，结合谷歌上的一些资料以及该文档，那么ZGC的学习曲线会变得更加平滑，这一点是来自我的体会，因为ZGC的学习思路和难度相较于之前的GC收集器，都有一个比较大的增长，而更让我们不易理解的是，ZGC很多内容和操作系统相关，如果基础不够扎实，很容易导致概念架空而不得解的情况。</p>
+<a id="more"></a>
+
+<h2 id="ZGC"><a href="#ZGC" class="headerlink" title="ZGC"></a>ZGC</h2><blockquote>
+<p><strong>The Z Garbage Collector</strong>, also known as <strong>ZGC</strong>, is a scalable low latency garbage collector designed to meet the following goals:</p>
+<ul>
+<li>Max pause times of <strong>a few milliseconds</strong> <strong>(*)</strong></li>
+<li>Pause times <strong>do not</strong> increase with the heap or live-set size <strong>(*)</strong></li>
+<li>Handle heaps ranging from a <strong>8MB</strong> to <strong>16TB</strong> in size</li>
+</ul>
+</blockquote>
+<p>这段描述是最为能够精准概括ZGC优点和目标的一段话。就好像魔术一样，ZGC的性能让很多垃圾收集器汗颜。</p>
+<p>按照正常的逻辑，随着堆越来越大，回收起来停顿时间就会越来越长，这是符合我们正常逻辑思维的。但是在ZGC中，却能够实现STW的时间不随堆大小的变更，与此同时又能维护一个1 ~ 10ms的Pause时间，这让整个回收过程变得十分”顺滑”。</p>
+<p>同时，ZGC的堆存储量也是一个惊喜，在JDK11中能够配置4TB的堆内存大小，而在JDK14中，这个容量进一步扩大，到达16TB容量。而为什么是16TB ？这一点在后面会简单总结。</p>
+<p><strong>注意 : ZGC目前仅支持64位平台</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">Platform</th>
+<th align="left">Supported</th>
+<th align="left">Since</th>
+<th align="left">Comment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Windows</td>
+<td align="left"><img src="https://wiki.openjdk.java.net/s/en_US/7901/0059a6c4a9a3d763ef46aeebecc5e24fefd039f0/_/images/icons/emoticons/check.svg" alt="(tick)"></td>
+<td align="left">JDK 14</td>
+<td align="left">Requires Windows version 1803 (Windows 10 or Windows Server 2019) or later.</td>
+</tr>
+<tr>
+<td align="left">Linux/x64</td>
+<td align="left"><img src="https://wiki.openjdk.java.net/s/en_US/7901/0059a6c4a9a3d763ef46aeebecc5e24fefd039f0/_/images/icons/emoticons/check.svg" alt="(tick)"></td>
+<td align="left">JDK 11</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Linux/AArch64</td>
+<td align="left"><img src="https://wiki.openjdk.java.net/s/en_US/7901/0059a6c4a9a3d763ef46aeebecc5e24fefd039f0/_/images/icons/emoticons/check.svg" alt="(tick)"></td>
+<td align="left">JDK 13</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">macOS</td>
+<td align="left"><img src="https://wiki.openjdk.java.net/s/en_US/7901/0059a6c4a9a3d763ef46aeebecc5e24fefd039f0/_/images/icons/emoticons/check.svg" alt="(tick)"></td>
+<td align="left">JDK 14</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<p>简单了解了ZGC的目标，下面就是关于如何实现这个目标。ZGC的出现经历了多个阶段，并且吸取了多篇论文的优秀理论，所以ZGC中的概念也是相对于G1和CMS要多一些，如果能够真正理解好这些概念，就能从内部理解ZGC的原理。</p>
+<p>我们来看下官方文档中给出的一些理论依据 : </p>
+<blockquote>
+<p><strong>At a Glance</strong></p>
+<ul>
+<li>New garbage collector 一种全新的垃圾回收器</li>
+<li>Load barriers 读屏障</li>
+<li>Colored pointers 染色指针</li>
+<li>Single generation  <strong>暂时</strong>不分代</li>
+<li>Partial compaction 内存区域压缩</li>
+<li>Region-based 基于Region</li>
+<li>Immediate memory reuse 垃圾回收内存会被立即使用</li>
+<li>NUMA-aware NUMA模型</li>
+</ul>
+</blockquote>
+<p>这些概念如果每个都去深究，必然会浪费大量时间，因为每一个概念背后都有非常多论文和实验的支撑，也是很多大牛在多次讨论实践后得出的普适性结果，所以，我们对于这些概念学习，不必去深究为什么要这样做，而是需要关注概念本身，那么在之后的文中，尽量从简单的内容入手，最终重点会落在读屏障和染色指针方面。</p>
+<h2 id="NUMA-aware"><a href="#NUMA-aware" class="headerlink" title="NUMA-aware"></a>NUMA-aware</h2><p>一般来说，服务器中不止一个CPU，而多个CPU在内存中分配数据的过程有多种方式，流行的并行体系结构计算机分为以下两种模型：</p>
+<ol>
+<li>统一内存访问（UMA）</li>
+<li>非统一内存访问（NUMA）</li>
+</ol>
+<p>ZGC依赖NUMA-aware(非均衡存储器访问)，需要我们的内存支持这种特点</p>
+<h3 id="UMA-统一内存访问"><a href="#UMA-统一内存访问" class="headerlink" title="UMA 统一内存访问"></a>UMA 统一内存访问</h3><p>UMA又称为<code>Uniform Memory Access</code>，所谓对称多处理器结构，是指服务器中多个CPU对称工作，无主次或从属关系。各CPU共享相同的物理内存，每个 CPU访问内存中的任何地址所需时间是相同的。对于UMA服务器拓展方式主要是增添硬件基础，例如增加CPU，增加更多的内存，磁盘等硬件。</p>
+<p>但是正是因为共享的原因，导致导致了UMA服务器的主要问题，那就是它的扩展能力非常有限。对于SMP服务器而言，每一个共享的环节都可能造成SMP服务器扩展时的瓶颈，而最受限制的则是内存。由于每个CPU必须通过相同的内存总线访问相同的内存资源，因此随着CPU数量的增加，内存访问冲突将迅速增加，最终会造成CPU资源的浪费，使CPU性能的有效性大大降低。实验证明，UMA服务器CPU利用率最好的情况是2至4个CPU。</p>
+<p>例如一种常见的情况，当多个CPU都申请同一块内存地址，那么就会进行加锁处理，此时就导致CPU阻塞，性能下降。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/t25Z4g.png" alt=""></p>
+<p>图中，物理存储器被所有处理机均匀共享。所有处理机对所有存储字具有相同的存取时间，这就是为什么称它为均匀存储器存取的原因。每台处理机可以有私用高速缓存,外围设备也以一定形式共享。</p>
+<h3 id="NUMA-非统一内存访问"><a href="#NUMA-非统一内存访问" class="headerlink" title="NUMA 非统一内存访问"></a>NUMA 非统一内存访问</h3><p>NUMA(Non-Uniform Memory Access)非同一内存访问是一种新的拓展思路。随着服务器性能需求的越来越大，UMA的限制也逐渐体现出来，人们开始探究如何进行有效地扩展从而构建大型系统的技术，NUMA就是这种努力下的结果之一利用NUMA技术，可以把几十个CPU(甚至上百个CPU)组合在一个服务器内。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/t2otXR.png" alt=""></p>
+<p>NUMA模型如图。每台机器都会配备几个CPU的集合，由多台机器组成一个大型的内存空间，这些内存空间分为两种。</p>
+<ul>
+<li>本地内存 : 物理机种直接连接的储存空间</li>
+<li>远程内存 : 通过总线连接到其他物理机中的内存</li>
+</ul>
+<p>这两者最大的区别就是本地内存空间读取速度远远高于远程空间，原因显而易见。</p>
+<p>由于其节点之间可以通过互联模块(如称为Crossbar Switch)进行连接和信息交互，因此每个CPU可以访问整个系统的内存。显然，访问本地内存的速度将远远高于访问远地内存(系统内其它节点的内存)的速度，这也是非一致存储访问NUMA的由来。</p>
+<p>但NUMA技术同样有一定缺陷，由于访问远地内存的延时远远超过本地内存，因此当CPU数量增加时，系统性能无法线性增加。如HP公司发布Superdome服务器时，曾公布了它与HP其它UNIX服务器的相对性能值，结果发现，64路CPU的Superdome (NUMA结构)的相对性能值是20，而8路N4000(共享的SMP结构)的相对性能值是6.3. 从这个结果可以看到，8倍数量的CPU换来的只是3倍性能的提升。</p>
+<h2 id="ZGC-Region"><a href="#ZGC-Region" class="headerlink" title="ZGC Region"></a>ZGC Region</h2><h3 id="Region分区"><a href="#Region分区" class="headerlink" title="Region分区"></a>Region分区</h3><p>和G1相同，ZGC也将堆划分为Region作为清理，移动，以及并行GC线程工作分配的单位。</p>
+<p>但是不同的是，在G1的堆分配中，每个Region大小相同，只不过分为四种等级，但是在ZGC中，Region划分为为三种Group，分别为Small Page，Medium Page，Large Page。</p>
+<ul>
+<li>小型Region（Small Region）：容量固定为2MB，用于放置小于256KB的小对象。</li>
+<li>中型Region（Medium Region）：容量固定为32MB，用于放置大于等于256KB但小于4MB的对象。</li>
+<li>大型Region（Large Region）：容量不固定，可以动态变化，但必须为2MB的整数倍，用于放置4MB或以上的大对象。每个大型Region中只会存放一个大对象，所以实际容量可能小于中型Region，最小容量可低至4MB。大型Region在ZGC的实现中是不会被重分配的，因为复制一个大对象的代价非常高昂。</li>
+</ul>
+<h3 id="回收过程"><a href="#回收过程" class="headerlink" title="回收过程"></a>回收过程</h3><p>在CMS中会使用到Mark-Swap算法，因此CMS的一个缺点就是会出现大量的内存碎片导致Full GC。而ZGC和G1相同，都是通过Mark-Compact算法，会将活着的对象都移动到另一个Region，整个回收掉原来的Region。</p>
+<p>这个过程就是之前在文章头部提到的<strong>Partial compaction</strong>，下面用一组图来描述下这个垃圾回收的过程。</p>
+<p><strong>1. Pause Mark Start －初始停顿标记</strong></p>
+<p>此阶段需要STW，获取GC Roots直接引用到的对象作为第一批存活对象。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/tRCci4.png" alt=""></p>
+<p><strong>2. Concurrent Mark －并发标记</strong></p>
+<p>并发标记，和三色算法类似。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/tRCodO.png" alt=""></p>
+<p><strong>3. Relocate － 移动对象</strong></p>
+<p>对比发现3、6、7是过期对象，也就是中间的两个灰色region需要被压缩清理，所以陆续将4、5、8  对象移动到最右边的新Region。移动过程中，有个forward table纪录这种转向。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/tRCqWd.png" alt=""></p>
+<p>这里有一个需要注意的点，在ZGC的文档中提到过一个概念<strong>Immediate memory reuse</strong>，当活着的对象被移动走时，这个region可以马上被使用，当再有新的对象分配时，会直接分配到该Region上。</p>
+<blockquote>
+<p><strong>Immediate memory reuse</strong>的概念最简单的理解就是 : 当扫描整个堆时，只需要一个空的Region即可。</p>
+</blockquote>
+<p>如果能够理解这句话，就能够理解<strong>Immediate memory reuse</strong>的意义。</p>
+<p>正常情况下，我们必须保证堆内有足够大的一个区域能存放下能够存活的对象，然后将所有的对象存放到这个区域，就像Survivor。但是在ZGC中，这个区域并不需要能够放下所有的对象，只需要能够存放下一个Region的对象，这样就能够先释放一个Region，然后这个Region立即能够被使用，即使此时处于垃圾收集的过程中，此时我们获得了两个Region，又能够回收两个Region的垃圾，以此类推，就能够将所有的垃圾收集完成。</p>
+<p><strong>4. Remap － 修正指针</strong></p>
+<p>最后将指针都妥帖地更新指向新地址。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/tRPc0f.png" alt=""></p>
+<h3 id="内存优势"><a href="#内存优势" class="headerlink" title="内存优势"></a>内存优势</h3><p>由于使用了Region，所以可能会出现跨代引用的问题。而G1中解决跨代引用问题的方法是维护一个<strong>Remember Set</strong>来记录该Region中的跨代引用的情况。通过这种方式避免每次扫描Region，但是付出的代价是需要额外的内存消耗，在对象频繁变更的情况下，由于需要维护Remember Set和Write Barrier可能会带来20%左右的内存消耗。</p>
+<p>而ZGC几乎没有停顿，所以划分Region并不是为了增量回收，每次都会对所有Region进行回收，所以也就不需要这个占内存的RememberSet了，又因为它暂时连分代都还没实现，所以完全没有Write Barrier。</p>
+<p>那么问题又来了，ZGC如何维护引用的关系呢 ? 毕竟这才是垃圾收集时真正被关注的内容。</p>
+<h2 id="Colored-Pointers"><a href="#Colored-Pointers" class="headerlink" title="Colored Pointers"></a>Colored Pointers</h2><p>染色指针(colored pointers)并不是一个全新的概念，很早之前就有过相关的论文，但是相关的资料并不多。在Google上能够找到一篇文章对Colored Pointers有一些介绍。</p>
+<blockquote>
+<p><a href="https://hub.packtpub.com/getting-started-with-z-garbage-collectorzgc-in-java-11-tutorial/" target="_blank" rel="noopener">https://hub.packtpub.com/getting-started-with-z-garbage-collectorzgc-in-java-11-tutorial/</a></p>
+</blockquote>
+<h3 id="什么是染色指针"><a href="#什么是染色指针" class="headerlink" title="什么是染色指针 ?"></a>什么是染色指针 ?</h3><p>官方文档中给出的介绍如下 : </p>
+<blockquote>
+<p><strong>Colored Pointers</strong></p>
+<p>Colored pointers are one of the core concepts of ZGC. It enables ZGC to <strong>find</strong>, <strong>mark</strong>, <strong>locate</strong>, and <strong>remap</strong> the objects. </p>
+<ul>
+<li>Core design concept in ZGC</li>
+<li>Metadata stored in unused bits in 64-bit pointers</li>
+<li>Virtual Address-masking either in hardware, OS or software</li>
+</ul>
+</blockquote>
+<p>这几句话基本上就完全概括了<strong>Colored Pointers</strong>的核心本质。这里引入一个经典问题。</p>
+<blockquote>
+<p><strong>为什么会把GC信息放在指针上呢？</strong></p>
+</blockquote>
+<ul>
+<li>追踪式收集算法的标记阶段就是看有没有引用，所以可以只和指针打交道而不管指针所引用的对象本身。</li>
+<li>例如对象标记过程就是打个三色标记，这些标记本质上只和对象引用有关，和对象本身无关。某个对象只有它的引用关系才能决定它的存活。</li>
+</ul>
+<h3 id="引用结构"><a href="#引用结构" class="headerlink" title="引用结构"></a>引用结构</h3><p>回忆一下，在之前的收集器中，对象的GC信息全部记录在对象头中，例如分代年龄，例如GC标记。当我们收集的时候，需要直接操作对象本身，因为只有对象本身才会具有这些状态信息，但是这样带来什么问题呢？</p>
+<p>一个对象可以被多个引用连接，但是一个引用只能够映射一个对象。那么当多个引用都指向一个对象的时候，在GC的时候就需要全面的去排查这些引用，查看是否被GC Roots连接，这也是一直以来难以解决的问题。即使G1中，也依旧需要维护一个Remember Set来记录这种引用的关系。</p>
+<p>而在ZGC中，这种GC信息维护的关系，被移交到了引用之上(指针)。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/tRmVXQ.png" alt=""></p>
+<p>这是一张非常经典的图，在官方文档和很多相关文章中都能看到它的身影。</p>
+<p>我们在Java中创建一个对象<code>Object obj = new Object()</code>，在ZGC的情况下，<code>obj</code>这个指针会分配64bit的内存空间。而这64bit的内存空间会被分为如图中的几块。</p>
+<ul>
+<li>Finalizable：表示是否只能通过finalize()方法才能被访问到，其他途径不行；</li>
+<li>Remapped：表示是否进入了重分配集（即被移动过）；</li>
+<li>Marked1、Marked0：表示对象的三色标记状态；</li>
+</ul>
+<p>ZGC使用了内存多重映射（Multi-Mapping）将多个不同的虚拟内存地址映射到同一个物理内存地址上，这是一种多对一映射。因为染色指针只是重新定义内存中某些指针的其中几位，OS又不支持，OS只会把整个指针当做一个内存地址来对待，只是它自己瞎想，为了解决这个问题，使用了现代处理器的<strong>虚拟内存映射技术</strong></p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/b0417665-12be-4e91-a524-ded685cdc986.png" alt=""></p>
+<blockquote>
+<p>ZGC的多重映射只是它采用染色指针技术的伴生产物</p>
+</blockquote>
+<h3 id="染色指针优势"><a href="#染色指针优势" class="headerlink" title="染色指针优势"></a>染色指针优势</h3><ol>
+<li>一旦某个Region的存活对象被移走之后，这个Region立即就能够被释放和重用掉，而不必等待整个堆中所有指向该Region的引用都被修正后才能清理，这使得理论上只要还有一个空闲Region，ZGC就能完成收集。而Shenandoah需要等到更新阶段结束才能释放回收集中的Region，如果Region里面对象都存活的时候，需要1:1的空间才能完成收集。</li>
+<li>染色指针可以大幅减少在垃圾收集过程中内存屏障的使用数量，ZGC只使用了读屏障。</li>
+<li>染色指针具备强大的扩展性，它可以作为一种可扩展的存储结构用来记录更多与对象标记、重定位过程相关的数据，以便日后进一步提高性能。</li>
+</ol>
+<h3 id="读屏障"><a href="#读屏障" class="headerlink" title="读屏障"></a>读屏障</h3><p>读屏障的设计同样是ZGC低STW时间的关键之一。以往垃圾收集器中，一旦触发STW后，需要粗暴的打断所有的对象访问，即使该对象在本次GC中并不会进行移动。而在G1中为了尽量减少这种情况，使用了Write Barrier配合Remember Set记录对象状态变更来减少对象无意义的更新。</p>
+<p>而ZGC中则更进一步，使用了<strong>Load Barrier</strong>读屏障技术，让对象的访问变得更加灵活。</p>
+<p>在程序中，我们通过引用来操作对象，当对对象进行操作的时候，首先会检查引用中的4bit的标志位。如果标志位为0，则说明对象未变化，直接操作即可，如果标志位不为0，说明对象正在移动，此时如果访问该对象是不安全的，此时会等待对象移动完毕后再进行操作，这个时间并不会很长，并且只有在对象移动的时候才会发生。</p>
+<blockquote>
+<p><strong>通过这种方式，当访问引用的对象在移动时，并不需要等待整个GC完成，只需要等待对应对象的移动完成即可。</strong></p>
+</blockquote>
+<p>这也是ZGC中提及的” GC停顿时间不会随堆大小而变化 “，因为对象的移动只会导致指向它的引用停顿一下，而不会造成整个程序进行等待。</p>
+<p>形象一点来说，读屏障就像是对于对象访问的AOP和CAS操作，即访问前检查，对象移动时自旋，而这一自选过程也成为”自愈”。</p>
+<h3 id="ZGC流程"><a href="#ZGC流程" class="headerlink" title="ZGC流程"></a>ZGC流程</h3><ul>
+<li><strong>并发标记（Concurrent Mark）</strong>：与G1、Shenandoah一样，并发标记是遍历对象图做可达性分析的阶段，它的初始标记和最终标记也会出现短暂的停顿，整个标记阶段只会更新染色指针中的Marked 0、Marked 1标志位。</li>
+<li><strong>并发预备重分配（Concurrent Prepare for Relocate）</strong>：这个阶段需要根据特定的查询条件统计得出本次收集过程要清理哪些Region，将这些Region组成<strong>重分配集（Relocation Set）</strong>。ZGC每次回收都会扫描所有的Region，用范围更大的扫描成本换取省去G1中记忆集的维护成本。</li>
+<li><strong>并发重分配（Concurrent Relocate）</strong>：重分配是ZGC执行过程中的核心阶段，这个过程要把重分配集中的存活对象复制到新的Region上，并为重分配集中的每个Region维护一个转发表（Forward Table），记录从旧对象到新对象的转向关系。ZGC收集器能仅从引用上就明确得知一个对象是否处于重分配集之中，如果用户线程此时并发访问了位于重分配集中的对象，这次访问将会被预置的内存屏障所截获，然后立即根据Region上的转发表记录将访问转发到新复制的对象上，并同时修正更新该引用的值，使其直接指向新对象，ZGC将这种行为称为指针的“自愈”（Self-Healing）能力。</li>
+<li><strong>并发重映射（Concurrent Remap）</strong>：重映射所做的就是修正整个堆中指向重分配集中旧对象的所有引用，但是ZGC中对象引用存在“自愈”功能，所以这个重映射操作并不是很迫切。ZGC很巧妙地把并发重映射阶段要做的工作，合并到了下一次垃圾收集循环中的并发标记阶段里去完成，反正它们都是要遍历所有对象的，这样合并就节省了一次遍历对象图的开销。</li>
+</ul>
+<h2 id="ZGC总结"><a href="#ZGC总结" class="headerlink" title="ZGC总结"></a>ZGC总结</h2><p>ZGC重点实际上就是Region的分配，染色指针以及其读屏障，这三者正是整个ZGC的核心。将标记追踪的垃圾回收算法重点从对象转为引用(因为对象本身属性并不会对GC产生任何影响)，将GC信息加入64bit的指针中，从而能够让STW从所有暂停变为单个引用访问的停顿。</p>
+<h3 id="ZGC优点"><a href="#ZGC优点" class="headerlink" title="ZGC优点"></a>ZGC优点</h3><ul>
+<li>低停顿，高吞吐量，ZGC收集过程中额外耗费的内存小。<ul>
+<li><code>低停顿</code>，几乎所有过程都是并发的，只有短暂的STW。</li>
+<li><code>内存小</code>，ZGC没有写屏障，卡表之类的。</li>
+<li><code>吞吐量方面</code>，在ZGC的<code>‘弱项’</code>吞吐量方面，因为和用户线程并发，还是有影响的。<strong><code>但是！但是！，以低延迟为首要目标的ZGC已经达到了以高吞吐量为目标Parallel Scavenge的99%,直接超越了G1。</code></strong></li>
+</ul>
+</li>
+<li>G1通过写屏障维护记忆集，才能处理跨代指针，得以实现增量回收。记忆集占用大量内存，写屏障对正常程序造成额外负担。</li>
+<li>在多核处理器的某种架构下，ZGC优先在线程当前所处的处理器的本地内存上分配对象，以保证内存高效访问。</li>
+<li><strong>并发停顿方面</strong>：ZGC只有短暂的STW，大部分的过程都是和应用线程并发执行，比如最耗时的并发标记和并发移动过程。</li>
+<li><strong>ZGC中没有引入分代，也就没有新生代和老年代的概念</strong>，只有一块一块的内存区域page，以page单位进行对象的分配和回收。</li>
+<li>并发的标记-整理算法。没有内存碎片。</li>
+</ul>
+<h3 id="ZGC不足"><a href="#ZGC不足" class="headerlink" title="ZGC不足"></a>ZGC不足</h3><p>承受的对象分配速率不会太高，因为浮动垃圾。</p>
+<ul>
+<li>ZGC的停顿时间是在10ms以下，但是ZGC的执行时间还是远远大于这个时间的。假如ZGC全过程需要执行10分钟，在这个期间由于对象分配速率很高，将创建大量的新对象，这些对象很难进入当次GC，所以只能在下次GC的时候进行回收，这些只能等到下次GC才能回收的对象就是浮动垃圾。</li>
+<li>造成回收到的内存空间小于期间并发产生的浮动垃圾所占的空间。</li>
+</ul>
+<blockquote>
+<p>ZGC没有分代概念，每次都需要进行全堆扫描，导致一些“朝生夕死”的对象没能及时的被回收。所以就不存在Young GC、Old GC，所有的GC行为都是Full GC。</p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《深入理解Java虚拟机 第三版》</li>
+<li><a href="http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf" target="_blank" rel="noopener">The Z Garbage Collector - An Introduction</a></li>
+<li><a href="https://wiki.openjdk.java.net/display/zgc/Main" target="_blank" rel="noopener">OpenJDKWiki - Z Garbage Collector</a></li>
+<li><a href="https://www.cnblogs.com/linhaostudy/p/9980383.html" target="_blank" rel="noopener">UMA &amp; NUMA模型</a></li>
+<li><a href="https://juejin.im/entry/5b86a276f265da435c4402d4" target="_blank" rel="noopener">Java程序员的荣光，听R大论JDK11的ZGC</a></li>
+<li><a href="https://hub.packtpub.com/getting-started-with-z-garbage-collectorzgc-in-java-11-tutorial/" target="_blank" rel="noopener">Getting started with Z Garbage Collector (ZGC) in Java 11 [Tutorial]</a></li>
+<li><a href="https://segmentfault.com/a/1190000021711902" target="_blank" rel="noopener"><a href="https://segmentfault.com/a/1190000021711902" target="_blank" rel="noopener">理解JVM垃圾收集器-ZGC</a></a></li>
+<li><a href="https://juejin.im/post/5e3c0a7bf265da5724465f45" target="_blank" rel="noopener">一文带你深入理解JVM - ZGC垃圾收集器</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ZGC%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" rel="tag"># ZGC垃圾收集器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/" rel="prev" title="Netty Reactor模型">
+      <i class="fa fa-chevron-left"></i> Netty Reactor模型
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ZGC"><span class="nav-number">1.</span> <span class="nav-text">ZGC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NUMA-aware"><span class="nav-number">2.</span> <span class="nav-text">NUMA-aware</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UMA-统一内存访问"><span class="nav-number">2.1.</span> <span class="nav-text">UMA 统一内存访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NUMA-非统一内存访问"><span class="nav-number">2.2.</span> <span class="nav-text">NUMA 非统一内存访问</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZGC-Region"><span class="nav-number">3.</span> <span class="nav-text">ZGC Region</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Region分区"><span class="nav-number">3.1.</span> <span class="nav-text">Region分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回收过程"><span class="nav-number">3.2.</span> <span class="nav-text">回收过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存优势"><span class="nav-number">3.3.</span> <span class="nav-text">内存优势</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Colored-Pointers"><span class="nav-number">4.</span> <span class="nav-text">Colored Pointers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是染色指针"><span class="nav-number">4.1.</span> <span class="nav-text">什么是染色指针 ?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#引用结构"><span class="nav-number">4.2.</span> <span class="nav-text">引用结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#染色指针优势"><span class="nav-number">4.3.</span> <span class="nav-text">染色指针优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读屏障"><span class="nav-number">4.4.</span> <span class="nav-text">读屏障</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZGC流程"><span class="nav-number">4.5.</span> <span class="nav-text">ZGC流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZGC总结"><span class="nav-number">5.</span> <span class="nav-text">ZGC总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ZGC优点"><span class="nav-number">5.1.</span> <span class="nav-text">ZGC优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZGC不足"><span class="nav-number">5.2.</span> <span class="nav-text">ZGC不足</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">6.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -161,6 +161,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">Z Garbage Collector染色指针及读屏障总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-07 23:01:10 / 修改时间：23:03:18" itemprop="dateCreated datePublished" datetime="2020-06-07T23:01:10+08:00">2020-06-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">JVM学习笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
+<p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Fegin概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
+<p>虽然 G1很美好，并且也是目前使用非常多的GC收集器，但是还是有不少的缺点。</p>
+<ul>
+<li>由于G1使用三色算法，不可避免地会产生浮动垃圾</li>
+<li>G1同样无法避免Full GC，那么当堆十分巨大地时候(上百GB)，STW的停顿时间同样是不可忽略的</li>
+<li>由于使用了Remember Set记录跨代引用信息，会产生1% ~ 20%的额外内存消耗</li>
+</ul>
+<p>如果说 G1 是现在流行的收集器，那么 GC 就可以说是来自未来的怪兽。为什么这么形容 ? 先来看一张 SPECjbb给出的测评结果。</p>
+<p><img src="https://s1.ax1x.com/2020/06/07/t20EAP.png" alt=""></p>
+<p>一目了然，ZGC的强大之处在于，无论堆有多大，其GC停顿时间都没有超过10ms。</p>
+<p>一图胜千言，同样，该机构也做了很多的测评结果，都发布在<code>The Z Garbage Collector - An Introduction</code>这一文档中。</p>
+<blockquote>
+<p>文档地址 : <a href="http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf" target="_blank" rel="noopener">http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf</a></p>
+</blockquote>
+<p>如果足够细心，结合谷歌上的一些资料以及该文档，那么ZGC的学习曲线会变得更加平滑，这一点是来自我的体会，因为ZGC的学习思路和难度相较于之前的GC收集器，都有一个比较大的增长，而更让我们不易理解的是，ZGC很多内容和操作系统相关，如果基础不够扎实，很容易导致概念架空而不得解的情况。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -927,88 +1017,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">Sharding Sphere分库分表解决方案浅析及实践</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-05-11 21:05:08" itemprop="dateCreated datePublished" datetime="2020-05-11T21:05:08+08:00">2020-05-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-12 09:01:58" itemprop="dateModified" datetime="2020-05-12T09:01:58+08:00">2020-05-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。</p>
-<p>话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1080,7 +1088,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1093,7 +1101,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
