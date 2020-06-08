@@ -41,7 +41,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRPc0f.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;tRmVXQ.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;b0417665-12be-4e91-a524-ded685cdc986.png">
-<meta property="og:updated_time" content="2020-06-07T15:03:18.880Z">
+<meta property="og:updated_time" content="2020-06-08T03:11:11.027Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;s1.ax1x.com&#x2F;2020&#x2F;06&#x2F;07&#x2F;t20EAP.png">
 
@@ -228,10 +228,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-06-07 23:01:10 / 修改时间：23:03:18" itemprop="dateCreated datePublished" datetime="2020-06-07T23:01:10+08:00">2020-06-07</time>
+              <time title="创建时间：2020-06-07 23:01:10" itemprop="dateCreated datePublished" datetime="2020-06-07T23:01:10+08:00">2020-06-07</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-08 11:11:11" itemprop="dateModified" datetime="2020-06-08T11:11:11+08:00">2020-06-08</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -254,7 +260,7 @@
 
       
         <p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
-<p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Fegin概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
+<p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Region概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
 <p>虽然 G1很美好，并且也是目前使用非常多的GC收集器，但是还是有不少的缺点。</p>
 <ul>
 <li>由于G1使用三色算法，不可避免地会产生浮动垃圾</li>
