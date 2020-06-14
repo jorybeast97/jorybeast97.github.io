@@ -189,6 +189,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/15/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Connector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/15/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Connector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Tomcat系列文章:Connector源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-15 13:11:58 / 修改时间：13:12:34" itemprop="dateCreated datePublished" datetime="2020-05-15T13:11:58+08:00">2020-05-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web-Server/" itemprop="url" rel="index"><span itemprop="name">Web Server</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>Tomcat如果仅从高度抽象层面来说,其重点需要理解的组件可以归纳为<strong>connector</strong>和<strong>container</strong>,正是这两个组件完成了HTTP连接建立,请求接收,对象封装以及返回响应的全过程。</p>
+<p>本文将从源码角度来简析<strong>connector</strong>在tomcat启动后的加载流程与运行细节,同样,本文基于<code>Apache-tomcat-9.0.20-src</code>源码版本,其他版本可能在细节实现上有所差异,但是总体流程大致相同。</p>
+<p>作者将从一下几个过程分析connector工作原理</p>
+<ul>
+<li>connector基本类型与配置</li>
+<li>connector构造器</li>
+<li>Acceptor端口监听</li>
+<li>Poller与Worker线程</li>
+</ul>
+<p>该文仅从作者角度阐述,细节把控可能有所欠缺,如果有不足,错误之处,请及时指出。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/15/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Connector%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Bootstrap%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -929,102 +1013,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/13/AQS-%E6%9D%A1%E4%BB%B6%E9%98%9F%E5%88%97%E4%B8%8ECondition/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/13/AQS-%E6%9D%A1%E4%BB%B6%E9%98%9F%E5%88%97%E4%B8%8ECondition/" class="post-title-link" itemprop="url">AQS:条件队列与Condition</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-13 20:29:08" itemprop="dateCreated datePublished" datetime="2020-04-13T20:29:08+08:00">2020-04-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:15:23" itemprop="dateModified" datetime="2020-04-26T12:15:23+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">Java基础技术</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote>
-<p>本文转自：<a href="http://hongjiev.github.io/2017/06/16/AbstractQueuedSynchronizer" target="_blank" rel="noopener">http://hongjiev.github.io/2017/06/16/AbstractQueuedSynchronizer</a></p>
-</blockquote>
-<p>为了更好地总结和检验你的学习成果，本系列文章也会提供一些对应的面试题以及参考答案。</p>
-<p>如果对本系列文章有什么建议，或者是有什么疑问的话，也可以关注公众号【Java技术江湖】联系作者，欢迎你参与本系列博文的创作和修订。</p>
-<p>文章比较长，信息量比较大，建议在 pc 上阅读。文章标题是为了呼应前文，其实可以单独成文的，主要是希望读者看文章能系统看。</p>
-<p>本文关注以下几点内容：</p>
-<ol>
-<li>深入理解 ReentrantLock 公平锁和非公平锁的区别</li>
-<li>深入分析 AbstractQueuedSynchronizer 中的 ConditionObject</li>
-<li>深入理解 Java 线程中断和 InterruptedException 异常</li>
-</ol>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/13/AQS-%E6%9D%A1%E4%BB%B6%E9%98%9F%E5%88%97%E4%B8%8ECondition/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1092,7 +1084,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1105,7 +1097,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-count">47</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
