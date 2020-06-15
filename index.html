@@ -189,6 +189,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/15/TCP-SYN%E9%98%9F%E5%88%97%E4%B8%8ESYN%E6%B3%9B%E6%B4%AA%E6%94%BB%E5%87%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/15/TCP-SYN%E9%98%9F%E5%88%97%E4%B8%8ESYN%E6%B3%9B%E6%B4%AA%E6%94%BB%E5%87%BB/" class="post-title-link" itemprop="url">TCP SYN队列与SYN泛洪攻击</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-15 23:01:09 / 修改时间：23:02:26" itemprop="dateCreated datePublished" datetime="2020-06-15T23:01:09+08:00">2020-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="TCP半连接队列和全连接队列"><a href="#TCP半连接队列和全连接队列" class="headerlink" title="TCP半连接队列和全连接队列"></a>TCP半连接队列和全连接队列</h2><p>TCP通讯是通过三次握手来保证通讯的可靠性，三次握手相关的知识网上的文章很多，这里就不花费篇幅来总结。</p>
+<p>由于三次握手都是通过网络来进行的，所以三次握手之间都有一个时间间隔，那么在未完成三次握手之前，就需要维护两个队列来存放这些不同状态的连接。</p>
+<ul>
+<li>半连接队列，也称 <strong>SYN 队列</strong></li>
+<li>全连接队列，也称 <strong>accepet 队列</strong></li>
+</ul>
+<p>当客户端发送第一次发送SYN后，服务器接收到该TCP的SYN请求时，会将该TCP连接存放进入SYN队列，当第三次握手完成时，服务端会将保存在SYN队列中的TCP连接移入道accept队列中。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/333df52e-887b-43b2-b115-6a9f3aea7b51.png" alt=""></p>
+<p>可想而知，不论是SYN队列还是Accept队列都会有自己的上限，无论设置多大，当超过限制后，内核可以直接丢弃或者返回RST包。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/15/TCP-SYN%E9%98%9F%E5%88%97%E4%B8%8ESYN%E6%B3%9B%E6%B4%AA%E6%94%BB%E5%87%BB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/14/synchronized%E7%AD%89%E5%BE%85%E6%B1%A0%E4%B8%8E%E9%94%81%E6%B1%A0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -964,90 +1047,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">OSI七层模型及各层协议归纳总结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-05-18 11:50:38 / 修改时间：11:55:59" itemprop="dateCreated datePublished" datetime="2020-05-18T11:50:38+08:00">2020-05-18</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>非科班出身在刚开始自学计算机网络时总觉得无从下手,太多的协议与模型让整个知识比较散乱。后来按照七层模型逐层学习,并理解了网络自顶向下的设计思路后感觉豁然开朗，因此特地将自己的学习思路归纳成一篇一万五千字的文章供由需要的伙伴参考。</p>
-<p>本文将主要从以下几个方面归纳总结 : </p>
-<ul>
-<li>OSI七层模型,五层模型及TCP/IP四层模型</li>
-<li>链路层协议——以太网,ARP</li>
-<li>网络层协议——IP , ICMP</li>
-<li>传输层协议——TCP/UDP及UPD可靠性传输协议RUDP,RTP</li>
-<li>应用层协议——HTTP多版本,DNS,FTP,SMTP,HTTPS,WebSocket协议</li>
-</ul>
-<p>本文篇幅较长,可以当作一个总结来使用,如果有不足之处,请指正,谢谢。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/18/OSI%E4%B8%83%E5%B1%82%E6%A8%A1%E5%9E%8B%E5%8F%8A%E5%90%84%E5%B1%82%E5%8D%8F%E8%AE%AE%E5%BD%92%E7%BA%B3%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1119,7 +1118,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-count">52</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1132,7 +1131,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-count">49</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
