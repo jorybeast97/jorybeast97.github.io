@@ -189,6 +189,89 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/18/ThreadPoolExcutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/18/ThreadPoolExcutor/" class="post-title-link" itemprop="url">Java线程池源码阅读</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-18 12:39:12" itemprop="dateCreated datePublished" datetime="2020-04-18T12:39:12+08:00">2020-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-26 14:47:15" itemprop="dateModified" datetime="2020-04-26T14:47:15+08:00">2020-04-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">Java基础技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前自己一直学不好线程池,或者说无法深入学习这部分的内容,很大程度上是由于总是停留在如何用的阶段,而线程池这部分内容实际上阅读源码真的能够带来很大提升。</p>
+<p>由于线程池这部分内容隶属于<code>J.U.C</code>包下的内容，所以代码风格是典型的Doug Lea,如果你之前阅读过JUC包下其他源码的部分,对这部分源码阅读起来会更容易理解一些。</p>
+<p>注意 : 本文将从源码部分进行阐述,在JDK1.7和1.8中,线程池部分内容变化很小,本文基于JDK1.8版本。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/18/ThreadPoolExcutor/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/14/IDEA2020/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -967,92 +1050,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/" class="post-title-link" itemprop="url">G1收集器</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-02-21 11:35:18" itemprop="dateCreated datePublished" datetime="2020-02-21T11:35:18+08:00">2020-02-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:17:05" itemprop="dateModified" datetime="2020-04-26T12:17:05+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">JVM学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><blockquote>
-<p>G1收集器在JDK 9中已经成为了默认收集器，正式取代了CMS</p>
-</blockquote>
-<p>G1收集器(Grabge Firest)它是一款面向服务端应用的垃圾收集器，在多 CPU 和大内存的场景下有很好的性能。</p>
-<h2 id="G1-Region区域"><a href="#G1-Region区域" class="headerlink" title="G1 Region区域"></a>G1 Region区域</h2><p>在之前的垃圾回收器中，垃圾分代都是按照下图思路分配，老年代，年轻代都是一整块内存，收集时也是针对整块内存进行收集。</p>
-<p><img src="https://s2.ax1x.com/2020/02/20/3eaCGt.png" alt=""></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/02/21/G1%E6%94%B6%E9%9B%86%E5%99%A8%E4%BB%A5%E5%8F%8ACMS%E9%A6%99%E6%B5%93%E5%A4%9A%E6%94%B6%E9%9B%86%E5%99%A8/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1124,20 +1121,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">49</span>
+        <span class="site-state-item-count">50</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
