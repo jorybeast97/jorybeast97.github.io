@@ -189,6 +189,96 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">操作系统常见知识点详细总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-30 15:43:51" itemprop="dateCreated datePublished" datetime="2020-05-30T15:43:51+08:00">2020-05-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-13 10:53:32" itemprop="dateModified" datetime="2020-06-13T10:53:32+08:00">2020-06-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>复习总结时发现之前写过不少关于操作系统的相关知识点,但是零零碎碎，复习起来没有一个完整的体系。趁着周六没有课，将这些内容做了归纳和总结，输出成为一篇万字的总结长文，以供自己复习和别人参考。</p>
+<p>操作系统虽然并不陌生，但是一个Java程序员可能很少真的和操作系统去打交道，我们日常大部分的事情都被JVM很好的完成了，以至于我们并没有真正的去理解和操作过底层的内容，但是操作系统却实实在在为我们程序服务，例如<code>Unsafe</code>类中会使用到很多本地方法，如操作系统的<code>malloc</code>函数来为缓冲区分配堆外内存来实现<code>Zero Copy</code>，同时在很多框架中我们也能看到操作系统中的一些体系架构，因此，深入理解和学习操作系统算是一种十分具有性价比的学习内容。</p>
+<p>本文将主要从一下几个方面来总结操作系统的相关知识 : </p>
+<ul>
+<li>操作系统 : 操作系统概念,Kernel概念及特征</li>
+<li>内存管理 : 内存构成，虚拟内存技术，页帧页表设计以及页面置换算法</li>
+<li>线程与进程 : 二者概念，生命周期，进程调度算法以及进程间通讯方式</li>
+<li>系统IO : BIO和NIO模型，Linux中的NIO三种模型select，poll，epoll</li>
+</ul>
+<p>本文篇幅很长，并且基本都是高度精炼概括的总结，需要时间较长，请安心阅读。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/26/Zookeeper%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -937,84 +1027,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/01/SpringBoot%E6%95%B4%E5%90%88%E9%98%BF%E9%87%8C%E4%BA%91OSS%E5%AE%8C%E6%88%90%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/01/SpringBoot%E6%95%B4%E5%90%88%E9%98%BF%E9%87%8C%E4%BA%91OSS%E5%AE%8C%E6%88%90%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" class="post-title-link" itemprop="url">SpringBoot整合阿里云OSS完成文件上传</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-05-01 14:47:10 / 修改时间：15:21:39" itemprop="dateCreated datePublished" datetime="2020-05-01T14:47:10+08:00">2020-05-01</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近实验室购买了阿里云的OSS服务,提供了更多的储存空间以及更好的管理。因此实验室也决定将原来自己的资源服务器迁移到阿里云OSS进行统一管理,所以需要提前了解一下相关的内容。</p>
-<div class="note warn">
-            <p>阿里云OSS在1GB存储阶段是免费服务,可供学习使用 </p>
-          </div>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/01/SpringBoot%E6%95%B4%E5%90%88%E9%98%BF%E9%87%8C%E4%BA%91OSS%E5%AE%8C%E6%88%90%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1086,20 +1098,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">52</span>
+        <span class="site-state-item-count">53</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
