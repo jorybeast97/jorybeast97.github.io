@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="自己对于NIO的学习一直处于表层，仅仅掌握面经中常见的Select,poll,epoll的区别和特点，因此特地去系统学习一下Linux下的三种NIO模型，打算分三篇文章总结，如果有不足之处，请指正。 Select NIO概述首先我们来看下在Linux文档中，该文档中给出了很多关于Linux下Select中的各种信息，将这些信息理解后，基本上对于Linux下的Select NIO模型就有了一个很完善">
+<meta name="keywords" content="Linux nio,select模型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux下Select NIO实现细节">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;06&#x2F;28&#x2F;Linux%E4%B8%8BSelect-NIO%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="自己对于NIO的学习一直处于表层，仅仅掌握面经中常见的Select,poll,epoll的区别和特点，因此特地去系统学习一下Linux下的三种NIO模型，打算分三篇文章总结，如果有不足之处，请指正。 Select NIO概述首先我们来看下在Linux文档中，该文档中给出了很多关于Linux下Select中的各种信息，将这些信息理解后，基本上对于Linux下的Select NIO模型就有了一个很完善">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;static01.imgkr.com&#x2F;temp&#x2F;0efdad8a563f4d3ea002a557a69dc420.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;static01.imgkr.com&#x2F;temp&#x2F;9f2298f8ff71443d8fe44714eea24504.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;static01.imgkr.com&#x2F;temp&#x2F;2d3f583cca494711a4a713aa0d87b566.png">
+<meta property="og:updated_time" content="2020-06-28T12:42:10.051Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;static01.imgkr.com&#x2F;temp&#x2F;0efdad8a563f4d3ea002a557a69dc420.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/28/Linux%E4%B8%8BSelect-NIO%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux下Select NIO实现细节 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/28/Linux%E4%B8%8BSelect-NIO%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux下Select NIO实现细节
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-28 20:40:14 / 修改时间：20:42:10" itemprop="dateCreated datePublished" datetime="2020-06-28T20:40:14+08:00">2020-06-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>自己对于NIO的学习一直处于表层，仅仅掌握面经中常见的Select,poll,epoll的区别和特点，因此特地去系统学习一下Linux下的三种NIO模型，打算分三篇文章总结，如果有不足之处，请指正。</p>
+<h3 id="Select-NIO概述"><a href="#Select-NIO概述" class="headerlink" title="Select NIO概述"></a>Select NIO概述</h3><p>首先我们来看下在Linux文档中，该文档中给出了很多关于Linux下Select中的各种信息，将这些信息理解后，基本上对于Linux下的Select NIO模型就有了一个很完善的掌握。</p>
+<blockquote>
+<p><a href="https://man7.org/linux/man-pages/man2/select.2.html" target="_blank" rel="noopener">select(2)——Linux manual page</a></p>
+</blockquote>
+<p>开头给出了几个重点的方法，每个方法在文档中都有很详细的解释，首先关注一个重点的方法<code>select</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select,  pselect, FD_CLR, FD_ISSET, FD_SET, FD_ZERO</span><br></pre></td></tr></table></figure>
+
+<p>在文档中，对于<code>select</code>方法描述如下。</p>
+<blockquote>
+<p>select() allows a program to monitor multiple file descriptors,<br>    <strong>waiting</strong> until one or more of the file descriptors become <strong>“ready”</strong> for<br>    some class of I/O operation (e.g., input possible).  A file<br>    descriptor is considered ready if it is possible to perform a<br>    corresponding I/O operation (e.g., read(2), or a sufficiently small<br>    write(2)) without blocking.</p>
+<p>select() can monitor only file descriptors numbers that are less than<br>    FD_SETSIZE; poll(2) and epoll(7) do not have this limitation.  See<br>    BUGS.</p>
+</blockquote>
+<p>执行<code>select()</code>方法后，该进程将监控多个<strong>文件描述符(fd)</strong>，将这些文件描述符存入一个整形的数组中，并将该数组拷贝进入内核空间，然后该线程将阻塞。</p>
+<p>当IO时间就绪,发生或者超时的时候，内核空间会轮询这个<code>fd_set</code>，找到就绪的事件，将这些事件再从内核空间拷贝到用户空间，此时<code>select()</code>不再阻塞，执行之后的代码。</p>
+<p>这里用一张图来概括一下。</p>
+<p><img src="https://static01.imgkr.com/temp/0efdad8a563f4d3ea002a557a69dc420.png" alt=""></p>
+<p>该图主要总结了一个大体流程，但是实际上还有很多细节以及再Select中的函数未在图中体现，下面就来归纳这些细节问题。</p>
+<a id="more"></a>
+
+<h3 id="select-c-方法"><a href="#select-c-方法" class="headerlink" title="select.c 方法"></a>select.c 方法</h3><p>在上文中提到，Select中主要有六个重点的方法，这些方法各司其职，共同构建了从Socket连接建立到<code>fd_set</code>存储文件描述符再到执行IO事件的过程，而对这些过程的理解也是对于整个Select过程的一个贯穿。</p>
+<p>首先来看最重要的一个方法<code>select()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">select</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds,</span></span></span><br><span class="line"><span class="function"><span class="params">                  fd_set *exceptfds, struct timeval *timeout)</span></span>;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timeval</span>&#123;</span>    </span><br><span class="line">    <span class="keyword">long</span> tv_sec;<span class="comment">//秒</span></span><br><span class="line">    <span class="keyword">long</span> tv_usec;<span class="comment">//微秒</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该方法主要用于监控<code>fd_set</code>，当发生事件时，对相应的事件做出处理，那么我们来看下各个参数的具体含义 : </p>
+<ul>
+<li>nfds : 在一些版本中也被译为<code>maxfdp</code>,该值是一个整数值，用于描述<code>fd_set</code>中所有文件描述符的范围，即所有文件描述符最大值加一，类似于<code>arr.length</code>的概念。</li>
+<li>readfds : 读类型事件文件描述集合，用于存储读类型IO事件</li>
+<li>writefds : 写类型事件文件描述符集合，用于存储写类型IO事件</li>
+<li>exceptfds : 异常类型文件描述符集合，用于存储IO异常事件</li>
+<li>timeout : 等待时间参数，该参数将决定select的返回值和运行逻辑。当<code>timeout == null</code>时，<code>select</code>函数将阻塞，可以等待无限长的事件，当一个信号出现，可以进行中断。当置为<code>timeout-&gt;tv_sec=0&amp;&amp;timeout-&gt;tv_usec=0</code>时，则程序不进行等待，直接返回，添加进入文件描述符集合中的fd都将会被测试，这种情况下，可以通过不断轮询获取多个文件描述符的状态。最后一种情况是<code>timeout-&gt;tv_sec != 0 || timeout-&gt;tv_usec != 0</code>等待指定的时间，当有描述符符合条件或者是超过时间的话，函数返回。</li>
+</ul>
+<p>因此，select的具体返回值并不单单由<code>fd_set</code>中就绪文件决定，而是当无就绪时，会由timeout的策略决定，用一张图来归纳。</p>
+<p><img src="https://static01.imgkr.com/temp/9f2298f8ff71443d8fe44714eea24504.png" alt=""></p>
+<p>调用<code>select</code>方法主要时对于<code>fd_set</code>就绪事件的返回，但是对于<code>fd_set</code>还有一些其他的操作，这些操作也在<code>Select.c</code>中。主要为4个方法。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_CLR</span><span class="params">(<span class="keyword">int</span> fd, fd_set *<span class="built_in">set</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span>  <span class="title">FD_ISSET</span><span class="params">(<span class="keyword">int</span> fd, fd_set *<span class="built_in">set</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_SET</span><span class="params">(<span class="keyword">int</span> fd, fd_set *<span class="built_in">set</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FD_ZERO</span><span class="params">(fd_set *<span class="built_in">set</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>可以通过这四个宏来操作<code>fd_set</code>。</p>
+<ul>
+<li>FD_ZERO : 该方法能够清除掉<code>fd_set</code>中的文件描述符，被常用作对于<code>fd_set</code>的初始化操作。</li>
+<li>FD_SET : 这个宏将文件描述符fd添加到set。添加一个已经存在于集合中的文件描述符是不操作的，并且不会产生错误。</li>
+<li>FD_CLR : 这个宏从集合中删除文件描述符fd。删除集合中不存在的文件描述符是不操作的，并且不会产生错误。</li>
+<li>FD_ISSET : 这个宏能够判断一个文件描述符是否在<code>fd_set</code>中存在，如果不存在则返回0如果存在则返回非零</li>
+</ul>
+<p>通过这四个方法，就能够对<code>fd_set</code>进行基本的操作。</p>
+<p>除了这些方法之外，还有一个<code>pselect()</code>方法，该方法与<code>select</code>方法很相似，首先来看下文档中的解释。</p>
+<blockquote>
+<p>The pselect() system call allows an application to safely wait until either a file descriptor becomes ready or until a signal is caught.</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">pselect</span><span class="params">(<span class="keyword">int</span> nfds, fd_set *readfds, fd_set *writefds,</span></span></span><br><span class="line"><span class="function"><span class="params">                   fd_set *exceptfds, <span class="keyword">const</span> struct timespec *timeout,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">const</span> <span class="keyword">sigset_t</span> *sigmask)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>该方法当系统调用时会进行阻塞，直到某个资源就绪或者出现某个信号后才能继续运行。这样看起来，和<code>select</code>方法中<code>timeout == null</code>条件下的情况一致，文档中也提到了这一点，同时指出了<code>select</code>和<code>pselect</code>仅有的三个不同。</p>
+<ul>
+<li><code>select</code>使用<code>struct timeval</code>作为超时的单位，使用的是秒和毫秒，而在<code>pselect</code>中，使用的是<code>struct timespec</code>，而这个单位则是秒和纳秒。</li>
+<li><code>select</code>可以更新<code>timeout</code>参数来显示剩余多长时间，而<code>pselect</code>没有这个功能</li>
+<li><code>select</code>没有<code>sigmask</code>指针，可以看作调用<code>sigmask==NULL</code>的<code>pselect</code></li>
+</ul>
+<p>而当<code>select</code>或者<code>pselect</code>调用后，都会有一个返回值，成功执行的情况下，会返回三个<code>fd_set</code>集合中包含的文件总数量，如果这些fd在就绪前就到达了过期时间，则可能会返回0，当出现ERROR时，会返回-1。</p>
+<p>到此我们基本上将Linux中的<code>Select.c</code>中方法都做了一个简述，最后总结一张图来概括selectNIO的运行流程。</p>
+<p><img src="https://static01.imgkr.com/temp/2d3f583cca494711a4a713aa0d87b566.png" alt=""></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux-nio/" rel="tag"># Linux nio</a>
+              <a href="/tags/select%E6%A8%A1%E5%9E%8B/" rel="tag"># select模型</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/19/K%E4%B8%AA%E4%B8%80%E7%BB%84%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E5%85%B3%E8%81%94%E9%93%BE%E8%A1%A8%E6%96%B9%E9%9D%A2%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF/" rel="prev" title="K个一组反转链表关联链表方面解题思路">
+      <i class="fa fa-chevron-left"></i> K个一组反转链表关联链表方面解题思路
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Select-NIO概述"><span class="nav-number">1.</span> <span class="nav-text">Select NIO概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#select-c-方法"><span class="nav-number">2.</span> <span class="nav-text">select.c 方法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">55</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/jorybeast97@foxmail.com" title="E-Mail → jorybeast97@foxmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

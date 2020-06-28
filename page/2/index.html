@@ -189,6 +189,99 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">分布式系统理论学习总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-03 21:18:26 / 修改时间：21:19:24" itemprop="dateCreated datePublished" datetime="2020-06-03T21:18:26+08:00">2020-06-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1/" itemprop="url" rel="index"><span itemprop="name">分布式与微服务</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>虽然之前在实验室开发一些项目时多多少少接触过分布式系统，但是大部分情况都集中于技术实现层次，如果通俗点来讲，我们所做的只不过是在Spring Boot微服务中添加一些注解来开启Spring Cloud的一些功能。最近恰好看到一篇关于分布式学习路线的指导文章，其中有一句话给我留下很深的印象</p>
+<blockquote>
+<p><strong>分布式系统理论学习的深度将决定你能在分布式方面有多大作为</strong></p>
+</blockquote>
+<p>分布式系统概念比较繁杂，本文仅从自己学习的方面进行总结，如有不足和错误的地方，请及时指正。</p>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><blockquote>
+<p>I need to improve my proficiency in distributed systems theory.</p>
+<p>Where do I start? Any recommended books?</p>
+</blockquote>
+<p>这是Twitter上的一个问题,恰好我在 Google 分布式系统方面的文章时看到了这条Tw，更巧的是，一位博主专门为这条推特写了一篇文章，这篇文章大大减缓了我学习分布式系统理论的难度曲线。</p>
+<p>分布式系统所涉及到的内容非常繁杂，如果想要理解透彻，最扎实而有效的方法必然是阅读大量的paper，但是很可惜，大部分人并没有那么好的理解能力，亦或者没有那么充裕的时间来阅读每一篇高质量的paper，因此，作者提出了一个更为简洁的学习层次。</p>
+<ul>
+<li>基础 : 从术语方面来了解分布式系统的常用概念,例如可伸缩性,可用性,性能,延迟以及容错能力等</li>
+<li>抽象模型 : 从分布式的一些理论模型来了解分布式系统的抽象概念,例如CAP,BASE等常见模型</li>
+<li>时间和顺序 : 分布式时间顺序相关概念模型</li>
+<li>分布式事务 : 分布式常见的事务解决方案，从2PC,3PC再到Paxos等用于保证单副本一致性的方法</li>
+<li>弱一致性 : 基于BASE理论所出现的解决方案,例如CRDT和CALM定理</li>
+</ul>
+<p>我自己的学习路线也是按照这篇文章给出的线路进行整理。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/03/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%90%86%E8%AE%BA%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/30/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B8%B8%E8%A7%81%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AF%A6%E7%BB%86%E6%80%BB%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -947,86 +1040,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/" class="post-title-link" itemprop="url">接口返回值Boolean/boolean以及命名规则</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-05-03 21:35:34 / 修改时间：22:28:24" itemprop="dateCreated datePublished" datetime="2020-05-03T21:35:34+08:00">2020-05-03</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%80%9D%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">技术思考</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近在看《阿里Java开发手册—泰山版》,虽然现在还是个学生,但是在开发过程中,还是能够体会到代码规范的重要。</p>
-<blockquote>
-<p>【强制】: POJO类中布尔类型的变量,都不要加is,否则可能引起框架解析序列化错误。</p>
-</blockquote>
-<p>这条强制要求是我在这本书中印象比较深的一条,因为以前我是经常这样使用的。例如数据库的逻辑删除一直使用的是<code>isDelete</code>字段,后来查看了一些文章后才发现这个习惯可能会带来巨大的隐患。所以写一篇博文来加强自己的记忆,也希望能给更多的人一个提醒。</p>
-<p>如果文中有不对或者不足的地方,请及时指正,感谢阅读。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1098,7 +1111,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1111,7 +1124,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">53</span>
+        <span class="site-state-item-count">55</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
