@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="入职一来，一直在熟悉公司业务和我们组的负责的内容，因为比较忙所以也没抽出时间来写一点总结，正好周六日放假，打算把入职以来的一点心得和思考写一下。 所在部门是渲染部的渲染中台敏捷小组，mentor给出的ConF上相关的业务调用主要为以下图中的业务，而我们部门则主要负责渲染中台这部分内容的维护和开发。  实际上的内容肯定要更为复杂，但是本文主要想谈谈自己入职后，对于整个渲染中台的认识和理解，也为之后项">
+<meta name="keywords" content="中台应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈中台方案在酷家乐的应用">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;07&#x2F;05&#x2F;%E6%B5%85%E8%B0%88%E4%B8%AD%E5%8F%B0%E6%96%B9%E6%A1%88%E5%9C%A8%E9%85%B7%E5%AE%B6%E4%B9%90%E7%9A%84%E5%BA%94%E7%94%A8&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="入职一来，一直在熟悉公司业务和我们组的负责的内容，因为比较忙所以也没抽出时间来写一点总结，正好周六日放假，打算把入职以来的一点心得和思考写一下。 所在部门是渲染部的渲染中台敏捷小组，mentor给出的ConF上相关的业务调用主要为以下图中的业务，而我们部门则主要负责渲染中台这部分内容的维护和开发。  实际上的内容肯定要更为复杂，但是本文主要想谈谈自己入职后，对于整个渲染中台的认识和理解，也为之后项">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;58a1dc0f-7567-48bd-8a6c-4aef1b741b3d.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;e845f861-c2f4-478a-896e-e4b6f08d0b16.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;5c1a5768-bff0-4c67-9323-f226b9bfce61.png">
+<meta property="og:updated_time" content="2020-07-05T04:36:24.101Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;58a1dc0f-7567-48bd-8a6c-4aef1b741b3d.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/05/%E6%B5%85%E8%B0%88%E4%B8%AD%E5%8F%B0%E6%96%B9%E6%A1%88%E5%9C%A8%E9%85%B7%E5%AE%B6%E4%B9%90%E7%9A%84%E5%BA%94%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>浅谈中台方案在酷家乐的应用 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/05/%E6%B5%85%E8%B0%88%E4%B8%AD%E5%8F%B0%E6%96%B9%E6%A1%88%E5%9C%A8%E9%85%B7%E5%AE%B6%E4%B9%90%E7%9A%84%E5%BA%94%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          浅谈中台方案在酷家乐的应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-05 12:35:41 / 修改时间：12:36:24" itemprop="dateCreated datePublished" datetime="2020-07-05T12:35:41+08:00">2020-07-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%80%9D%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">技术思考</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>入职一来，一直在熟悉公司业务和我们组的负责的内容，因为比较忙所以也没抽出时间来写一点总结，正好周六日放假，打算把入职以来的一点心得和思考写一下。</p>
+<p>所在部门是渲染部的渲染中台敏捷小组，mentor给出的ConF上相关的业务调用主要为以下图中的业务，而我们部门则主要负责渲染中台这部分内容的维护和开发。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/58a1dc0f-7567-48bd-8a6c-4aef1b741b3d.png" alt=""></p>
+<p>实际上的内容肯定要更为复杂，但是本文主要想谈谈自己入职后，对于整个渲染中台的认识和理解，也为之后项目开发总结一些经验。</p>
+<a id="more"></a>
+
+<blockquote>
+<p>什么是中台 ? </p>
+</blockquote>
+<p>这个问题是我在刚刚接触部门文档时最困惑的点，虽然在很多业务总结中总是能够看到中台的身影，但是却没有明确的一个概念。似乎每个公司都有着自己的中台规范，设计目标。而且阿里最近也开始在做去中台化的工作，同样好多公司也在跟进，似乎中台是一个可有可无的东西，关于这一点，在吃饭的时间和mentor探讨了以下，收获颇深。</p>
+<p>现在规模较大的公司基本都在使用微服务方式来拆分项目，当一个产品体量在变大时，在底层实际上已经是一个庞然大物。在没有真正进入一个产品的开发阶段时，一般都会产生一个误区——<strong>所见即所有</strong></p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/e845f861-c2f4-478a-896e-e4b6f08d0b16.png" alt=""></p>
+<p>这是我按照酷家乐常见业务梳理的一张图，作为用户，我们可能只关心上面的四个方面，但是在研发层面上整个服务变得非常复杂，服务之间的相互调用，治理限流，容错，资源申请，接入等等内容，会远远超出预期，这也是实习期间给我最大的感受，原来一个项目真的可以这么大。</p>
+<p>言归正传，为什么需要中台 ? 各个公司有自己的思考，在翻看了酷家乐的中台设计职责后，有了一个基本的认识。公司做渲染需要的数据量很大，并且有不同的渲染引擎，例如HD+，4K/8K，场景，关卡，硬装等等，而这些引擎都是一个个独立运行的微服务，但是在渲染一张图片时，往往需要调用多个微服务的渲染引擎，并且需要获得非常多的Model资源，如果这些内容都去在后端中RPC调用，虽然能够实现，但是会造成一些问题 : </p>
+<ul>
+<li>调用链非常长，相互调用的情况可能出现</li>
+<li>出现非常多的冗余代码，例如A需要B和C，D也需要B和C，但是资源需要申请多次</li>
+<li>渲染服务增长时，代码可维护性差，并且代码量几何倍增长</li>
+</ul>
+<p>因此公司对此的策略是用中台来解决这些调用问题，那么中台具体如何工作。</p>
+<p>还是要结合着业务场景来看，如果使用过酷家乐的在线渲染，你会发现渲染时间是比较长的，某些模型可能点击后过一段时间才能展示，对于用户来说，可能觉得这是延迟，但是对于我们开发人员来说，这个现象再明显不过了——异步处理。</p>
+<p>在渲染中台组中，我们使用了大量的多线程+异步处理的方式来减少用户等待时间。同时使用组合模式，收集后台渲染调用请求的数据，然后分发给不同的渲染引擎，最后将返回数据整合为一个数据包以序列化的形式返回给后台，由后台解析后处理。</p>
+<p>这样做的好处在于能够减少后台之间的相互调用，真正做到各司其职，同时也让每个微服务都能够正常运行。问题又来了，这样会带来哪些问题。我们知道，在软件开发中，并没有所谓的”银弹”，当你获得一些东西时，就一定会失去一些。</p>
+<p>中台的存在在一定程度上有效减少了后台各个微服务之间的相互耦合，并且减少服务调用次数，但是带来一个问题，降低了服务的可用性，由于大部分的服务将通过Redis，MQ等中间件来进行传输，而非直接的RPC调用，增加了服务调用的代价，同时也需要对整个服务的接口设计更加小心。与此同时，使用异步的处理方式需要我们考虑的问题就更加复杂。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/5c1a5768-bff0-4c67-9323-f226b9bfce61.png" alt=""></p>
+<p>仅以我们组自研的中间件DRS为例，调用时需要进行多个阶段的检查，同时还需要对于异步任务有一套完整的监控体系，保证任务能够在多个阶段都得到有效的处理，同时还要监控不同渲染请求的资源消耗，防止出现某些渲染引擎飙高而有些空闲的情况。</p>
+<p>因此，中台并不是简化了整个体系，而是将体系中高度相似，并且具有一定复用性的代码统一处理，这种处理办法对于后台来说能够解耦，但是带来的挑战就是需要在中台进行良好的维护，否则可能导致后台服务大面积瘫痪的情况。</p>
+<p>因此，如何去处理好中台这个问题，见仁见智，但是最重要的还是要根据自身业务出发，是否真的需要中台来做后台服务管理，是否需要牺牲可用性来解耦，这些问题是需要再三权衡后才能决定的。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%B8%AD%E5%8F%B0%E5%BA%94%E7%94%A8/" rel="tag"># 中台应用</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/28/Linux%E4%B8%8BSelect-NIO%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/" rel="prev" title="Linux下Select NIO实现细节">
+      <i class="fa fa-chevron-left"></i> Linux下Select NIO实现细节
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">56</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/jorybeast97@foxmail.com" title="E-Mail → jorybeast97@foxmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

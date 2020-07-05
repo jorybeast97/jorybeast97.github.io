@@ -189,6 +189,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/08/%E5%8A%A0%E7%9B%90%E5%AF%86%E7%A0%81%E5%93%88%E5%B8%8C-%E5%A6%82%E4%BD%95%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/08/%E5%8A%A0%E7%9B%90%E5%AF%86%E7%A0%81%E5%93%88%E5%B8%8C-%E5%A6%82%E4%BD%95%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">加盐密码哈希:如何正确使用?</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-08 15:14:19 / 修改时间：15:16:02" itemprop="dateCreated datePublished" datetime="2020-05-08T15:14:19+08:00">2020-05-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%80%9D%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">技术思考</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <blockquote>
+<p>本文转载自 : <a href="http://blog.coding4love.net/archives/127" target="_blank" rel="noopener">http://blog.coding4love.net/archives/127</a> 由伯乐在线 - <a href="http://www.jobbole.com/members/oliverpp" target="_blank" rel="noopener">蒋生武</a> 翻译</p>
+<p>译文原文地址：<a href="https://crackstation.net/hashing-security.htm" target="_blank" rel="noopener">https://crackstation.net/hashing-security.htm</a></p>
+</blockquote>
+<p>如果你是Web开发者，你很可能需要开发一个用户账户系统。这个系统最重要的方面，就是怎样保护用户的密码。存放帐号的数据库经常成为入侵的目标，所以你必须做点什么来保护密码，以防网站被攻破时发生危险。最好的办法就是对密码进行<strong>加盐哈希</strong>，这篇文章将介绍它是如何做到这点。</p>
+<p>在对密码进行哈希加密的问题上，人们有许多争论和误解，这大概是由于网络上广泛的误传吧。密码哈希是一件非常简单的事情，但是依然有很多人理解错误了。本文阐述的并不是进行密码哈希唯一正确的方法，但是会告诉你为什么这样是正确的。</p>
+<blockquote>
+<p><strong>重要提醒</strong></p>
+<p>如果你在试图编写自己的密码哈希代码，<strong>赶紧停下来！</strong>那太容易搞砸了。即使你受过密码学的高等教育，也应该听从这个警告。这是对所有人说的：<strong>不要自己写加密函数！</strong>安全存储密码的难题现在已经被解决了，PHP 的实现请使用 <a href="http://www.openwall.com/phpass/" target="_blank" rel="noopener">phpass</a>, C#, Java, 和 Ruby 的实现 <a href="https://github.com/defuse/password-hashing" target="_blank" rel="noopener">defuse/password-hashing</a>, 或者 <a href="https://download.libsodium.org/doc/password_hashing/index.html" target="_blank" rel="noopener">libsodium</a>.</p>
+</blockquote>
+<p>如果因为某些原因你忽视了上面那个红色警告，请翻回去好好读一遍，我是认真的。这篇文章的目的不是教你研究出自己的安全算法，而是讲解为什么密码应该被这样储存。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/08/%E5%8A%A0%E7%9B%90%E5%AF%86%E7%A0%81%E5%93%88%E5%B8%8C-%E5%A6%82%E4%BD%95%E6%AD%A3%E7%A1%AE%E4%BD%BF%E7%94%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/03/%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E5%80%BCBoolean-boolean%E4%BB%A5%E5%8F%8A%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -950,87 +1035,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/" class="post-title-link" itemprop="url">Mybatis Lite配合Mybatis Plus快速开发</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-09 17:59:53" itemprop="dateCreated datePublished" datetime="2020-03-09T17:59:53+08:00">2020-03-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:20:21" itemprop="dateModified" datetime="2020-04-26T12:20:21+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>网课开展，发现并没有想象中的轻松，相反很多在课堂上能快速完成的事情通过网络需要浪费好多时间，所以最近也就没怎么给自己充电，但是总结了一些自己用着比较顺手的IDEA快速开发的插件。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1102,7 +1106,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">57</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1115,7 +1119,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">55</span>
+        <span class="site-state-item-count">56</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
