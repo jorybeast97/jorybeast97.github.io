@@ -189,6 +189,85 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/" class="post-title-link" itemprop="url">Redis 双写 + TTL 完成数据迁移</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-13 23:06:38 / 修改时间：23:07:35" itemprop="dateCreated datePublished" datetime="2020-07-13T23:06:38+08:00">2020-07-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近部门在做服务拆分，由于业务不断拓展，从之前单一的DRS随着业务的变化，现在需要拆分更多的微服务，同时这个过程中，也需要对Redis做一个迁移，但是这个迁移的需求和以往不同。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png" alt="https://imgkr.cn-bj.ufileos.com/f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png"></p>
+<p>目前我所处在的中台组所用的Redis并没有做cluster或者Master-slave，仅仅使用单机模式。虽然Redis很快，但是同样有着上限，一般来说能够承受10W次每秒的QPS，目前中台业务能够达到日常7w+的QPS，而且随着最近业务的拓展，越来越多的后台服务接入中台，对Redis的请求压力会更大。</p>
+<p>为了减少后台响应超时，同时提高各个微服务的拓展性，我们希望能够对Redis进行数据迁移和拆分处理，而由于自己比较熟悉Redis，并且这个任务相对来说不那么紧急，所以mentor就将这个需求交由我来处理。</p>
+<p>本文主要记录自己在解决这个问题时的一些思路和相关技术，希望能够对其他人有所帮助。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/05/%E6%B5%85%E8%B0%88%E4%B8%AD%E5%8F%B0%E6%96%B9%E6%A1%88%E5%9C%A8%E9%85%B7%E5%AE%B6%E4%B9%90%E7%9A%84%E5%BA%94%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -929,102 +1008,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">Z Garbage Collector染色指针及读屏障总结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-07 23:01:10" itemprop="dateCreated datePublished" datetime="2020-06-07T23:01:10+08:00">2020-06-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-08 11:11:11" itemprop="dateModified" datetime="2020-06-08T11:11:11+08:00">2020-06-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">JVM学习笔记</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
-<p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Region概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
-<p>虽然 G1很美好，并且也是目前使用非常多的GC收集器，但是还是有不少的缺点。</p>
-<ul>
-<li>由于G1使用三色算法，不可避免地会产生浮动垃圾</li>
-<li>G1同样无法避免Full GC，那么当堆十分巨大地时候(上百GB)，STW的停顿时间同样是不可忽略的</li>
-<li>由于使用了Remember Set记录跨代引用信息，会产生1% ~ 20%的额外内存消耗</li>
-</ul>
-<p>如果说 G1 是现在流行的收集器，那么 GC 就可以说是来自未来的怪兽。为什么这么形容 ? 先来看一张 SPECjbb给出的测评结果。</p>
-<p><img src="https://s1.ax1x.com/2020/06/07/t20EAP.png" alt=""></p>
-<p>一目了然，ZGC的强大之处在于，无论堆有多大，其GC停顿时间都没有超过10ms。</p>
-<p>一图胜千言，同样，该机构也做了很多的测评结果，都发布在<code>The Z Garbage Collector - An Introduction</code>这一文档中。</p>
-<blockquote>
-<p>文档地址 : <a href="http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf" target="_blank" rel="noopener">http://cr.openjdk.java.net/~pliden/slides/ZGC-FOSDEM-2018.pdf</a></p>
-</blockquote>
-<p>如果足够细心，结合谷歌上的一些资料以及该文档，那么ZGC的学习曲线会变得更加平滑，这一点是来自我的体会，因为ZGC的学习思路和难度相较于之前的GC收集器，都有一个比较大的增长，而更让我们不易理解的是，ZGC很多内容和操作系统相关，如果基础不够扎实，很容易导致概念架空而不得解的情况。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1096,7 +1079,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1109,7 +1092,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">56</span>
+        <span class="site-state-item-count">57</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

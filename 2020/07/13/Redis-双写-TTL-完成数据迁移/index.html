@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近部门在做服务拆分，由于业务不断拓展，从之前单一的DRS随着业务的变化，现在需要拆分更多的微服务，同时这个过程中，也需要对Redis做一个迁移，但是这个迁移的需求和以往不同。  目前我所处在的中台组所用的Redis并没有做cluster或者Master-slave，仅仅使用单机模式。虽然Redis很快，但是同样有着上限，一般来说能够承受10W次每秒的QPS，目前中台业务能够达到日常7w+的QPS">
+<meta name="keywords" content="Redis数据拆分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 双写 + TTL 完成数据迁移">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;07&#x2F;13&#x2F;Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="最近部门在做服务拆分，由于业务不断拓展，从之前单一的DRS随着业务的变化，现在需要拆分更多的微服务，同时这个过程中，也需要对Redis做一个迁移，但是这个迁移的需求和以往不同。  目前我所处在的中台组所用的Redis并没有做cluster或者Master-slave，仅仅使用单机模式。虽然Redis很快，但是同样有着上限，一般来说能够承受10W次每秒的QPS，目前中台业务能够达到日常7w+的QPS">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;af14361f-a9df-4e35-bade-28c944003284.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;21543b06-ad32-4314-b3b2-81f921abfb61.png">
+<meta property="og:updated_time" content="2020-07-13T15:07:35.521Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis 双写 + TTL 完成数据迁移 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis 双写 + TTL 完成数据迁移
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-13 23:06:38 / 修改时间：23:07:35" itemprop="dateCreated datePublished" datetime="2020-07-13T23:06:38+08:00">2020-07-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近部门在做服务拆分，由于业务不断拓展，从之前单一的DRS随着业务的变化，现在需要拆分更多的微服务，同时这个过程中，也需要对Redis做一个迁移，但是这个迁移的需求和以往不同。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png" alt="https://imgkr.cn-bj.ufileos.com/f46f9983-2d62-4b97-b6be-8eb8d1c27f68.png"></p>
+<p>目前我所处在的中台组所用的Redis并没有做cluster或者Master-slave，仅仅使用单机模式。虽然Redis很快，但是同样有着上限，一般来说能够承受10W次每秒的QPS，目前中台业务能够达到日常7w+的QPS，而且随着最近业务的拓展，越来越多的后台服务接入中台，对Redis的请求压力会更大。</p>
+<p>为了减少后台响应超时，同时提高各个微服务的拓展性，我们希望能够对Redis进行数据迁移和拆分处理，而由于自己比较熟悉Redis，并且这个任务相对来说不那么紧急，所以mentor就将这个需求交由我来处理。</p>
+<p>本文主要记录自己在解决这个问题时的一些思路和相关技术，希望能够对其他人有所帮助。</p>
+<a id="more"></a>
+
+<h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>实际上Redis的迁移已经非常普遍，早期的业务比较小，随着业务量的拓展,Redis渐渐顶不住压力而需要拓展，拆分，迁移，集群的情况十分普遍。在做调研的过程中，发现了一些相关的Redis迁移方案。</p>
+<h3 id="redis-shake"><a href="#redis-shake" class="headerlink" title="redis-shake"></a>redis-shake</h3><blockquote>
+<p>redis-shake是阿里云Redis&amp;MongoDB团队开源的用于redis数据同步的工具</p>
+</blockquote>
+<p>在Redis中，本身实际上是由同步功能，如果使用主从模式，当slave连接master时，会进行全量同步+增量同步的操作。而redis-shake就利用了这一思想，通过一个”中间者”充当slave，获取master的全量更新+增量更新，然后将这些数据写入我们的target redis中，通过这种方式就能够完成对于数据的同步操作。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/af14361f-a9df-4e35-bade-28c944003284.png" alt=""></p>
+<p>当进入增量同步的过程后，直接切换我们的数据源即可达到Redis的迁移。其他相似的Redis迁移插件同理，基本上都是使用了Master-Slave的思想，相比较之下，Redis-Shake支持比较全面，对集群/监控/性能方面的问题都有解决方案，也是使用比较多的一种Redis迁移策略。</p>
+<p>虽然Redis-Shake很好，但是有一个小小的问题，如果你是阿里云的用户，想要使用阿里云提供的Redis-Shake服务，需要付出一笔不小的服务费，如果数据很多并且同步要求很高，那么没有别的很好的方案，但是对于存储在Redis中而访问量并不是极高的数据，实际上可以通过以下方式来解决。</p>
+<h3 id="双写-TTL丢弃"><a href="#双写-TTL丢弃" class="headerlink" title="双写 + TTL丢弃"></a>双写 + TTL丢弃</h3><p>如果自己实现Redis的同步迁移，一半会提到双写 + 脚本同步的方法，诚然，这种方法是最实用也最常见的处理策略，它基本上能够解决大部分的需求，但是它有一些细节需要我们考虑</p>
+<ul>
+<li>双写过程中可能出现的一些KEY程序异常情况导致数据不一致</li>
+<li>脚本数据和双写数据冲突问题</li>
+</ul>
+<p>因此，如果希望使用双写+脚本同步的方法来完成Redis迁移，需要做好数据一致性的保证，同时对于全量更新和增量更新的边界要足够清晰，防止出现数据覆盖的情况。</p>
+<p>但是对于我们的业务而言，这种方案并不是那么适合，首先我们需要看一下Redis迁移的具体要求。</p>
+<blockquote>
+<p>🔑 需求 : </p>
+<p>现在Render-Data-Redis上存有多个服务的Redis依赖，随着业务增长，Redis服务器压力增大，因此，需要对render-data-service中的Redis相关业务进行拆分，将数据迁移至新的Redis服务器，并且保持当前Redis不可停机，服务依旧可用，尽量减少对于线上业务的影响。</p>
+<p>需要注意的是，大部分的RDS存储在Redis中的KEY热度并不高，并且生命周期很短，很难超过一天的时间，同时，这些数据集中在Redis的一个DB分区中。</p>
+</blockquote>
+<p>最开始我的想法是通过AOF或者RDB的方式dump下整个Redis的快照，然后在新的Redis上去读该快照，但是这个方案很快被否定了。</p>
+<ol>
+<li>Redis操作管理属于中间件部门，在一般情况下，我们是无法对Redis本身做一些操作，而权限申请又比较麻烦。</li>
+<li>原Redis库中，并非仅render-data-service的数据，掺杂着大量的其他数据，通过RDB/AOF的方式导入，会产生大量的冗余。</li>
+<li>无法做到对服务无影响，必须去做Redis的切换等操作。</li>
+</ol>
+<p>这三点是比较主要的困难，而且在现有业务的情况下，想要解决也需要花费很多的精力，所以这个方案也被抛弃。</p>
+<p>考虑到我们的键并不是非常热的KEY，所以在某一个时间段内，访问量非常低，并且生命周期短，可以充分利用这一特性不进行全量更新，而是对某些更新的KEY进行同步，对于其他的KEY，TTL自然淘汰即可，只需要执行双写一段时间就能够自然淘汰掉两个库中不同的数据，这样说起来比较困难，用图来解释相对来说方便一些。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/21543b06-ad32-4314-b3b2-81f921abfb61.png" alt=""></p>
+<p>在开始双写时，存在<code>KEY 1</code>，<code>KEY 2</code>，<code>KEY 3</code>，在同步的过程中<code>KEY 3</code>被更新，此时KEY 3应该被同步到新的Redis中，而对于前两个KEY，由于设置的双写时间要超过所有KEY的过期时间，如果在这个过程中此数据并没有发生变更，则这些数据会在这个过程中被自动淘汰，通过这种方式，能够减少对于原Redis读取操作，让整个过期时间像一个滑动窗口，完成对于相关数据的自动处理，当达到最大过期时间后，二者就完成了同步，此时切换Redis即可。</p>
+<p>关于实现双写，网上由很多的方案，我们使用的是AOP来拦截相关的逻辑，然后调用同样的函数向新的Redis中发送，当然，也可以使用自定义注解的方式来进行扫描，下面给出一个简单的实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisCacheHandlerPoint</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(<span class="keyword">this</span>.getClass());</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisCacheMoveLogic redisCacheMoveLogic;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@After</span>(<span class="string">"execution(* space.wujiu.redishandler.cache..RedisCacheLogic.*(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">redisHandler</span><span class="params">(JoinPoint joinPoint)</span> </span>&#123;</span><br><span class="line">        Object[] paramValues = joinPoint.getArgs();</span><br><span class="line">        String methodName = ((MethodSignature) joinPoint.getSignature()).getName();</span><br><span class="line">        <span class="keyword">if</span> (methodName.equals(<span class="string">"setRedisKey"</span>)) &#123;</span><br><span class="line">            redisCacheMoveLogic.setRedisKey((String) paramValues[<span class="number">0</span>], (String) paramValues[<span class="number">1</span>]);</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            logger.warn(<span class="string">"redisHandler - "</span>+methodName+<span class="string">"方法未在增强行列中"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，对于自增这类操作需要检查新的Redis中是否有该KEY，如果没有则先要读取旧的Redis中数据，再进行处理。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis%E6%95%B0%E6%8D%AE%E6%8B%86%E5%88%86/" rel="tag"># Redis数据拆分</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/05/%E6%B5%85%E8%B0%88%E4%B8%AD%E5%8F%B0%E6%96%B9%E6%A1%88%E5%9C%A8%E9%85%B7%E5%AE%B6%E4%B9%90%E7%9A%84%E5%BA%94%E7%94%A8/" rel="prev" title="浅谈中台方案在酷家乐的应用">
+      <i class="fa fa-chevron-left"></i> 浅谈中台方案在酷家乐的应用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解决思路"><span class="nav-number">1.</span> <span class="nav-text">解决思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#redis-shake"><span class="nav-number">1.1.</span> <span class="nav-text">redis-shake</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双写-TTL丢弃"><span class="nav-number">1.2.</span> <span class="nav-text">双写 + TTL丢弃</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/jorybeast97@foxmail.com" title="E-Mail → jorybeast97@foxmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
