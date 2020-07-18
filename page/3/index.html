@@ -189,6 +189,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/" class="post-title-link" itemprop="url">Tomcat系列文章:Tomcat基本架构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-13 16:59:37 / 修改时间：17:02:38" itemprop="dateCreated datePublished" datetime="2020-05-13T16:59:37+08:00">2020-05-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web-Server/" itemprop="url" rel="index"><span itemprop="name">Web Server</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在使用Spring Boot的过程中,时时刻刻都会使用到Tomcat,但是回顾以往的学习,似乎没有对Tomcat进行一个知识的梳理,最近在回想Tomcat的相关知识,发现很多内容是混乱而没有逻辑的,所以打算以笔记的形式重新总结下Tomcat的学习过程以及它的框架设计思路。</p>
+<p>Tomcat组件很复杂,如果直接阅读源码可能会产生无从下手的感觉。好在Apache提供了Tomcat的框架设计图以及对各个模块的Doc,能够辅助我们完成对于各个部分功能的理解,而本文将尽量详尽的记录我所理解的Tomcat的工作流程,如果有不足的地方,请及时指正。</p>
+<p>个人认为,Tomcat的学习按照如下方式比较合理 : </p>
+<ul>
+<li>Tomcat组件设计原理</li>
+<li>一个Servelt究竟是如何在Tomcat上接收Request请求并返回Respone</li>
+<li>各个组件源码级理解</li>
+<li>串联多个组件,搞懂Tomcat运行流程</li>
+<li>总结</li>
+</ul>
+<p>本文将仅从Tomcat背景以及基本结构方面进行总结,源码以及Debug过程将在后续系列文章中进行总结。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -939,93 +1024,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/22/%E9%92%88%E5%AF%B9%E9%A1%B9%E7%9B%AE%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="无咎">
-      <meta itemprop="description" content="今日事,今日毕">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="无咎 NOTE">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/03/22/%E9%92%88%E5%AF%B9%E9%A1%B9%E7%9B%AE%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83/" class="post-title-link" itemprop="url">针对项目优化的一点思考</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-03-22 15:10:23" itemprop="dateCreated datePublished" datetime="2020-03-22T15:10:23+08:00">2020-03-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-26 12:27:17" itemprop="dateModified" datetime="2020-04-26T12:27:17+08:00">2020-04-26</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%80%9D%E8%80%83/" itemprop="url" rel="index"><span itemprop="name">技术思考</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>之前的电缆数据监控平台项目已经运行了一段时间,但是最近出现了一些问题,所以大家趁着这段时间将整个项目结构进行了一些优化,主要针对了以下几个问题。</p>
-<ul>
-<li>数据量变大,出现慢SQL的现象</li>
-<li>某个时间点上出现大量数据写入的情况,系统卡顿</li>
-<li>出现过一次数据服务器宕机导致用户无法访问的情况</li>
-</ul>
-<p>几个人总结了一下,最后敲定了解决方案，目前运行对比之前有很大提升,至于日后的表现有待观察。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/03/22/%E9%92%88%E5%AF%B9%E9%A1%B9%E7%9B%AE%E4%BC%98%E5%8C%96%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1097,7 +1095,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1110,7 +1108,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-count">59</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

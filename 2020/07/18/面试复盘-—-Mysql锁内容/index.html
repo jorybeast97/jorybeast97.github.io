@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="🌈“ 夜阑卧听风吹雨 , 铁马冰河入梦来 “  昨天刚面完京东的寻猎提前批，难度相较于一面要高一些，有一些问题自己没答上来，但是好在JVM方面了解比较深，并且有在实习中实操的经验，所以面试官还是给过了，希望接下来能够一切顺利。 言归正传，二面中我在Mysql方面的回答自己不是太满意，尤其是关于锁方面的知识，细节方面没有太过了解，今天打算做一下复盘，把薄弱的地方弥补一下。 本文打算以面试官问我的">
+<meta name="keywords" content="面试复盘,Mysql锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试复盘 — Mysql锁内容">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;07&#x2F;18&#x2F;%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98-%E2%80%94-Mysql%E9%94%81%E5%86%85%E5%AE%B9&#x2F;index.html">
+<meta property="og:site_name" content="无咎 NOTE">
+<meta property="og:description" content="🌈“ 夜阑卧听风吹雨 , 铁马冰河入梦来 “  昨天刚面完京东的寻猎提前批，难度相较于一面要高一些，有一些问题自己没答上来，但是好在JVM方面了解比较深，并且有在实习中实操的经验，所以面试官还是给过了，希望接下来能够一切顺利。 言归正传，二面中我在Mysql方面的回答自己不是太满意，尤其是关于锁方面的知识，细节方面没有太过了解，今天打算做一下复盘，把薄弱的地方弥补一下。 本文打算以面试官问我的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;569a62ca-4737-4be2-9466-8d7bf81fe45e.png">
+<meta property="og:updated_time" content="2020-07-18T07:32:14.361Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;imgkr.cn-bj.ufileos.com&#x2F;569a62ca-4737-4be2-9466-8d7bf81fe45e.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/07/18/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98-%E2%80%94-Mysql%E9%94%81%E5%86%85%E5%AE%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>面试复盘 — Mysql锁内容 | 无咎 NOTE</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">无咎 NOTE</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/18/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98-%E2%80%94-Mysql%E9%94%81%E5%86%85%E5%AE%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="无咎">
+      <meta itemprop="description" content="今日事,今日毕">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="无咎 NOTE">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          面试复盘 — Mysql锁内容
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-07-18 15:31:02 / 修改时间：15:32:14" itemprop="dateCreated datePublished" datetime="2020-07-18T15:31:02+08:00">2020-07-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>🌈<strong>“ 夜阑卧听风吹雨 , 铁马冰河入梦来 “</strong></p>
+</blockquote>
+<p>昨天刚面完京东的寻猎提前批，难度相较于一面要高一些，有一些问题自己没答上来，但是好在JVM方面了解比较深，并且有在实习中实操的经验，所以面试官还是给过了，希望接下来能够一切顺利。</p>
+<p>言归正传，二面中我在Mysql方面的回答自己不是太满意，尤其是关于锁方面的知识，细节方面没有太过了解，今天打算做一下复盘，把薄弱的地方弥补一下。</p>
+<p>本文打算以面试官问我的流程来进行梳理，主要为以下三个阶段 : </p>
+<ol>
+<li>Mysql中锁你了解多少 ? </li>
+<li>InnoDB中的行锁到底锁住了什么 ? </li>
+<li>锁与索引之间有什么关系 ? </li>
+</ol>
+<p>后来想了一下，这三个问题确实经典，难度上来说也是由广入深，又能够把整个Mysql中锁相关的知识总结，因此通过这三个问题，基本上就能把Mysql中锁相关的内容进行一个完整的梳理。</p>
+<a id="more"></a>
+
+<h2 id="Mysql中的锁相关知识"><a href="#Mysql中的锁相关知识" class="headerlink" title="Mysql中的锁相关知识"></a>Mysql中的锁相关知识</h2><p>数据库中相关的锁技术比较多，因此需要按照一定的条理来划分，首先从概念上来说可以分为乐观锁/悲观锁两种。</p>
+<h3 id="乐观锁-amp-悲观锁"><a href="#乐观锁-amp-悲观锁" class="headerlink" title="乐观锁 &amp; 悲观锁"></a>乐观锁 &amp; 悲观锁</h3><blockquote>
+<p>📌 <strong>注意 : 乐观锁/悲观锁只是一种概念，而非具体的锁实现 !</strong> </p>
+</blockquote>
+<p>乐观锁与悲观锁实际上是在面对数据库发生并发竞争时的一种策略。</p>
+<ul>
+<li>乐观锁 : 认为每次都不会发生竞争，对数据操作时不进行阻塞，如果发生竞争后，再尝试一次操作(CAS)</li>
+<li>悲观锁 : 默认每次都会发生并发竞争，在对数据操作时，会对数据加锁处理</li>
+</ul>
+<p>我们很难说这两种概念哪一个更好，因为都有各自的使用场景，如果发生竞争的几率很小，并且程序执行的时间又很短，使用乐观锁能够避免加锁导致的多个线程阻塞等待的情况，能够有效提升效率。</p>
+<p>而如果某个数据为热点数据，频繁发生竞争，那么悲观锁更适合该场景，因为乐观锁会由于数据同步失败导致多次CAS操作，会对CPU造成一个比较大的性能消耗。</p>
+<p>在Mysql中，并未提供相应的乐观锁实现，所以很多时候需要我们自己来通过逻辑实现相应的乐观锁。</p>
+<p>乐观锁的本质还是由<strong>CAS(Compare-and-Swap)</strong>来完成，CAS操作主要通过检查版本号或者时间戳的方式来校验数据是否被修改。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/569a62ca-4737-4be2-9466-8d7bf81fe45e.png" alt=""></p>
+<p>通过版本号和时间戳的方式，都能够完成CAS，并且能够解决ABA问题。</p>
+<p>相较于乐观锁来说，悲观锁的具体实现就要复杂一些，在Mysql中，根据不同引擎具有不同的悲观锁实现，我们以最典型的InnoDB和MyISAM为例，以二者最有代表性的几个锁来概括悲观锁的具体实现。</p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p>在MyISAM中，仅支持表级锁。表锁能够锁住整个表，当某个线程对表进行加锁时，在锁释放之前，其他的线程只能够进行阻塞等待。表锁实现相对简单，并且加锁的消耗较少，但是由于其粒度比较粗，会在高并发的情况下，造成大量数据阻塞的情况，因此在很多案例中都指出MyISAM擅长读多写少的场景，锁是其中的重要原因。</p>
+<p>*<em>什么时候会触发表锁呢 ? *</em></p>
+<p>这个问题需要针对不同引擎来说，对于MyISAM来讲，任何情况下，对数据进行写操作都会触发表锁，而对于InnoDB来说，需要对批量数据操作时才会触发”表锁”，但是这里的表锁并不代表会锁住整个表，而是将锁住需要操作的那一批数据。</p>
+<p>实际上这是一个InnoDB中的特有的技术点<strong>Next-Key Locks</strong>，由于这个锁比较特殊，所以会放在后面总结。</p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>表锁虽然实现简单，但是在高并发的情况下，如果写入的请求比较多时，会造成严重的阻塞，因此可能无法满足性能上的需求。</p>
+<p>而在InnoDB引擎中，实现了行锁来满足性能上的需求，得益于行锁的细粒度，行锁能够带来几个优点。</p>
+<ol>
+<li>行锁粒度较小，发生冲突的概率会低很多</li>
+<li>多个线程可以对不同行进行操作，能够处理更高的并发</li>
+</ol>
+<p>但是行锁同样由自己的不足，行锁可能会导致死锁，同时，开启行锁的资源消耗要高于表锁。</p>
+<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><p>页锁是一种介于行锁和表锁之间的一种所，其粒度适中，但是同样会触发死锁情况，实际场景中使用较少。</p>
+<h3 id="排它锁和共享锁"><a href="#排它锁和共享锁" class="headerlink" title="排它锁和共享锁"></a>排它锁和共享锁</h3><p>以InnoDB为例，提供了两种标准的行级锁</p>
+<ul>
+<li>S-共享锁：又叫读锁，其他事务可以继续加共享锁，但是不能继续加排他锁。</li>
+<li>X-排他锁: 又叫写锁，一旦加了写锁之后，其他事务就不能加锁了。</li>
+</ul>
+<blockquote>
+<p>兼容性:是指事务A获得一个某行某种锁之后，事务B同样的在这个行上尝试获取某种锁，如果能立即获取，则称锁兼容，反之叫冲突。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>X</th>
+<th>S</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>X</td>
+<td>冲突</td>
+<td>冲突</td>
+</tr>
+<tr>
+<td>S</td>
+<td>冲突</td>
+<td>兼容</td>
+</tr>
+</tbody></table>
+<h3 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h3><blockquote>
+<p>意向锁是在当一个操作需要锁表是有意义的操作,因为获取一个意向锁要比逐条记录检查锁的操作要节省资源</p>
+</blockquote>
+<ul>
+<li>意向共享锁:表达一个事务想要获取一张表中某几行的共享锁。</li>
+<li>意向排他锁:表达一个事务想要获取一张表中某几行的排他锁。</li>
+</ul>
+<p>考虑这个例子：</p>
+<p>事务A锁住了表中的<strong>一行</strong>，让这一行只能读，不能写。</p>
+<p>之后，事务B申请<strong>整个表</strong>的写锁。</p>
+<p>如果事务B申请成功，那么理论上它就能修改表中的任意一行，这与A持有的行锁是冲突的。</p>
+<p>数据库需要避免这种冲突，就是说要让B的申请被阻塞，直到A释放了行锁。</p>
+<p>数据库要怎么判断这个冲突呢？</p>
+<p>step1：判断表是否已被其他事务用表锁锁表<br>step2：判断表中的每一行是否已被行锁锁住。</p>
+<p>注意step2，这样的判断方法效率实在不高，因为需要遍历整个表。<br>于是就有了意向锁。</p>
+<p>在意向锁存在的情况下，事务A必须先申请表的意向共享锁，成功后再申请一行的行锁。</p>
+<p>在意向锁存在的情况下，上面的判断可以改成</p>
+<p>step1：不变<br>step2：发现表上有意向共享锁，说明表中有些行被共享行锁锁住了，因此，事务B申请表的写锁会被阻塞。</p>
+<p>注意：申请意向锁的动作是数据库完成的，就是说，事务A申请一行的行锁的时候，数据库会自动先开始申请表的意向锁，不需要我们程序员使用代码来申请。</p>
+<h3 id="Next-Key-Locks"><a href="#Next-Key-Locks" class="headerlink" title="Next-Key Locks"></a>Next-Key Locks</h3><p>在之前说到了关于Next Key Locks的内容，这里需要理解两个概念 : </p>
+<p><code>Next key locks</code>是InnoDB中实现的一种锁,由于MVCC不能够解决幻读的问题,所以在可重复读的隔离级别下InnoDB使用MVCC+Next key locks来解决这个问题。</p>
+<p><strong>Record Locks(行锁)</strong></p>
+<p>单条索引记录上加锁，record lock锁住的永远是索引，而非记录本身，即使该表上没有任何索引，那么innodb会在后台创建一个隐藏的聚集主键索引，那么锁住的就是这个隐藏的聚集主键索引。</p>
+<p><strong>Gap locks(间隙锁)</strong></p>
+<p>在索引记录之间的间隙中加锁，或者是在某一条索引记录之前或者之后加锁，并不包括该索引记录本身。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> c <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> c <span class="keyword">BETWEEN</span> <span class="number">10</span> <span class="keyword">and</span> <span class="number">20</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在这条语句中,会在索引10和20之间加锁,这之间的数据会暂时无法被其他事务获取。但是不会锁定记录本身,可以看作一个开区间<code>(10,20)</code></p>
+<p><strong>Next Key locks</strong></p>
+<p><code>Next Key locks</code>可以看作Gap Locks和Record Locks的结合,既锁记录本身也锁记录间隙，对于行查询,都采用这个方法,来解决幻读的问题。它锁定一个前开后闭区间，例如一个索引包含以下值：10, 11, 13, and 20，那么就需要锁定以下区间：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(-∞, 10]</span><br><span class="line">(10, 11]</span><br><span class="line">(11, 13]</span><br><span class="line">(13, 20]</span><br><span class="line">(20, +∞)</span><br></pre></td></tr></table></figure>
+
+<h2 id="InnoDB中锁到底锁住了什么"><a href="#InnoDB中锁到底锁住了什么" class="headerlink" title="InnoDB中锁到底锁住了什么 ?"></a>InnoDB中锁到底锁住了什么 ?</h2><p>我们来做个实验，来看看InnoDB中的锁到底锁了什么 ? </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Transaction-A</span></span><br><span class="line">mysql&gt; set autocommit = 0;</span><br><span class="line">mysql&gt; update innodb_lock set v='1001' where id=1;</span><br><span class="line">mysql&gt; commit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Transaction-B</span></span><br><span class="line">mysql&gt; update innodb_lock set v='2001' where id=2;</span><br><span class="line">Query OK, 1 row affected (0.37 sec)</span><br><span class="line">mysql&gt; update innodb_lock set v='1002' where id=1;</span><br><span class="line">Query OK, 1 row affected (37.51 sec)</span><br></pre></td></tr></table></figure>
+
+<p>我们开启两个事务，AB，同时对id = 1的行进行操作，但是在B中，再对id=2的行操作，可以看到，由于行锁的存在，事务B在操作id=1时被阻塞了，而id=2时则正常操作。</p>
+<p>整个过程和我们想的没什么区别，但是我们试着更改操作字段。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># Transaction-A</span><br><span class="line">mysql&gt; set autocommit = 0;</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;1002&apos; where naem=&apos;KKK&apos;;</span><br><span class="line">mysql&gt; commit;</span><br><span class="line"></span><br><span class="line"># Transaction-B</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;2002&apos; where naem=&apos;KKK&apos;;</span><br><span class="line">Query OK, 1 row affected (37.56 sec)</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;1003&apos; where naem=&apos;HHH&apos;;</span><br><span class="line">Query OK, 1 row affected (37.41 sec)</span><br></pre></td></tr></table></figure>
+
+<p>情况不一样了，我们发现，两个操作都出现了阻塞，理论上来说，只有name=’KKK’的操作才会出现阻塞，而实际上说明全部阻塞。</p>
+<blockquote>
+<p>🔴 <strong>InnoDB的行锁是针对索引加的锁，不是针对记录加的锁。并且该索引不能失效，否则都会从行锁升级为表锁</strong>。</p>
+</blockquote>
+<p>由于id为索引，并且在第一次查询时使用到了索引并且未失效，而第二次操作中name字段不为索引，导致了行锁升级为表锁的情况发生。</p>
+<h2 id="锁与索引之间的关系"><a href="#锁与索引之间的关系" class="headerlink" title="锁与索引之间的关系"></a>锁与索引之间的关系</h2><p>其实这个问题现在看来没有一个特别标准的答案，但是从我们上面对锁的介绍和对于索引的功能两个方面来看，是能够总结出一些关系的。</p>
+<p>索引在数据库中最大的作用就是能够快速找到某个数据并进行相应的操作，但是由于种种原因可能导致索引失效。在事务处理的过程中，往往会出现多个SQL操作，这个过程中很可能触发表锁。</p>
+<p>这并不是由于索引失效或者未操作索引字段的原因，因为对于InnoDB来说，如果操作多个数据行，为每个数据行添加行锁，首先会让加锁的资源消耗变大，其次可能触发行锁，并且在性能上并不一定优于表锁，因此很多时候会导致行锁升级为表锁。</p>
+<p>锁实际上锁住的是索引，但是在一些情况下，由于需要操作很多的数据，行锁最后会升级为表锁。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98/" rel="tag"># 面试复盘</a>
+              <a href="/tags/Mysql%E9%94%81/" rel="tag"># Mysql锁</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/13/Redis-%E5%8F%8C%E5%86%99-TTL-%E5%AE%8C%E6%88%90%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB/" rel="prev" title="Redis 双写 + TTL 完成数据迁移">
+      <i class="fa fa-chevron-left"></i> Redis 双写 + TTL 完成数据迁移
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mysql中的锁相关知识"><span class="nav-number">1.</span> <span class="nav-text">Mysql中的锁相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#乐观锁-amp-悲观锁"><span class="nav-number">1.1.</span> <span class="nav-text">乐观锁 &amp; 悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#表锁"><span class="nav-number">1.2.</span> <span class="nav-text">表锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#行锁"><span class="nav-number">1.3.</span> <span class="nav-text">行锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#页锁"><span class="nav-number">1.4.</span> <span class="nav-text">页锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排它锁和共享锁"><span class="nav-number">1.5.</span> <span class="nav-text">排它锁和共享锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#意向锁"><span class="nav-number">1.6.</span> <span class="nav-text">意向锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Next-Key-Locks"><span class="nav-number">1.7.</span> <span class="nav-text">Next-Key Locks</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB中锁到底锁住了什么"><span class="nav-number">2.</span> <span class="nav-text">InnoDB中锁到底锁住了什么 ?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁与索引之间的关系"><span class="nav-number">3.</span> <span class="nav-text">锁与索引之间的关系</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="无咎"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">无咎</p>
+  <div class="site-description" itemprop="description">今日事,今日毕</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">59</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/jorybeast97" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;jorybeast97" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/jorybeast97@foxmail.com" title="E-Mail → jorybeast97@foxmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/7020132434" title="weibo → https:&#x2F;&#x2F;weibo.com&#x2F;7020132434" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>weibo</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/ke-ji-20-6-18" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;ke-ji-20-6-18" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">无咎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -299,30 +299,6 @@
       </tags>
   </entry>
   <entry>
-    <title>LeetCode64.最小路径和</title>
-    <url>/2020/03/01/LeetCode64-%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/</url>
-    <content><![CDATA[<h3 id="LeetCode-64-最小路径和"><a href="#LeetCode-64-最小路径和" class="headerlink" title="LeetCode.64 最小路径和"></a>LeetCode.64 最小路径和</h3><p>给定一个包含非负整数的 <em>m</em> x <em>n</em> 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。</p>
-<p><strong>说明：</strong>每次只能向下或者向右移动一步。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入:</span><br><span class="line">[</span><br><span class="line">  [1,3,1],</span><br><span class="line">  [1,5,1],</span><br><span class="line">  [4,2,1]</span><br><span class="line">]</span><br><span class="line">输出: 7</span><br><span class="line">解释: 因为路径 1→3→1→1→1 的总和最小</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="暴力法"><a href="#暴力法" class="headerlink" title="暴力法"></a>暴力法</h3><p>这是最开始想的方法，遍历每一条路径，让后取最小值，可以使用递归完成。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minPathSum</span><span class="params">(<span class="keyword">int</span>[][] grid , <span class="keyword">int</span> row , <span class="keyword">int</span> col)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (row == grid.length || col == grid[<span class="number">0</span>].length) <span class="keyword">return</span> Integer.MIN_VALUE;</span><br><span class="line">        <span class="keyword">if</span> (row == grid.length-<span class="number">1</span> || col == grid[<span class="number">0</span>].length-<span class="number">1</span>) <span class="keyword">return</span> grid[row][col];</span><br><span class="line">        <span class="keyword">return</span> grid[row][col] + Math.min(minPathSum(grid, row + <span class="number">1</span>, col), minPathSum(grid, row, col +));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">solution</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> minPathSum(grid, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>但是这种方法时间上和空间上都不够优秀，而且如果矩阵太大，容易超长的递归把栈爆掉。</p>
-<h3 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h3><p>这个方法是看到一个提示，可以让整个矩阵最为一个大的动态规划棋盘，先找出最上面的一行与一列的值，然后从[1，1]开始使用动态规划来计算每一个点最优解。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minPathSum</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (grid == <span class="keyword">null</span> || grid.length&lt;<span class="number">1</span> || grid[<span class="number">0</span>] ==<span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span>[][] result = <span class="keyword">new</span> <span class="keyword">int</span>[grid.length][grid[<span class="number">0</span>].length];</span><br><span class="line">        result[<span class="number">0</span>][<span class="number">0</span>] = grid[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">    	<span class="comment">//填充第一行</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid.length; i++) &#123;</span><br><span class="line">            result[i][<span class="number">0</span>] = result[i - <span class="number">1</span>][<span class="number">0</span>] + grid[i][<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    	<span class="comment">//填充第一列</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid[<span class="number">0</span>].length; i++) &#123;</span><br><span class="line">            result[<span class="number">0</span>][i] = result[<span class="number">0</span>][i - <span class="number">1</span>] + grid[<span class="number">0</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">    	<span class="comment">//从[1,1]开始用之前的结果动态规划</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; grid[<span class="number">0</span>].length; j++) &#123;</span><br><span class="line">                <span class="keyword">int</span> left = grid[i][j] + result[i - <span class="number">1</span>][j];</span><br><span class="line">                <span class="keyword">int</span> up = grid[i][j] + result[i][j - <span class="number">1</span>];</span><br><span class="line">                result[i][j] = Math.min(up, left);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result[grid.length - <span class="number">1</span>][grid[<span class="number">0</span>].length - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>数据结构与算法</category>
-      </categories>
-      <tags>
-        <tag>LeetCode刷题</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux下Select NIO实现细节</title>
     <url>/2020/06/28/Linux%E4%B8%8BSelect-NIO%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/</url>
     <content><![CDATA[<p>自己对于NIO的学习一直处于表层，仅仅掌握面经中常见的Select,poll,epoll的区别和特点，因此特地去系统学习一下Linux下的三种NIO模型，打算分三篇文章总结，如果有不足之处，请指正。</p>
@@ -392,6 +368,63 @@
       <tags>
         <tag>Linux nio</tag>
         <tag>select模型</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LeetCode64.最小路径和</title>
+    <url>/2020/03/01/LeetCode64-%E6%9C%80%E5%B0%8F%E8%B7%AF%E5%BE%84%E5%92%8C/</url>
+    <content><![CDATA[<h3 id="LeetCode-64-最小路径和"><a href="#LeetCode-64-最小路径和" class="headerlink" title="LeetCode.64 最小路径和"></a>LeetCode.64 最小路径和</h3><p>给定一个包含非负整数的 <em>m</em> x <em>n</em> 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。</p>
+<p><strong>说明：</strong>每次只能向下或者向右移动一步。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">输入:</span><br><span class="line">[</span><br><span class="line">  [1,3,1],</span><br><span class="line">  [1,5,1],</span><br><span class="line">  [4,2,1]</span><br><span class="line">]</span><br><span class="line">输出: 7</span><br><span class="line">解释: 因为路径 1→3→1→1→1 的总和最小</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="暴力法"><a href="#暴力法" class="headerlink" title="暴力法"></a>暴力法</h3><p>这是最开始想的方法，遍历每一条路径，让后取最小值，可以使用递归完成。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minPathSum</span><span class="params">(<span class="keyword">int</span>[][] grid , <span class="keyword">int</span> row , <span class="keyword">int</span> col)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (row == grid.length || col == grid[<span class="number">0</span>].length) <span class="keyword">return</span> Integer.MIN_VALUE;</span><br><span class="line">        <span class="keyword">if</span> (row == grid.length-<span class="number">1</span> || col == grid[<span class="number">0</span>].length-<span class="number">1</span>) <span class="keyword">return</span> grid[row][col];</span><br><span class="line">        <span class="keyword">return</span> grid[row][col] + Math.min(minPathSum(grid, row + <span class="number">1</span>, col), minPathSum(grid, row, col +));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">solution</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> minPathSum(grid, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是这种方法时间上和空间上都不够优秀，而且如果矩阵太大，容易超长的递归把栈爆掉。</p>
+<h3 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h3><p>这个方法是看到一个提示，可以让整个矩阵最为一个大的动态规划棋盘，先找出最上面的一行与一列的值，然后从[1，1]开始使用动态规划来计算每一个点最优解。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">minPathSum</span><span class="params">(<span class="keyword">int</span>[][] grid)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (grid == <span class="keyword">null</span> || grid.length&lt;<span class="number">1</span> || grid[<span class="number">0</span>] ==<span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span>[][] result = <span class="keyword">new</span> <span class="keyword">int</span>[grid.length][grid[<span class="number">0</span>].length];</span><br><span class="line">        result[<span class="number">0</span>][<span class="number">0</span>] = grid[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">    	<span class="comment">//填充第一行</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid.length; i++) &#123;</span><br><span class="line">            result[i][<span class="number">0</span>] = result[i - <span class="number">1</span>][<span class="number">0</span>] + grid[i][<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    	<span class="comment">//填充第一列</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid[<span class="number">0</span>].length; i++) &#123;</span><br><span class="line">            result[<span class="number">0</span>][i] = result[<span class="number">0</span>][i - <span class="number">1</span>] + grid[<span class="number">0</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">    	<span class="comment">//从[1,1]开始用之前的结果动态规划</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; grid.length; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; grid[<span class="number">0</span>].length; j++) &#123;</span><br><span class="line">                <span class="keyword">int</span> left = grid[i][j] + result[i - <span class="number">1</span>][j];</span><br><span class="line">                <span class="keyword">int</span> up = grid[i][j] + result[i][j - <span class="number">1</span>];</span><br><span class="line">                result[i][j] = Math.min(up, left);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result[grid.length - <span class="number">1</span>][grid[<span class="number">0</span>].length - <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>数据结构与算法</category>
+      </categories>
+      <tags>
+        <tag>LeetCode刷题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mybatis Lite配合Mybatis Plus快速开发</title>
+    <url>/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/</url>
+    <content><![CDATA[<p>网课开展，发现并没有想象中的轻松，相反很多在课堂上能快速完成的事情通过网络需要浪费好多时间，所以最近也就没怎么给自己充电，但是总结了一些自己用着比较顺手的IDEA快速开发的插件。</p>
+<a id="more"></a>
+
+<h2 id="Mybatis-Lite-Mybatis-Plus"><a href="#Mybatis-Lite-Mybatis-Plus" class="headerlink" title="Mybatis Lite   +    Mybatis Plus"></a>Mybatis Lite   +    Mybatis Plus</h2><p>大部分Java工程师选择ORM框架的时候都是使用Mybatis，我想原因有二</p>
+<ul>
+<li>Mybatis成熟度高,业内用户量大,效率也不错</li>
+<li>Mybatis能够手写SQL语句,对于SQL优化以及多表操作有着非常便捷的优势</li>
+</ul>
+<p>但是由于Mybatis的XML Mapper配置十分繁琐，所以很多时候在开发效率上要和其他的ORM框架有所差距，印象最深的一次是有一个四十多个字段的表，当时为了写Model和Mapper.xml，几乎用了快半天的时间。很多大佬也意识到了这个情况，所以出现了例如<strong>tk.mybats</strong>和<strong>Mybatis Plus</strong>这种增强框架，能够通过实现接口的方式完成对单表的简单操作。</p>
+<p>但是我自己在学习的过程中，还是发现了一个问题，当我们需要学习一个依赖数据库和DAO层的项目时，即便是使用Mybatis Plus，效率依旧有些慢，因为还是要自己写Model，自己去写Mapper，虽然这个Mapper很简单。程序员永远是最懒惰的人，所以我发现可以使用Mybats Lite Plugin和Mybatis Plus配合使用。由于Mybatis Plus是一款Mybatis的增强型框架，这就意味着能够无侵入的增强Mybatis，使用起来会非常顺滑。</p>
+<p>而Mybatis Lite是一款Mybatis Generator插件，能够为我们的数据表生成对应的Model、Mapper、Service和Controller等服务层，这两者搭配使用，可以完成对于单表除建表以外的零操作，而对于多表我们只需要在相应的Mapper中写Sql语句即可，使用起来非常方便。</p>
+<blockquote>
+<p>Mybatis Lite下载 &gt; File &gt; Settings &gt; Plugins &gt; 搜索Mybatis Lite &gt; Install and Restart</p>
+</blockquote>
+<p>安装完成后，在Tools中能够找到Mybatis Lite，其中有Generator和Temple</p>
+<p><img src="https://s2.ax1x.com/2020/03/09/89YSat.png" alt=""></p>
+<p>不需要再向以往的工程一样，手写大量重复的工作。运行一下</p>
+<p><img src="https://s2.ax1x.com/2020/03/09/89UiRK.png" alt=""></p>
+<p>自动生成后的MangerUserPo类以及相关的套件已经完成，当然，这之中有很多不太完美的地方，比如数据库中的tinyInt我们更加期望对应boolean，这些细节问题我们可以在使用到的时候更改一下即可，这样我们就能够简单完成单表的各种操作，同时如果需要使用复杂的语句，可以在Mapper中编写即可，试一下查询权限的多表联查。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> p.*</span><br><span class="line"><span class="keyword">from</span> mangeruser ma</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> mangeruser_role mr <span class="keyword">on</span> ma.id = mr.mangeruser_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> <span class="keyword">role</span> r <span class="keyword">on</span> mr.role_id = r.id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> role_permission rp <span class="keyword">on</span> r.id = rp.role_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> permission p <span class="keyword">on</span> rp.permission_id = p.id</span><br><span class="line"><span class="keyword">where</span> username = <span class="string">'fanhao'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>尝试一下能够完成查询。使用起来还是非常方便的。</p>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>Mybatis generator</tag>
       </tags>
   </entry>
   <entry>
@@ -475,39 +508,6 @@
 ]]></content>
       <tags>
         <tag>Java并发</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mybatis Lite配合Mybatis Plus快速开发</title>
-    <url>/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/</url>
-    <content><![CDATA[<p>网课开展，发现并没有想象中的轻松，相反很多在课堂上能快速完成的事情通过网络需要浪费好多时间，所以最近也就没怎么给自己充电，但是总结了一些自己用着比较顺手的IDEA快速开发的插件。</p>
-<a id="more"></a>
-
-<h2 id="Mybatis-Lite-Mybatis-Plus"><a href="#Mybatis-Lite-Mybatis-Plus" class="headerlink" title="Mybatis Lite   +    Mybatis Plus"></a>Mybatis Lite   +    Mybatis Plus</h2><p>大部分Java工程师选择ORM框架的时候都是使用Mybatis，我想原因有二</p>
-<ul>
-<li>Mybatis成熟度高,业内用户量大,效率也不错</li>
-<li>Mybatis能够手写SQL语句,对于SQL优化以及多表操作有着非常便捷的优势</li>
-</ul>
-<p>但是由于Mybatis的XML Mapper配置十分繁琐，所以很多时候在开发效率上要和其他的ORM框架有所差距，印象最深的一次是有一个四十多个字段的表，当时为了写Model和Mapper.xml，几乎用了快半天的时间。很多大佬也意识到了这个情况，所以出现了例如<strong>tk.mybats</strong>和<strong>Mybatis Plus</strong>这种增强框架，能够通过实现接口的方式完成对单表的简单操作。</p>
-<p>但是我自己在学习的过程中，还是发现了一个问题，当我们需要学习一个依赖数据库和DAO层的项目时，即便是使用Mybatis Plus，效率依旧有些慢，因为还是要自己写Model，自己去写Mapper，虽然这个Mapper很简单。程序员永远是最懒惰的人，所以我发现可以使用Mybats Lite Plugin和Mybatis Plus配合使用。由于Mybatis Plus是一款Mybatis的增强型框架，这就意味着能够无侵入的增强Mybatis，使用起来会非常顺滑。</p>
-<p>而Mybatis Lite是一款Mybatis Generator插件，能够为我们的数据表生成对应的Model、Mapper、Service和Controller等服务层，这两者搭配使用，可以完成对于单表除建表以外的零操作，而对于多表我们只需要在相应的Mapper中写Sql语句即可，使用起来非常方便。</p>
-<blockquote>
-<p>Mybatis Lite下载 &gt; File &gt; Settings &gt; Plugins &gt; 搜索Mybatis Lite &gt; Install and Restart</p>
-</blockquote>
-<p>安装完成后，在Tools中能够找到Mybatis Lite，其中有Generator和Temple</p>
-<p><img src="https://s2.ax1x.com/2020/03/09/89YSat.png" alt=""></p>
-<p>不需要再向以往的工程一样，手写大量重复的工作。运行一下</p>
-<p><img src="https://s2.ax1x.com/2020/03/09/89UiRK.png" alt=""></p>
-<p>自动生成后的MangerUserPo类以及相关的套件已经完成，当然，这之中有很多不太完美的地方，比如数据库中的tinyInt我们更加期望对应boolean，这些细节问题我们可以在使用到的时候更改一下即可，这样我们就能够简单完成单表的各种操作，同时如果需要使用复杂的语句，可以在Mapper中编写即可，试一下查询权限的多表联查。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> p.*</span><br><span class="line"><span class="keyword">from</span> mangeruser ma</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> mangeruser_role mr <span class="keyword">on</span> ma.id = mr.mangeruser_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> <span class="keyword">role</span> r <span class="keyword">on</span> mr.role_id = r.id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> role_permission rp <span class="keyword">on</span> r.id = rp.role_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> permission p <span class="keyword">on</span> rp.permission_id = p.id</span><br><span class="line"><span class="keyword">where</span> username = <span class="string">'fanhao'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>尝试一下能够完成查询。使用起来还是非常方便的。</p>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>Mybatis generator</tag>
       </tags>
   </entry>
   <entry>
@@ -606,6 +606,63 @@
       </tags>
   </entry>
   <entry>
+    <title>Volatile关键字</title>
+    <url>/2019/11/10/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/</url>
+    <content><![CDATA[<p>  Volatile 在Java是可视化的意思，字面意思来说就是被该关键字所修饰的变量能被看见。听上去类似static，但是这个可视化是对于访问该变量的各个线程来讲的。<br></p>
+<p>  在了解该关键字前，我们需要先看一下线程的内存模型。<br></p>
+<p>  当我们执行操作时，会从内存中读取或者写入数据，但是与CPU的执行速度相比，其读取和写入速度要慢很多，如果直接从内存中读取，会造成CPU执行速度下降，性能浪费。所有我们会先将需要的数据存储到CPU的高速缓存中，在这里进行数据处理，当处理完毕后，再将高速缓存的内容写入内存中。<br></p>
+<a id="more"></a>
+
+<p>  然而这种情况就会导致一种非常著名的问题——缓存一致性问题<br></p>
+<p>  如果我们有两个CPU去对一个共享变量进行操作。<br></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">num = <span class="number">0</span>;</span><br><span class="line">num = num + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>  此时，线程1从内存中读取到了num的初始值为0，然后将初始值读入缓存，然后CPU1进行处理。恰巧，线程2在此时也将num的初始值0读入了缓存，而这时，线程1还未将计算结果写入到内存中。那么就会发生该问题，二者高速缓存中的结果都是num=1，写入内存后与期望不同。<br></p>
+<p>  这样的原因在于对于单个CPU而言，都拥有着自己的缓存区域，对于多个CPU而言，没有volatile关键字修饰的遍历在各个CPU中是无法相互可见的，当其值已经发生改变后，其他CPU并不能立刻获取到该值，而是使用自己高速缓存内已经读取到的原始值。<br></p>
+<p>  而解决这个问题则有两种方式<br></p>
+<ul>
+<li>加锁synchronize</li>
+<li>使用Volatile关键字修饰</li>
+</ul>
+<hr>
+<p>  二者虽然都能解决该问题，但是其方式有着本质性区别。<br></p>
+<p>  synchronize锁的方式使将该部分代码块的锁权限交个其中一个线程，当该线程访问这段内容时，其他线程进行等待，等该线程访问完毕并将数据写入内存后解锁，由其他线程竞争锁权限。这个方法是最安全的方法，能从本质上消除多线程的安全问题。通过锁的方式，实际上将多线程处理转化为单线程轮流处理。但是其弊端就是低下的性能问题。如果有一个队列要访问某个值，且队列庞大，这样等待需要花费大量时间，阻塞情况非常严重。<br></p>
+<p>  而volatile关键字则是将变量可视化，在一个线程完成处理后，立刻将该值分享到其他线程进行数值更新，其他线程发现这个值已经改变，将从内存中重新读取。这样的好处十分明显，所有线程能真正实现同时工作，同时对一个变量进行操控，能够大大提高效率。但是其安全性没有synchronize高。<br></p>
+<hr>
+<p>  <strong>原子性</strong></p>
+<p>  我们提到volatile就不得不提原子性的问题，简单来说，原子性的操作就是这些操作无法中断，只能一次完成。<br></p>
+<p>  我们用到的赋值和读取操作都是原子性操作。举个例子<br></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">1</span>;<span class="comment">//原子性操作，将值赋给了一个变量</span></span><br><span class="line">    <span class="keyword">int</span> y = x;<span class="comment">//非原子性操作，我们先要查找x值，之后再将值赋给y，两步操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  在多线程中，我们需要尽量保持操作为原子性操作。非原子性操作在售票厅机制中体现的很好，会出现同一时间多个线程对共享变量进行操作，虽然有了Volatile修饰，但是还是会出现负数。<br></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">int</span> inc = <span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        inc++;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Test test = <span class="keyword">new</span> Test();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">1000</span>;j++)</span><br><span class="line">                        test.increase();</span><br><span class="line">                &#125;;</span><br><span class="line">            &#125;.start();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span>(Thread.activeCount()&gt;<span class="number">1</span>)  <span class="comment">//保证前面的线程都执行完</span></span><br><span class="line">            Thread.yield();</span><br><span class="line">        System.out.println(test.inc);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  这里有一段代码，按照我们理想情况，执行完成后其值应该为10000.但实际上，基本上都会小于10000.<br></p>
+<p>  我们用了volatile关键字修饰共享变量，为什么还会出现这种情况呢？<br></p>
+<p>  现在我们看下这种情况的发生。<br></p>
+<p>  首先我们要知道，自增操作并非原子性操作，它是通过取值和增加赋值完成的。假设线程1从主存中读取到了inc的值为10，下一步要进行增加的操作，但是此时被堵塞了。此时，线程2开始读取inc的值，按照我们的期望，应该读取到的是11，但是实际上，其读取到的是inc=10，因为线程1虽然进行了读取，但并未对值进行改变时，线程就堵塞了，此时，默认对值并没有改变，系统不会判断下一步是否要改变该值，所以其他线程不可见，依旧从缓存中读取，等线程2完成操作时，inc=11.而线程1从阻塞获取执行权，执行为完成的操作，进行增长，此时读取的还是高速缓存内的inc=10。这样就造成了两次操作，实际增加1.<br></p>
+<p>  所有，volatile并不能保证操作的原子性，当操作非原子性时，其并没有那么优秀。<br></p>
+<hr>
+<p>  <strong>适用场景</strong></p>
+<p>  synchronized关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而volatile关键字在某些情况下性能要优于synchronized，但是要注意volatile关键字是无法替代synchronized关键字的，因为volatile关键字无法保证操作的原子性。通常来说，使用volatile必须具备以下2个条件：<br></p>
+<ul>
+<li><p>对变量的写操作不依赖于当前值</p>
+</li>
+<li><p>该变量没有包含在具有其他变量的不变式中</p>
+</li>
+</ul>
+<p>  实际上，这些条件表明，可以被写入 volatile 变量的这些有效值独立于任何程序的状态，包括变量的当前状态。<br></p>
+<p>  事实上，我的理解就是上面的2个条件需要保证操作是原子性操作，才能保证使用volatile关键字的程序在并发时能够正确执行。<br></p>
+<p>  下面列举几个Java中使用volatile的几个场景。<br></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">标记状态量</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">while</span>(!flag)&#123;</span><br><span class="line">    doSomething();</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlag</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    flag = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  其操作为原子性，直接赋值即可。<br></p>
+]]></content>
+      <categories>
+        <category>Java基础技术</category>
+      </categories>
+      <tags>
+        <tag>Volatile</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TCP SYN队列与SYN泛洪攻击</title>
     <url>/2020/06/15/TCP-SYN%E9%98%9F%E5%88%97%E4%B8%8ESYN%E6%B3%9B%E6%B4%AA%E6%94%BB%E5%87%BB/</url>
     <content><![CDATA[<h2 id="TCP半连接队列和全连接队列"><a href="#TCP半连接队列和全连接队列" class="headerlink" title="TCP半连接队列和全连接队列"></a>TCP半连接队列和全连接队列</h2><p>TCP通讯是通过三次握手来保证通讯的可靠性，三次握手相关的知识网上的文章很多，这里就不花费篇幅来总结。</p>
@@ -679,63 +736,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Volatile关键字</title>
-    <url>/2019/11/10/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/</url>
-    <content><![CDATA[<p>  Volatile 在Java是可视化的意思，字面意思来说就是被该关键字所修饰的变量能被看见。听上去类似static，但是这个可视化是对于访问该变量的各个线程来讲的。<br></p>
-<p>  在了解该关键字前，我们需要先看一下线程的内存模型。<br></p>
-<p>  当我们执行操作时，会从内存中读取或者写入数据，但是与CPU的执行速度相比，其读取和写入速度要慢很多，如果直接从内存中读取，会造成CPU执行速度下降，性能浪费。所有我们会先将需要的数据存储到CPU的高速缓存中，在这里进行数据处理，当处理完毕后，再将高速缓存的内容写入内存中。<br></p>
-<a id="more"></a>
-
-<p>  然而这种情况就会导致一种非常著名的问题——缓存一致性问题<br></p>
-<p>  如果我们有两个CPU去对一个共享变量进行操作。<br></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">num = <span class="number">0</span>;</span><br><span class="line">num = num + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>  此时，线程1从内存中读取到了num的初始值为0，然后将初始值读入缓存，然后CPU1进行处理。恰巧，线程2在此时也将num的初始值0读入了缓存，而这时，线程1还未将计算结果写入到内存中。那么就会发生该问题，二者高速缓存中的结果都是num=1，写入内存后与期望不同。<br></p>
-<p>  这样的原因在于对于单个CPU而言，都拥有着自己的缓存区域，对于多个CPU而言，没有volatile关键字修饰的遍历在各个CPU中是无法相互可见的，当其值已经发生改变后，其他CPU并不能立刻获取到该值，而是使用自己高速缓存内已经读取到的原始值。<br></p>
-<p>  而解决这个问题则有两种方式<br></p>
-<ul>
-<li>加锁synchronize</li>
-<li>使用Volatile关键字修饰</li>
-</ul>
-<hr>
-<p>  二者虽然都能解决该问题，但是其方式有着本质性区别。<br></p>
-<p>  synchronize锁的方式使将该部分代码块的锁权限交个其中一个线程，当该线程访问这段内容时，其他线程进行等待，等该线程访问完毕并将数据写入内存后解锁，由其他线程竞争锁权限。这个方法是最安全的方法，能从本质上消除多线程的安全问题。通过锁的方式，实际上将多线程处理转化为单线程轮流处理。但是其弊端就是低下的性能问题。如果有一个队列要访问某个值，且队列庞大，这样等待需要花费大量时间，阻塞情况非常严重。<br></p>
-<p>  而volatile关键字则是将变量可视化，在一个线程完成处理后，立刻将该值分享到其他线程进行数值更新，其他线程发现这个值已经改变，将从内存中重新读取。这样的好处十分明显，所有线程能真正实现同时工作，同时对一个变量进行操控，能够大大提高效率。但是其安全性没有synchronize高。<br></p>
-<hr>
-<p>  <strong>原子性</strong></p>
-<p>  我们提到volatile就不得不提原子性的问题，简单来说，原子性的操作就是这些操作无法中断，只能一次完成。<br></p>
-<p>  我们用到的赋值和读取操作都是原子性操作。举个例子<br></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">1</span>;<span class="comment">//原子性操作，将值赋给了一个变量</span></span><br><span class="line">    <span class="keyword">int</span> y = x;<span class="comment">//非原子性操作，我们先要查找x值，之后再将值赋给y，两步操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  在多线程中，我们需要尽量保持操作为原子性操作。非原子性操作在售票厅机制中体现的很好，会出现同一时间多个线程对共享变量进行操作，虽然有了Volatile修饰，但是还是会出现负数。<br></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">volatile</span> <span class="keyword">int</span> inc = <span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        inc++;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Test test = <span class="keyword">new</span> Test();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">new</span> Thread()&#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;<span class="number">1000</span>;j++)</span><br><span class="line">                        test.increase();</span><br><span class="line">                &#125;;</span><br><span class="line">            &#125;.start();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span>(Thread.activeCount()&gt;<span class="number">1</span>)  <span class="comment">//保证前面的线程都执行完</span></span><br><span class="line">            Thread.yield();</span><br><span class="line">        System.out.println(test.inc);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  这里有一段代码，按照我们理想情况，执行完成后其值应该为10000.但实际上，基本上都会小于10000.<br></p>
-<p>  我们用了volatile关键字修饰共享变量，为什么还会出现这种情况呢？<br></p>
-<p>  现在我们看下这种情况的发生。<br></p>
-<p>  首先我们要知道，自增操作并非原子性操作，它是通过取值和增加赋值完成的。假设线程1从主存中读取到了inc的值为10，下一步要进行增加的操作，但是此时被堵塞了。此时，线程2开始读取inc的值，按照我们的期望，应该读取到的是11，但是实际上，其读取到的是inc=10，因为线程1虽然进行了读取，但并未对值进行改变时，线程就堵塞了，此时，默认对值并没有改变，系统不会判断下一步是否要改变该值，所以其他线程不可见，依旧从缓存中读取，等线程2完成操作时，inc=11.而线程1从阻塞获取执行权，执行为完成的操作，进行增长，此时读取的还是高速缓存内的inc=10。这样就造成了两次操作，实际增加1.<br></p>
-<p>  所有，volatile并不能保证操作的原子性，当操作非原子性时，其并没有那么优秀。<br></p>
-<hr>
-<p>  <strong>适用场景</strong></p>
-<p>  synchronized关键字是防止多个线程同时执行一段代码，那么就会很影响程序执行效率，而volatile关键字在某些情况下性能要优于synchronized，但是要注意volatile关键字是无法替代synchronized关键字的，因为volatile关键字无法保证操作的原子性。通常来说，使用volatile必须具备以下2个条件：<br></p>
-<ul>
-<li><p>对变量的写操作不依赖于当前值</p>
-</li>
-<li><p>该变量没有包含在具有其他变量的不变式中</p>
-</li>
-</ul>
-<p>  实际上，这些条件表明，可以被写入 volatile 变量的这些有效值独立于任何程序的状态，包括变量的当前状态。<br></p>
-<p>  事实上，我的理解就是上面的2个条件需要保证操作是原子性操作，才能保证使用volatile关键字的程序在并发时能够正确执行。<br></p>
-<p>  下面列举几个Java中使用volatile的几个场景。<br></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">标记状态量</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">while</span>(!flag)&#123;</span><br><span class="line">    doSomething();</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlag</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    flag = <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  其操作为原子性，直接赋值即可。<br></p>
-]]></content>
-      <categories>
-        <category>Java基础技术</category>
-      </categories>
-      <tags>
-        <tag>Volatile</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Windows Terminal使用心得</title>
     <url>/2019/12/02/windows-Terminal%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/</url>
     <content><![CDATA[<h2 id="Windows-Terminal"><a href="#Windows-Terminal" class="headerlink" title="Windows Terminal"></a>Windows Terminal</h2><p>Windows Terminal是微软推出的一款新的命令行工具，对于windows用户来说，苦CMD久矣。最近换了windows terminal，感觉不错，可以使用一下。</p>
@@ -801,6 +801,84 @@
       <categories>
         <category>Java基础技术</category>
       </categories>
+  </entry>
+  <entry>
+    <title>内功:HashMap常见问题</title>
+    <url>/2019/10/21/%E5%86%85%E5%8A%9F-HashMap%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>首先推荐一个B站Up主——<strong>Java硬核空间</strong>，这个Up就职于Grandle，是个非常牛逼的程序员,给很多框架找到过Bug例如SpringBoot，maven等。这次Hashmap的面试题整理就是来自于这个大佬的一期视频讲解,谢谢。</p>
+<h3 id="直击灵魂的常见HashMap问题"><a href="#直击灵魂的常见HashMap问题" class="headerlink" title="直击灵魂的常见HashMap问题"></a>直击灵魂的常见HashMap问题</h3><p>HashMap一直是面试之中的热点问题,无论是应届生还是从业人员。一般来讲是以下几个问题。</p>
+<ul>
+<li><strong>HashMap为什么容量要是2^n？</strong></li>
+<li><strong>什么是resize?什么是rehash?</strong></li>
+<li><strong>HashMap为什么是线程不安全的?为什么会出现死锁?</strong></li>
+<li><strong>HashMap扩容机制?初始容量?负载因子?</strong></li>
+<li><strong>JDK1.7和1.8中HashMap的变化情况?</strong></li>
+</ul>
+<p>这几个问题实际上就能够完整将HashMap从创建到扩容,从应用到并发的情况完全概括,昨天花了两个多小时总结了以下。</p>
+<a id="more"></a>
+
+<hr>
+<h3 id="HashMap为什么容量要是2-n"><a href="#HashMap为什么容量要是2-n" class="headerlink" title="HashMap为什么容量要是2^n"></a>HashMap为什么容量要是2^n</h3><p>在聊这个问题之前,我们首先要来看看HashMap的结构。太过简单的原理这里不进行赘述,只给出简单分析。</p>
+<p><strong>HashMap是一种由数组+链表所组成的数据结构,其中我们将数组索引位上的链表成为”桶(bucket)”</strong></p>
+<p>那么我们在存放数据的时候如何将数据准确的散列到桶内?这就需要一个很精密的过程。这里我先来总结三个量。</p>
+<ul>
+<li>hashCode : 对象通过对私有域的一组计算后的获得的一个int值</li>
+<li>hash : 将hashCode进行位运算后的到的一个二进制的数据(一般都很大)</li>
+<li>length : hashmap中桶的数量</li>
+</ul>
+<p>下面我们来看看HashMap源码中是怎样给对象分配桶位置的。在HashMap中,采用的是<strong>按位与</strong>的计算，其中散列的方式为。</p>
+<blockquote>
+<p><strong>hash &amp; (length - 1)</strong></p>
+</blockquote>
+<p>假如一个对象经过计算得到Hash值为1011011011,如果我们的桶数目为2的四次方，则length - 1后二进制位01111.</p>
+<blockquote>
+<p>按位与计算<br>0 1 1 1 1<br>1 1 0 1 1</p>
+</blockquote>
+<p>结果为1011，这个就是对象在桶中的位置。但是如果不是2的n次方会发生什么。</p>
+<p><strong>如果不是2^n，length - 1后所有为可能不全为1</strong></p>
+<p>假设length - 1 = 1011，hash值后四位为1111</p>
+<blockquote>
+<p>1 0 1 1<br> 1 1 1 1</p>
+</blockquote>
+<p> 结果为1011，也就是说无论第二位是1的桶永远无法存储对象,这将造成一种资源浪费,所以才使用2^n作为容量。</p>
+<h3 id="什么是resize-什么是rehash"><a href="#什么是resize-什么是rehash" class="headerlink" title="什么是resize?什么是rehash?"></a>什么是resize?什么是rehash?</h3><p>当Hash表要进行扩容的时候,就会进行两个过程。</p>
+<ul>
+<li>resize : 创建当前桶2倍大小的新的Map,然后将桶中元素获取。</li>
+<li>rehash : 重新计算元素的在新的桶中位置</li>
+</ul>
+<p><strong>resize是很重要的一个方法,也是导致死循环的万恶之源</strong></p>
+<h3 id="HashMap为什么是线程不安全的-为什么会出现死锁"><a href="#HashMap为什么是线程不安全的-为什么会出现死锁" class="headerlink" title="HashMap为什么是线程不安全的?为什么会出现死锁?"></a>HashMap为什么是线程不安全的?为什么会出现死锁?</h3><blockquote>
+<p>由于HashMap造成的多线程问题,都是程序员自己的锅<br><strong>HashMap是线程不安全的!</strong></p>
+</blockquote>
+<p>一切的根源在于resize方法,首先我们来看下transfer方法做了些什么</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">transfer</span><span class="params">(Entry[] newTable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Entry[] src = table;</span><br><span class="line">    <span class="keyword">int</span> newCapacity = newTable.length;</span><br><span class="line">    <span class="comment">//下面这段代码的意思是：</span></span><br><span class="line">    <span class="comment">//  从OldTable里摘一个元素出来，然后放到NewTable中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; src.length; j++) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; e = src[j];</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            src[j] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">                <span class="keyword">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">                e.next = newTable[i];</span><br><span class="line">                newTable[i] = e;</span><br><span class="line">                e = next;</span><br><span class="line">            &#125; <span class="keyword">while</span> (e != <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上为JDK1.8中的代码,已经大大降低了出现死循环的几率,但是依旧存在,而这种情况在1.7中更为严重,首先来考虑一个问题, HashMap是如何操作。</p>
+<p>首先创建一个新的Entry数组,然后将桶中的数据拿出重新散列存放进入新的桶中，这个过程看上去一点问题也没有,但是为什么会出现死锁问题，问题就出现在<strong>取出数据这一个过程</strong></p>
+<p>在JDK1.7版本中,取出数据的顺序和存放数据的顺序不一样,这里放上来世CoolShell的一张图解释一下。</p>
+<p><a href="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" alt=""></a></p>
+<p>可以看到7和3两个节点顺序是不同的,这个很容易理解,我们先拿到3，3一定是先放入桶底，7后拿到，放在3的上面，但是在多线程中，问题就出现了。<br><a href="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" alt=""></a></p>
+<p>当两个线程访问时，3.next本应该为7，可是7在新的桶中已经在3之前，当前线程虽然将3的指针改为指向null，但是也许另一个线程仍然保存着3.next = 7这个操作，这样在3和7之间就出现了死循环，一旦访问该桶链表中的数据，就会出现死循环情况，导致系统CPU占用率100%。</p>
+<h3 id="HashMap扩容机制-初始容量-负载因子"><a href="#HashMap扩容机制-初始容量-负载因子" class="headerlink" title="HashMap扩容机制?初始容量?负载因子?"></a>HashMap扩容机制?初始容量?负载因子?</h3><p>直接简单粗暴的给出结论 : </p>
+<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>当HashMap中的数据超过<strong>HashMap容量 X 负载因子</strong>的时候就进行扩容。</p>
+<h4 id="初始容量"><a href="#初始容量" class="headerlink" title="初始容量"></a>初始容量</h4><p>HashMap默认的初始容量为16.</p>
+<h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>HashMap中负载因子主要用来做性能平衡，经过测试0.75的负载因子值比较合适。</p>
+<ul>
+<li>大于0.75 : 查找效率降低，空间效率增高</li>
+<li>小于0.75 : 查找效率增高，空间效率降低</li>
+</ul>
+<h3 id="JDK1-7和1-8中HashMap的变化情况"><a href="#JDK1-7和1-8中HashMap的变化情况" class="headerlink" title="JDK1.7和1.8中HashMap的变化情况?"></a>JDK1.7和1.8中HashMap的变化情况?</h3><p>在JDK1.8中，HashMap由数组+链表变为数组+红黑树(由链表转换)当桶内数据大于8的时候,链表将转化为一颗红黑树,保证其查找效率。</p>
+<h4 id="为什么这个值是8"><a href="#为什么这个值是8" class="headerlink" title="为什么这个值是8?"></a>为什么这个值是8?</h4><p>我们直接来看JDK1.8的注释，在开头的注释中，有这样一些注释。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">* Because TreeNodes are about twice the size of regular nodes, we</span><br><span class="line">     * use them only when bins contain enough nodes to warrant use</span><br><span class="line">     * (see TREEIFY_THRESHOLD). <span class="function">And when they become too <span class="title">small</span> <span class="params">(due to</span></span></span><br><span class="line"><span class="function"><span class="params">     * removal or resizing)</span> they are converted back to plain bins.  In</span></span><br><span class="line"><span class="function">     * usages with well-distributed user hashCodes, tree bins are</span></span><br><span class="line"><span class="function">     * rarely used.  Ideally, under random hashCodes, the frequency of</span></span><br><span class="line"><span class="function">     * nodes in bins follows a Poisson distribution</span></span><br><span class="line"><span class="function">     * <span class="params">(http://en.wikipedia.org/wiki/Poisson_distribution)</span> with a</span></span><br><span class="line"><span class="function">     * parameter of about 0.5 on average <span class="keyword">for</span> the <span class="keyword">default</span> resizing</span></span><br><span class="line"><span class="function">     * threshold of 0.75, although with a large variance because of</span></span><br><span class="line"><span class="function">     * resizing granularity. Ignoring variance, the expected</span></span><br><span class="line"><span class="function">     * occurrences of list size k <span class="title">are</span> <span class="params">(exp(<span class="number">-0.5</span>)</span> * <span class="title">pow</span><span class="params">(<span class="number">0.5</span>, k)</span> /</span></span><br><span class="line"><span class="function">     * <span class="title">factorial</span><span class="params">(k)</span>). The first values are:</span></span><br><span class="line"><span class="function">     *</span></span><br><span class="line"><span class="function">     * 0:    0.60653066</span></span><br><span class="line"><span class="function">     * 1:    0.30326533</span></span><br><span class="line"><span class="function">     * 2:    0.07581633</span></span><br><span class="line"><span class="function">     * 3:    0.01263606</span></span><br><span class="line"><span class="function">     * 4:    0.00157952</span></span><br><span class="line"><span class="function">     * 5:    0.00015795</span></span><br><span class="line"><span class="function">     * 6:    0.00001316</span></span><br><span class="line"><span class="function">     * 7:    0.00000094</span></span><br><span class="line"><span class="function">     * 8:    0.00000006</span></span><br><span class="line"><span class="function">     * more: less than 1 in ten million</span></span><br></pre></td></tr></table></figure>
+
+<p>这些值是什么意思?实际上这就是桶中出现数据个数的泊松分布,出现0个数据概率约为0.6，一个为0.3依次类推，当到8的时候，我们已经可以发现概率基本约为千万分之一。所以将红黑树设置为该值，而实际中转化为红黑树的比例较少。</p>
+]]></content>
+      <categories>
+        <category>Java基础技术</category>
+      </categories>
+      <tags>
+        <tag>HashMap</tag>
+      </tags>
   </entry>
   <entry>
     <title>凡是过往,皆为序章</title>
@@ -896,84 +974,6 @@
       </categories>
       <tags>
         <tag>排序算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>内功:HashMap常见问题</title>
-    <url>/2019/10/21/%E5%86%85%E5%8A%9F-HashMap%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>首先推荐一个B站Up主——<strong>Java硬核空间</strong>，这个Up就职于Grandle，是个非常牛逼的程序员,给很多框架找到过Bug例如SpringBoot，maven等。这次Hashmap的面试题整理就是来自于这个大佬的一期视频讲解,谢谢。</p>
-<h3 id="直击灵魂的常见HashMap问题"><a href="#直击灵魂的常见HashMap问题" class="headerlink" title="直击灵魂的常见HashMap问题"></a>直击灵魂的常见HashMap问题</h3><p>HashMap一直是面试之中的热点问题,无论是应届生还是从业人员。一般来讲是以下几个问题。</p>
-<ul>
-<li><strong>HashMap为什么容量要是2^n？</strong></li>
-<li><strong>什么是resize?什么是rehash?</strong></li>
-<li><strong>HashMap为什么是线程不安全的?为什么会出现死锁?</strong></li>
-<li><strong>HashMap扩容机制?初始容量?负载因子?</strong></li>
-<li><strong>JDK1.7和1.8中HashMap的变化情况?</strong></li>
-</ul>
-<p>这几个问题实际上就能够完整将HashMap从创建到扩容,从应用到并发的情况完全概括,昨天花了两个多小时总结了以下。</p>
-<a id="more"></a>
-
-<hr>
-<h3 id="HashMap为什么容量要是2-n"><a href="#HashMap为什么容量要是2-n" class="headerlink" title="HashMap为什么容量要是2^n"></a>HashMap为什么容量要是2^n</h3><p>在聊这个问题之前,我们首先要来看看HashMap的结构。太过简单的原理这里不进行赘述,只给出简单分析。</p>
-<p><strong>HashMap是一种由数组+链表所组成的数据结构,其中我们将数组索引位上的链表成为”桶(bucket)”</strong></p>
-<p>那么我们在存放数据的时候如何将数据准确的散列到桶内?这就需要一个很精密的过程。这里我先来总结三个量。</p>
-<ul>
-<li>hashCode : 对象通过对私有域的一组计算后的获得的一个int值</li>
-<li>hash : 将hashCode进行位运算后的到的一个二进制的数据(一般都很大)</li>
-<li>length : hashmap中桶的数量</li>
-</ul>
-<p>下面我们来看看HashMap源码中是怎样给对象分配桶位置的。在HashMap中,采用的是<strong>按位与</strong>的计算，其中散列的方式为。</p>
-<blockquote>
-<p><strong>hash &amp; (length - 1)</strong></p>
-</blockquote>
-<p>假如一个对象经过计算得到Hash值为1011011011,如果我们的桶数目为2的四次方，则length - 1后二进制位01111.</p>
-<blockquote>
-<p>按位与计算<br>0 1 1 1 1<br>1 1 0 1 1</p>
-</blockquote>
-<p>结果为1011，这个就是对象在桶中的位置。但是如果不是2的n次方会发生什么。</p>
-<p><strong>如果不是2^n，length - 1后所有为可能不全为1</strong></p>
-<p>假设length - 1 = 1011，hash值后四位为1111</p>
-<blockquote>
-<p>1 0 1 1<br> 1 1 1 1</p>
-</blockquote>
-<p> 结果为1011，也就是说无论第二位是1的桶永远无法存储对象,这将造成一种资源浪费,所以才使用2^n作为容量。</p>
-<h3 id="什么是resize-什么是rehash"><a href="#什么是resize-什么是rehash" class="headerlink" title="什么是resize?什么是rehash?"></a>什么是resize?什么是rehash?</h3><p>当Hash表要进行扩容的时候,就会进行两个过程。</p>
-<ul>
-<li>resize : 创建当前桶2倍大小的新的Map,然后将桶中元素获取。</li>
-<li>rehash : 重新计算元素的在新的桶中位置</li>
-</ul>
-<p><strong>resize是很重要的一个方法,也是导致死循环的万恶之源</strong></p>
-<h3 id="HashMap为什么是线程不安全的-为什么会出现死锁"><a href="#HashMap为什么是线程不安全的-为什么会出现死锁" class="headerlink" title="HashMap为什么是线程不安全的?为什么会出现死锁?"></a>HashMap为什么是线程不安全的?为什么会出现死锁?</h3><blockquote>
-<p>由于HashMap造成的多线程问题,都是程序员自己的锅<br><strong>HashMap是线程不安全的!</strong></p>
-</blockquote>
-<p>一切的根源在于resize方法,首先我们来看下transfer方法做了些什么</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">transfer</span><span class="params">(Entry[] newTable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Entry[] src = table;</span><br><span class="line">    <span class="keyword">int</span> newCapacity = newTable.length;</span><br><span class="line">    <span class="comment">//下面这段代码的意思是：</span></span><br><span class="line">    <span class="comment">//  从OldTable里摘一个元素出来，然后放到NewTable中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; src.length; j++) &#123;</span><br><span class="line">        Entry&lt;K,V&gt; e = src[j];</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123;</span><br><span class="line">            src[j] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                Entry&lt;K,V&gt; next = e.next;</span><br><span class="line">                <span class="keyword">int</span> i = indexFor(e.hash, newCapacity);</span><br><span class="line">                e.next = newTable[i];</span><br><span class="line">                newTable[i] = e;</span><br><span class="line">                e = next;</span><br><span class="line">            &#125; <span class="keyword">while</span> (e != <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>以上为JDK1.8中的代码,已经大大降低了出现死循环的几率,但是依旧存在,而这种情况在1.7中更为严重,首先来考虑一个问题, HashMap是如何操作。</p>
-<p>首先创建一个新的Entry数组,然后将桶中的数据拿出重新散列存放进入新的桶中，这个过程看上去一点问题也没有,但是为什么会出现死锁问题，问题就出现在<strong>取出数据这一个过程</strong></p>
-<p>在JDK1.7版本中,取出数据的顺序和存放数据的顺序不一样,这里放上来世CoolShell的一张图解释一下。</p>
-<p><a href="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/G2LwkR1xZMbFayq.jpg" alt=""></a></p>
-<p>可以看到7和3两个节点顺序是不同的,这个很容易理解,我们先拿到3，3一定是先放入桶底，7后拿到，放在3的上面，但是在多线程中，问题就出现了。<br><a href="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" target="_blank" rel="noopener"><img src="https://i.loli.net/2019/10/18/CWhFekpv2fUSajt.jpg" alt=""></a></p>
-<p>当两个线程访问时，3.next本应该为7，可是7在新的桶中已经在3之前，当前线程虽然将3的指针改为指向null，但是也许另一个线程仍然保存着3.next = 7这个操作，这样在3和7之间就出现了死循环，一旦访问该桶链表中的数据，就会出现死循环情况，导致系统CPU占用率100%。</p>
-<h3 id="HashMap扩容机制-初始容量-负载因子"><a href="#HashMap扩容机制-初始容量-负载因子" class="headerlink" title="HashMap扩容机制?初始容量?负载因子?"></a>HashMap扩容机制?初始容量?负载因子?</h3><p>直接简单粗暴的给出结论 : </p>
-<h4 id="扩容机制"><a href="#扩容机制" class="headerlink" title="扩容机制"></a>扩容机制</h4><p>当HashMap中的数据超过<strong>HashMap容量 X 负载因子</strong>的时候就进行扩容。</p>
-<h4 id="初始容量"><a href="#初始容量" class="headerlink" title="初始容量"></a>初始容量</h4><p>HashMap默认的初始容量为16.</p>
-<h4 id="负载因子"><a href="#负载因子" class="headerlink" title="负载因子"></a>负载因子</h4><p>HashMap中负载因子主要用来做性能平衡，经过测试0.75的负载因子值比较合适。</p>
-<ul>
-<li>大于0.75 : 查找效率降低，空间效率增高</li>
-<li>小于0.75 : 查找效率增高，空间效率降低</li>
-</ul>
-<h3 id="JDK1-7和1-8中HashMap的变化情况"><a href="#JDK1-7和1-8中HashMap的变化情况" class="headerlink" title="JDK1.7和1.8中HashMap的变化情况?"></a>JDK1.7和1.8中HashMap的变化情况?</h3><p>在JDK1.8中，HashMap由数组+链表变为数组+红黑树(由链表转换)当桶内数据大于8的时候,链表将转化为一颗红黑树,保证其查找效率。</p>
-<h4 id="为什么这个值是8"><a href="#为什么这个值是8" class="headerlink" title="为什么这个值是8?"></a>为什么这个值是8?</h4><p>我们直接来看JDK1.8的注释，在开头的注释中，有这样一些注释。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">* Because TreeNodes are about twice the size of regular nodes, we</span><br><span class="line">     * use them only when bins contain enough nodes to warrant use</span><br><span class="line">     * (see TREEIFY_THRESHOLD). <span class="function">And when they become too <span class="title">small</span> <span class="params">(due to</span></span></span><br><span class="line"><span class="function"><span class="params">     * removal or resizing)</span> they are converted back to plain bins.  In</span></span><br><span class="line"><span class="function">     * usages with well-distributed user hashCodes, tree bins are</span></span><br><span class="line"><span class="function">     * rarely used.  Ideally, under random hashCodes, the frequency of</span></span><br><span class="line"><span class="function">     * nodes in bins follows a Poisson distribution</span></span><br><span class="line"><span class="function">     * <span class="params">(http://en.wikipedia.org/wiki/Poisson_distribution)</span> with a</span></span><br><span class="line"><span class="function">     * parameter of about 0.5 on average <span class="keyword">for</span> the <span class="keyword">default</span> resizing</span></span><br><span class="line"><span class="function">     * threshold of 0.75, although with a large variance because of</span></span><br><span class="line"><span class="function">     * resizing granularity. Ignoring variance, the expected</span></span><br><span class="line"><span class="function">     * occurrences of list size k <span class="title">are</span> <span class="params">(exp(<span class="number">-0.5</span>)</span> * <span class="title">pow</span><span class="params">(<span class="number">0.5</span>, k)</span> /</span></span><br><span class="line"><span class="function">     * <span class="title">factorial</span><span class="params">(k)</span>). The first values are:</span></span><br><span class="line"><span class="function">     *</span></span><br><span class="line"><span class="function">     * 0:    0.60653066</span></span><br><span class="line"><span class="function">     * 1:    0.30326533</span></span><br><span class="line"><span class="function">     * 2:    0.07581633</span></span><br><span class="line"><span class="function">     * 3:    0.01263606</span></span><br><span class="line"><span class="function">     * 4:    0.00157952</span></span><br><span class="line"><span class="function">     * 5:    0.00015795</span></span><br><span class="line"><span class="function">     * 6:    0.00001316</span></span><br><span class="line"><span class="function">     * 7:    0.00000094</span></span><br><span class="line"><span class="function">     * 8:    0.00000006</span></span><br><span class="line"><span class="function">     * more: less than 1 in ten million</span></span><br></pre></td></tr></table></figure>
-
-<p>这些值是什么意思?实际上这就是桶中出现数据个数的泊松分布,出现0个数据概率约为0.6，一个为0.3依次类推，当到8的时候，我们已经可以发现概率基本约为千万分之一。所以将红黑树设置为该值，而实际中转化为红黑树的比例较少。</p>
-]]></content>
-      <categories>
-        <category>Java基础技术</category>
-      </categories>
-      <tags>
-        <tag>HashMap</tag>
       </tags>
   </entry>
   <entry>
@@ -1813,96 +1813,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Netty Reactor模型</title>
-    <url>/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/</url>
-    <content><![CDATA[<h2 id="Reactor模型概览"><a href="#Reactor模型概览" class="headerlink" title="Reactor模型概览"></a>Reactor模型概览</h2><blockquote>
-<p>The reactor <a href="https://en.wikipedia.org/wiki/Design_pattern_(computer_science)" target="_blank" rel="noopener">design pattern</a> is an <a href="https://en.wikipedia.org/wiki/Event_handling" target="_blank" rel="noopener">event handling</a> pattern for handling service requests delivered <a href="https://en.wikipedia.org/wiki/Concurrency_(computer_science)" target="_blank" rel="noopener">concurrently</a> to a service handler by one or more inputs. The service handler then <a href="https://en.wikipedia.org/wiki/Demultiplex" target="_blank" rel="noopener">demultiplexes</a> the incoming requests and dispatches them synchronously to the associated request handlers.<a href="https://en.wikipedia.org/wiki/Reactor_pattern#cite_note-1" target="_blank" rel="noopener">[1]</a></p>
-</blockquote>
-<p><strong>反应器模式</strong>（Reactor pattern）是一种为处理服务请求<a href="https://zh.wikipedia.org/wiki/并发" target="_blank" rel="noopener">并发</a> 提交到一个或者多个服务处理程序的事件设计模式。当请求抵达后，服务处理程序使用解多路分配策略，然后同步地派发这些请求至相关的请求处理程序。</p>
-<p>先来回忆一个场景，当出现一个网络连接，并发送数据时，都应该经历哪些步骤 ？</p>
-<p>一般来说，需要接收连接，读取数据，解码，执行业务逻辑，编码，发送这几个阶段。而如果将所有阶段都集中处理，会让整个逻辑链变得复杂而不可拓展。因此可以将各个步骤交由不同模块来完成，有些类似于责任链。</p>
-<p>而 Reactor Pattern 实际上就是对上述场景提出的一种设计模式，既然是设计模式，就是十分高度抽象的，一般来说，最简单的Reactor中应该具有以下几个部分。</p>
-<ul>
-<li>Reactor : 负责处理IO事件,将事件分发给绑定的Handler处理</li>
-<li>Handler : 事件处理器,负责对某些事件进行具体的业务处理</li>
-<li>Acceptor : 负责接收并将事件注册进入Reactor，并交由Reactor处理</li>
-</ul>
-<p><img src="https://s1.ax1x.com/2020/06/06/t6rnPO.png" alt=""></p>
-<p>该图主要是最简单的Reactor模型，而实际开发和Netty框架中，Reactor设计更为精妙和繁杂，增添了诸多细节例如NIO事件驱动，多Reactor线程池以及各类编解码器。</p>
-<a id="more"></a>
-
-<h3 id="单线程Reactor模型"><a href="#单线程Reactor模型" class="headerlink" title="单线程Reactor模型"></a>单线程Reactor模型</h3><p>由于使用了事件驱动，所以能够使用单一线程监听多个IO事件，结合Acceptor，就能够将整个模型进行拓展。</p>
-<p><img src="https://s1.ax1x.com/2020/06/06/t66FMQ.png" alt=""></p>
-<p>该图即是我对于单线程Reactor模型的理解，需要理解的一个点是，Acceptor 和 Handler 本质上是一类事务，只不过是处理不同的事件。如果了解 Redis 的IO模型，会对该图有更深的理解，Redis中使用的就是类似于图中的IO多路复用，如果将编解码，读写过程合一，也能够看作一个单线程的 Reactor 模型。</p>
-<p>虽然单线程的 Reactor 模型足够简单，也能够凭借Selector应对一定数量的并发，但是由于Selector是单线程设计，这样就无法充分利用多核CPU的性能，同时，如果并发量十分巨大(例如常见的游戏服务器)，那么单个线程无法应对所有的IO请求，同时，只要该线程出错，那么整个通讯模块都将无法使用。</p>
-<h3 id="多线程Reactor模型"><a href="#多线程Reactor模型" class="headerlink" title="多线程Reactor模型"></a>多线程Reactor模型</h3><p>正是因为单线程Reactor中的一些缺点，所以又出现了Reactor多线程模型，还是来看一张图。</p>
-<p><img src="https://s1.ax1x.com/2020/06/06/t6gzI1.png" alt=""></p>
-<p>如果搭建过 Netty 服务器的话，对于这个模型来说会更加熟悉。回忆一下，在 Netty 中，我们在Server端一般会创建两个<code>NioEventLoop</code>,分别为Boss和Worker，而其中的Boss则只负责注册IO请求，而Worker线程则负责对IO请求进行读写，过滤，编解码等操作。</p>
-<p>Reactor 多线程模型同理，Worker线程能够使用线程池负责，当注册线程将一个事件注册到Set中，之后就会由Worker来完成该事件的相关响应。</p>
-<blockquote>
-<p><strong>注意 : 多线程模型中，可以拥有多个工作线程，但是一个IO事件只能够注册到其中的一个工作组中，否则会出现并发异常</strong></p>
-</blockquote>
-<h3 id="主从多Reactor模型"><a href="#主从多Reactor模型" class="headerlink" title="主从多Reactor模型"></a>主从多Reactor模型</h3><p>虽然一般的多线程Reactor模型已经能够完成大部分的性能需求，但是在一些特殊场景下，多线程模型还是无法很好的适应。</p>
-<p>一般来说 Server 服务器都会开启一个端口来接收TCP连接通讯，但是如果我们希望开启多个端口，绑定多个注册线程，就可以使用到主从多Reactor模型，该模型和多线程模型很相似，只不过Selector由单一线程变成了线程池，并且每个线程都绑定了不同的端口并有自己的Worker工作线程组。</p>
-<h2 id="Netty-Reactor"><a href="#Netty-Reactor" class="headerlink" title="Netty Reactor"></a>Netty Reactor</h2><p>Netty相比较于其他框架，学习难度相对来说比较高，我自己在学习的过程中，发现一个很大的问题就是在于，Netty对于底层的封装很完善，而又在Handler中配备了<code>channelActive</code>，<code>channelRead</code>非常便捷的方法来屏蔽底层实现，这样带来的结果就是，虽然Netty上手很容易，但是想要再往深处学习，会感觉有些无从下手。</p>
-<p>之前有看过《 Netty 实战》一书，其中花了很大篇幅来讲解如何搭建各种各样的服务器，如何配置<code>ChannelInitializer</code>以及<code>Handler</code>，但是对于Netty底层的相关和整个Netty的设计框架概览来说，有些简略，这就造成了我看完这本书后，能够搭建一个Netty服务器，但是时间一长，那些API忘掉后，有感觉什么都没有掌握。</p>
-<p>那么先从一个简单的服务器来看下，Netty都需要哪些组件。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ModbusServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建boss和work两个group,一个负责接收TCP连接,一个负责处理IO相关操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup bossGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup workGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//省略port，host等配置文件读取</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ChannelFuture channelFuture = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ServerBootstrap bootstrap = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">            bootstrap.group(bossGroup, workGroup)</span><br><span class="line">                .channel(NioServerSocketChannel.class)</span><br><span class="line">                .localAddress(<span class="keyword">new</span> InetSocketAddress(host, port))</span><br><span class="line">                .childHandler(serverInitializer);</span><br><span class="line">            channelFuture = bootstrap.bind().sync();</span><br><span class="line">            channel = channelFuture.channel();</span><br><span class="line">            logger.info(<span class="string">"===========Netty Start Successful==========="</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            logger.error(<span class="string">"==============Netty Start Failed============"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> channelFuture;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        shutdownGracefully()</span><br><span class="line">        <span class="comment">// . . . . . .</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这是一个非常典型的 Netty 服务器程序，其中省略了一些相关的代码，并不影响阅读。</p>
-<p>Netty通过<code>bootstrap</code>完成Group，端口，host以及Handler和serverInitializer的绑定，在之后的消息发送过程中会按照配置的拦截器完成对于数据的处理。</p>
-<h3 id="BossGroup-和-WorkGroup"><a href="#BossGroup-和-WorkGroup" class="headerlink" title="BossGroup 和 WorkGroup"></a>BossGroup 和 WorkGroup</h3><blockquote>
-<p>Why we need bossGroup and workGroup ? </p>
-</blockquote>
-<p>这个问题是一个很经典的问题，在很多平台上都有不同的人给出了不同的解释，当然，在Netty官网中的Doc中也给出了解释。</p>
-<blockquote>
-<p><a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> is a multithreaded event loop that handles I/O operation. Netty provides various <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementations for different kind of transports. We are implementing a server-side application in this example, and therefore two <a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> will be used. The first one, often called ‘boss’, accepts an incoming connection. The second one, often called ‘worker’, handles the traffic of the accepted connection once the boss accepts the connection and registers the accepted connection to the worker. How many Threads are used and how they are mapped to the created <a href="https://netty.io/4.1/api/io/netty/channel/Channel.html" target="_blank" rel="noopener"><code>Channel</code></a>s depends on the <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementation and may be even configurable via a constructor.</p>
-</blockquote>
-<p>总结来说，Boss线程将负责接收IO请求并将其注册的channel传递给Worker线程，具体的IO活动将由Worker处理，同时，出现多少线程将由IO连接数来决定，同时也可以使用构造器来限制。</p>
-<h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><p>现在已经知道了BossGroup和WorkGroup的作用，那么用一张图来展示下其结构。</p>
-<p><img src="https://s1.ax1x.com/2020/06/06/t6znxO.png" alt=""></p>
-<p>这是一张非常经典的Netty Reactor模型结构，netty线程模型采用“服务端监听线程”和“IO线程”分离的方式，与多线程Reactor模型类似。抽象出NioEventLoop来表示一个不断循环执行处理任务的线程，每个NioEventLoop有一个selector，用于监听绑定在其上的socket链路。</p>
-<h3 id="Selector源码"><a href="#Selector源码" class="headerlink" title="Selector源码"></a>Selector源码</h3><p>select如何去做一个IO切换操作，我们能够通过源码来看到。Netty中使用的是JAVA NIO中Selector的模型。我们来看下其中的重点内容。</p>
-<p>SocketChannel、ServerSocketChannel和Selector的实例初始化都通过SelectorProvider类实现，其中Selector是整个NIO Socket的核心实现。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">provider</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        <span class="keyword">if</span> (provider != <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> provider;</span><br><span class="line">        <span class="keyword">return</span> AccessController.doPrivileged(</span><br><span class="line">            <span class="keyword">new</span> PrivilegedAction&lt;&gt;() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> SelectorProvider <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderFromProperty())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderAsService())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    provider = sun.nio.ch.DefaultSelectorProvider.create();</span><br><span class="line">                    <span class="keyword">return</span> provider;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>需要注意的式,Provider在Win和Linux下有不同的实现，查看<code>create()</code>就能看到。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> sun.nio.ch.WindowsSelectorProvider();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而底层则用的是<code>Unsafe</code>申请一块物理内存来存放dispatch，剩下的就是C语言实现的操作系统层面的API。</p>
-<p>在获得一个Selector后，需要做的事情就是将Channel注册进入Selector。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> SelectionKey <span class="title">register</span><span class="params">(Selector sel, <span class="keyword">int</span> ops, Object att)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> ClosedChannelException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (regLock) &#123;</span><br><span class="line">        SelectionKey k = findKey(sel);</span><br><span class="line">        <span class="keyword">if</span> (k != <span class="keyword">null</span>) &#123;</span><br><span class="line">            k.interestOps(ops);</span><br><span class="line">            k.attach(att);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// New registration</span></span><br><span class="line">            <span class="keyword">synchronized</span> (keyLock) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedChannelException();</span><br><span class="line">                k = ((AbstractSelector)sel).register(<span class="keyword">this</span>, ops, att);</span><br><span class="line">                addKey(k);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> k;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>如果该channel和selector已经注册过，则直接添加事件和附件。</li>
-<li>否则通过selector实现注册过程。</li>
-</ol>
-<p>下面来看下Netty的doSelect过程，这个过程使用的是JAVA NIO底层的Selector来完成。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">doSelect</span><span class="params">(Consumer&lt;SelectionKey&gt; action, <span class="keyword">long</span> timeout)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> IOException</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</span><br><span class="line">        <span class="keyword">synchronized</span> (selectedKeys) &#123;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line">            <span class="keyword">int</span> numKeySelected;</span><br><span class="line">            <span class="keyword">if</span> (timeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                numKeySelected = selectNow();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                numKeySelected = select(timeout);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// copy selected-key set as action may remove keys</span></span><br><span class="line">            Set&lt;SelectionKey&gt; keysToConsume = Set.copyOf(selectedKeys);</span><br><span class="line">            <span class="keyword">assert</span> keysToConsume.size() == numKeySelected;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// invoke action for each selected key</span></span><br><span class="line">            keysToConsume.forEach(k -&gt; &#123;</span><br><span class="line">                action.accept(k);</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedSelectorException();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> numKeySelected;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里需要重点关注的就是<code>Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</code>，这个set就是存放每一个channel对应的selectedKeys，每次请求到达服务器，都是从connect开始，connect成功后，服务端开始准备accept，准备就绪，开始读数据，并处理，最后写回数据返回。一共有四种事件。</p>
-<ol>
-<li><strong>connect</strong> ：客户端连接服务端事件，对应值为SelectionKey.OP_CONNECT(8) </li>
-<li><strong>accept</strong> ：服务端接收客户端连接事件，对应值为SelectionKey.OP_ACCEPT(16) </li>
-<li><strong>read</strong> ：读事件，对应值为SelectionKey.OP_READ(1) </li>
-<li><strong>write</strong> ：写事件，对应值为SelectionKey.OP_WRITE(4)</li>
-</ol>
-<p>服务端操作过程。</p>
-<p>1、创建ServerSocketChannel实例，并绑定指定端口； 2、创建Selector实例； 3、将serverSocketChannel注册到selector，并指定事件OP_ACCEPT，最底层的socket通过channel和selector建立关联； 4、如果没有准备好的socket，select方法会被阻塞一段时间并返回0； 5、如果底层有socket已经准备好，selector的select方法会返回socket的个数，而且selectedKeys方法会返回socket对应的事件（connect、accept、read or write）； 6、根据事件类型，进行不同的处理逻辑；</p>
-<p>在步骤3中，selector只注册了serverSocketChannel的OP_ACCEPT事件 1、如果有客户端A连接服务，执行select方法时，可以通过serverSocketChannel获取客户端A的socketChannel，并在selector上注册socketChannel的OP_READ事件。 2、如果客户端A发送数据，会触发read事件，这样下次轮询调用select方法时，就能通过socketChannel读取数据，同时在selector上注册该socketChannel的OP_WRITE事件，实现服务器往客户端写数据。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://www.lvbby.com/p/md/1902031144157633974003" target="_blank" rel="noopener">绿皮 : Netty系列</a></li>
-<li><a href="https://www.jianshu.com/p/38b56531565d" target="_blank" rel="noopener">Netty Reactor模型</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Web框架</category>
-      </categories>
-      <tags>
-        <tag>Netty</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Netty Zero Copy技术总结</title>
     <url>/2020/06/12/Netty-Zero-Copy%E6%8A%80%E6%9C%AF%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<p>Netty的零拷贝技术是自己一直以来不太理解的地方，最近花了一点时间，简单梳理了Netty中Zero Copy的相关知识点，主要从以下两个方面来进行总结。</p>
@@ -2019,6 +1929,90 @@
       </tags>
   </entry>
   <entry>
+    <title>Sharding Sphere分库分表解决方案浅析及实践</title>
+    <url>/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/</url>
+    <content><![CDATA[<p>之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。</p>
+<p>话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="数据库拆分概述"><a href="#数据库拆分概述" class="headerlink" title="数据库拆分概述"></a>数据库拆分概述</h2><p>关于Mysql一张表中到底存储多少数据后就会出现严重的性能下降的问题,很多人有自己不同的看法,而我在浏览一些资料时,大部分人认为, 数据量最好不要让索引的B+树层级超过3。</p>
+<p>由于我们项目中使用的InnoDB,所以每个索引页的大小为16KB，其中使用<code>long</code>类型作为索引,而在mysql中,索引位占据7bit,long占用8bit，也就是说一个索引节点需要15bit，一个索引页中能够存放1070个左右的节点。而最下面的一层中数据大约为1KB的数据行,所以总数为</p>
+<blockquote>
+<p>1070 × 1070 × 16 = 18318400</p>
+</blockquote>
+<p>2000w左右的数据量实际上已经非常大了,如果索引设计的不得当,可能在几百万的时候就会出现慢sql,所以分库分表能够有效拆分数据库,提高数据库性能,一般分为如下两种。</p>
+<h3 id="垂直分割"><a href="#垂直分割" class="headerlink" title="垂直分割"></a>垂直分割</h3><p>垂直切分主要解决的问题是数据库高并发的问题,一般来说Mysql单机的并发量超过2000时就会有很大压力。如果把所有数据都设计到一个数据表中,那么多个业务都需要访问同一个数据库,必然会增大并发,这样也就会导致数据库的崩溃。</p>
+<p>例如我们将支付,订单,购物车三个数据都放在同一个数据表中的多个字段,那么多个模块的调用都会操作同一个数据库,此时为了降低压力,可以将这些字段拆分到不同的表中，然后部署到不同的数据库上,能够降低单库的访问量。</p>
+<h3 id="水平分割"><a href="#水平分割" class="headerlink" title="水平分割"></a>水平分割</h3><p>当单表数据过大时,查询速度会奇慢无比,所以需要将一部分数据分割到其他表中,这就是水平分割。</p>
+<p>水平分割可以通过多种算法来定位到目标库和表。</p>
+<ul>
+<li>范围算法 : 例如<code>id</code>字段在0<del>20000,存放到表1,20000</del>40000放到表2</li>
+<li>Hash取模 : 可以利用ID进行hash取模,例如<code>index = id % 2</code>,index为1存放表1,0存放表2</li>
+</ul>
+<h2 id="Sharding-Sphere"><a href="#Sharding-Sphere" class="headerlink" title="Sharding Sphere"></a>Sharding Sphere</h2><p>虽然网上的数据库中间件很多,但是一点点看来,大部分都放弃了维护,而目前社区还比较活跃的有如下两个</p>
+<ul>
+<li>mycat</li>
+<li>sharding sphere</li>
+</ul>
+<p>mycat脱胎于阿里的cobar,社区也比较活跃,但是官网的文档混乱,并且可读性极差,所以最后我选择了Sharding Sphere。</p>
+<p>Sharding Sphere目前已经从Apache开源机构成功孵化,称为一个Apache开源项目,而且目前看来提供了多种分库分表的方式,未来前景也比较广阔。</p>
+<h3 id="Sharding-Sphere-JDBC"><a href="#Sharding-Sphere-JDBC" class="headerlink" title="Sharding Sphere JDBC"></a>Sharding Sphere JDBC</h3><p><img src="https://s1.ax1x.com/2020/05/11/YYFj4U.png" alt=""></p>
+<blockquote>
+<p>定位为轻量级Java框架，在Java的JDBC层提供的额外服务。 它使用客户端直连数据库，以jar包形式提供服务，无需额外部署和依赖，可理解为增强版的JDBC驱动，完全兼容JDBC和各种ORM框架。</p>
+</blockquote>
+<p>简单来说,Sharding Sphere JDBC是对于以往使用的JDBC的一个增强,有些类似于Mybatis Plus和Mybtais的关系,只不过Sharding JDBC的侵入性更强。</p>
+<p>该方法需要对每一个应用程序重新配置和编写Sharding-JDBC的代码,这里提供一份自己的配置文件及注释。</p>
+<div class="note danger">
+            <p>注意! 如果使用Spring Boot Starter的启动方式,请参照Github Issue中的提示完成,否则会有很多的错误 </p>
+          </div>
+
+<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">8081</span></span><br><span class="line"><span class="comment"># 配置多个库的数据源</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.names</span>=<span class="string">sculli_db1,sculli_db2</span></span><br><span class="line"><span class="comment"># 配置数据库1</span></span><br><span class="line"><span class="comment">#config the first datasouce,name sculli_db1</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db1?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#config the second datasouce,named sculli_db2</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db2?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#拆分策略</span></span><br><span class="line"><span class="comment">#分库策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.algorithm-expression</span>=<span class="string">sculli_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分表策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.actual-data-nodes</span>=<span class="string">sculli_db$-&gt;&#123;0..1&#125;.monitor_db$-&gt;&#123;0..1&#125;</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.type</span>=<span class="string">SNOWFLAKE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分片策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.algorithm-expression</span>=<span class="string">monitor_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"><span class="comment">#打印语句</span></span><br><span class="line"><span class="meta">spring.shardingsphere.props.sql.show</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.main.allow-bean-definition-overriding</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
+
+<p>虽然这种方式也能够完成对于分库分表的操作,但是并不理想,有以下几个问题。</p>
+<ol>
+<li><code>Sharding JDBC Spring Boot Starter</code>对于版本的依赖比较严重,在<code>issue</code>上有很大一部分用户都在反馈2.x的版本和4.0.RC版本有很大的冲突,会导致<code>nullPointException</code>,并且非常难以排查和解决。</li>
+<li>配置文件繁琐,如果通过JDBC的方式配置,那么每一个服务都需要配置这类文件,而且我的示例文件中还有很多的细节没有配置,整个过程非常繁琐,并且容易出错。</li>
+<li>升级困难,当我们希望Sharding Sphere JDBC进行升级时,必须对各个配置文件进行检查等操作,整个过程维护起来非常困难。</li>
+</ol>
+<p>结合手头上的项目,我们最后还是决定使用第二种方式。</p>
+<h3 id="Sharding-Proxy"><a href="#Sharding-Proxy" class="headerlink" title="Sharding Proxy"></a>Sharding Proxy</h3><blockquote>
+<p>定位为透明化的数据库代理端，提供封装了数据库二进制协议的服务端版本，用于完成对异构语言的支持。 目前先提供MySQL/PostgreSQL版本，它可以使用任何兼容MySQL/PostgreSQL协议的访问客户端(如：MySQL Command Client, MySQL Workbench, Navicat等)操作数据，对DBA更加友好。</p>
+</blockquote>
+<p><img src="https://s1.ax1x.com/2020/05/11/YYAhlQ.png" alt=""></p>
+<p>Sharding Proxy实际上是为数据库与应用程序提供了一个解耦的中间件。应用程序不再直接访问数据库,而是将SQL语句发送给Proxy,由Proxy进行分库处理来完成,整个过程对于应用层来说是完全透明的,并且对于DBA来说也是利于管理的。</p>
+<p>其中有几个重要的概念 : </p>
+<p><strong>逻辑表</strong></p>
+<p>水平拆分的数据库（表）的相同逻辑和数据结构表的总称。例：用户数据根据主键尾数拆分为2张表，分别是user_0到user_1，他们的逻辑表名为user。</p>
+<p><strong>真实表</strong></p>
+<p>在分片的数据库中真实存在的物理表。即上个示例中的user_0到user_1</p>
+<p>在Sharding Proxy中,我们主要需要配置数据库源和逻辑表以及逻辑表到真实表的散列规则。</p>
+<p>这里使用Aliyun的RDS服务给出的Sharding Proxy配置规则。</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="string">vi</span> <span class="string">/root/apache-shardingsphere-incubating-4.0.0-sharding-proxy-bin/conf/config-sharding.yaml</span>  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">schemaName:</span> <span class="string">sdb</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dataSources:</span></span><br><span class="line"><span class="attr">  db0:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db0</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db1:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db1</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db2:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db2</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db3:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db3</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"></span><br><span class="line"><span class="attr">shardingRule:</span></span><br><span class="line"><span class="attr">  tables:</span></span><br><span class="line"><span class="attr">    t_order:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">    t_order_item:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order_item$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order_item$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_item_id</span></span><br><span class="line"><span class="attr">  bindingTables:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">t_order,t_order_item</span></span><br><span class="line"><span class="attr">  defaultTableStrategy:</span></span><br><span class="line"><span class="attr">    none:</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="旧数据迁移问题"><a href="#旧数据迁移问题" class="headerlink" title="旧数据迁移问题"></a>旧数据迁移问题</h2><p>虽然Sharding Proxy能帮我们透明的数据分片操作,尽量小的减少对于代码的侵入,但是如何去进行旧的数据迁移是一个比较重要的问题,这部分我在网上找到了一些方案。</p>
+<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>在一个不敏感的时期进行停机,然后开多台机器读取就旧数据库并将数据读出并导入到新的数据库中,然后进行配置,重启即可。</p>
+<p>这个方案胜在简单,易于操作,但是如果表量大,而且停机时间影响很大则不适用此方案。</p>
+<h3 id="双写迁移方法"><a href="#双写迁移方法" class="headerlink" title="双写迁移方法"></a>双写迁移方法</h3><p>简单来说，就是在线上系统里面，之前所有写库的地方，增删改操作，<strong>除了对老库增删改，都加上对新库的增删改</strong>，这就是所谓的<strong>双写</strong>，同时写俩库，老库和新库。</p>
+<p>然后<strong>系统部署</strong>之后，新库数据差太远，用之前说的导数工具，跑起来读老库数据写新库，写的时候要根据 gmt_modified 这类字段判断这条数据最后修改的时间，除非是读出来的数据在新库里没有，或者是比新库的数据新才会写。简单来说，就是不允许用老数据覆盖新数据。</p>
+<p>导完一轮之后，有可能数据还是存在不一致，那么就程序自动做一轮校验，比对新老库每个表的每条数据，接着如果有不一样的，就针对那些不一样的，从老库读数据再次写。反复循环，直到两个库每个表的数据都完全一致为止。</p>
+<p>接着当数据完全一致了，就 ok 了，基于仅仅使用分库分表的最新代码，重新部署一次，不就仅仅基于分库分表在操作了么，还没有几个小时的停机时间，很稳。所以现在基本玩儿数据迁移之类的，都是这么干的。</p>
+<h3 id="权衡"><a href="#权衡" class="headerlink" title="权衡"></a>权衡</h3><p>最终结合我们项目的自身特性,我们决定结合两个方式来完成,由于我们的数据是只需要保证半年内,所以半年前的数据都会进行抛弃处理。所以对新库和就库做以下处理</p>
+<ul>
+<li>新库 : 每次写入都会写入新库,但是并不对新库进行读取</li>
+<li>旧库 : 依旧对旧库进行写入,但是会用一台机器对就库和新库进行同步,读取操作暂时还在旧库上进行</li>
+</ul>
+<p>当新库和旧库一致时,暂停数据模块,更改配置源即可。</p>
+<p>这样能够保证与各个监控端口不会断开,数据处理模块的暂停期间内,Modbus数据会被存放在消息队列中,能够再上线后能够存入库内。同时也能够在一个比较短的时间内完成同步操作。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>Sharding Sphere</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring Cloud学习笔记:熔断器Hystrix</title>
     <url>/2019/11/08/Spring-Cloud%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E7%86%94%E6%96%AD%E5%99%A8Hystrix/</url>
     <content><![CDATA[<h2 id="熔断器Hystrix简单使用"><a href="#熔断器Hystrix简单使用" class="headerlink" title="熔断器Hystrix简单使用"></a>熔断器Hystrix简单使用</h2><h3 id="为什么需要熔断器"><a href="#为什么需要熔断器" class="headerlink" title="为什么需要熔断器?"></a>为什么需要熔断器?</h3><blockquote>
@@ -2123,90 +2117,6 @@
       </categories>
       <tags>
         <tag>SpringCloud</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Sharding Sphere分库分表解决方案浅析及实践</title>
-    <url>/2020/05/11/Sharding-Sphere%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E6%B5%85%E6%9E%90%E5%8F%8A%E5%AE%9E%E8%B7%B5/</url>
-    <content><![CDATA[<p>之前线上部署的项目已经平稳运行了近半年了,数据库单表数据的增长速度远远超过了我们的预期。目前已经达到了单表近3000万的数据量,虽然还有索引在支撑,但是查询速度已经非常缓慢了,好在数据并不是很频繁的需要查询,而且数据大部分也是用于报表生成,暂时还没有对系统造成太大负担。</p>
-<p>话虽如此,但是还是要解决这个问题,所以打算把数据库分库分表提上日程。</p>
-<a id="more"></a>
-
-<hr>
-<h2 id="数据库拆分概述"><a href="#数据库拆分概述" class="headerlink" title="数据库拆分概述"></a>数据库拆分概述</h2><p>关于Mysql一张表中到底存储多少数据后就会出现严重的性能下降的问题,很多人有自己不同的看法,而我在浏览一些资料时,大部分人认为, 数据量最好不要让索引的B+树层级超过3。</p>
-<p>由于我们项目中使用的InnoDB,所以每个索引页的大小为16KB，其中使用<code>long</code>类型作为索引,而在mysql中,索引位占据7bit,long占用8bit，也就是说一个索引节点需要15bit，一个索引页中能够存放1070个左右的节点。而最下面的一层中数据大约为1KB的数据行,所以总数为</p>
-<blockquote>
-<p>1070 × 1070 × 16 = 18318400</p>
-</blockquote>
-<p>2000w左右的数据量实际上已经非常大了,如果索引设计的不得当,可能在几百万的时候就会出现慢sql,所以分库分表能够有效拆分数据库,提高数据库性能,一般分为如下两种。</p>
-<h3 id="垂直分割"><a href="#垂直分割" class="headerlink" title="垂直分割"></a>垂直分割</h3><p>垂直切分主要解决的问题是数据库高并发的问题,一般来说Mysql单机的并发量超过2000时就会有很大压力。如果把所有数据都设计到一个数据表中,那么多个业务都需要访问同一个数据库,必然会增大并发,这样也就会导致数据库的崩溃。</p>
-<p>例如我们将支付,订单,购物车三个数据都放在同一个数据表中的多个字段,那么多个模块的调用都会操作同一个数据库,此时为了降低压力,可以将这些字段拆分到不同的表中，然后部署到不同的数据库上,能够降低单库的访问量。</p>
-<h3 id="水平分割"><a href="#水平分割" class="headerlink" title="水平分割"></a>水平分割</h3><p>当单表数据过大时,查询速度会奇慢无比,所以需要将一部分数据分割到其他表中,这就是水平分割。</p>
-<p>水平分割可以通过多种算法来定位到目标库和表。</p>
-<ul>
-<li>范围算法 : 例如<code>id</code>字段在0<del>20000,存放到表1,20000</del>40000放到表2</li>
-<li>Hash取模 : 可以利用ID进行hash取模,例如<code>index = id % 2</code>,index为1存放表1,0存放表2</li>
-</ul>
-<h2 id="Sharding-Sphere"><a href="#Sharding-Sphere" class="headerlink" title="Sharding Sphere"></a>Sharding Sphere</h2><p>虽然网上的数据库中间件很多,但是一点点看来,大部分都放弃了维护,而目前社区还比较活跃的有如下两个</p>
-<ul>
-<li>mycat</li>
-<li>sharding sphere</li>
-</ul>
-<p>mycat脱胎于阿里的cobar,社区也比较活跃,但是官网的文档混乱,并且可读性极差,所以最后我选择了Sharding Sphere。</p>
-<p>Sharding Sphere目前已经从Apache开源机构成功孵化,称为一个Apache开源项目,而且目前看来提供了多种分库分表的方式,未来前景也比较广阔。</p>
-<h3 id="Sharding-Sphere-JDBC"><a href="#Sharding-Sphere-JDBC" class="headerlink" title="Sharding Sphere JDBC"></a>Sharding Sphere JDBC</h3><p><img src="https://s1.ax1x.com/2020/05/11/YYFj4U.png" alt=""></p>
-<blockquote>
-<p>定位为轻量级Java框架，在Java的JDBC层提供的额外服务。 它使用客户端直连数据库，以jar包形式提供服务，无需额外部署和依赖，可理解为增强版的JDBC驱动，完全兼容JDBC和各种ORM框架。</p>
-</blockquote>
-<p>简单来说,Sharding Sphere JDBC是对于以往使用的JDBC的一个增强,有些类似于Mybatis Plus和Mybtais的关系,只不过Sharding JDBC的侵入性更强。</p>
-<p>该方法需要对每一个应用程序重新配置和编写Sharding-JDBC的代码,这里提供一份自己的配置文件及注释。</p>
-<div class="note danger">
-            <p>注意! 如果使用Spring Boot Starter的启动方式,请参照Github Issue中的提示完成,否则会有很多的错误 </p>
-          </div>
-
-<figure class="highlight properties"><table><tr><td class="code"><pre><span class="line"><span class="meta">server.port</span>=<span class="string">8081</span></span><br><span class="line"><span class="comment"># 配置多个库的数据源</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.names</span>=<span class="string">sculli_db1,sculli_db2</span></span><br><span class="line"><span class="comment"># 配置数据库1</span></span><br><span class="line"><span class="comment">#config the first datasouce,name sculli_db1</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db1?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db1.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#config the second datasouce,named sculli_db2</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.type</span>=<span class="string">com.zaxxer.hikari.HikariDataSource</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.driver-class-name</span>=<span class="string">com.mysql.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.jdbc-url</span>=<span class="string">jdbc:mysql://localhost:3306/sculli_db2?serverTimezone=UTC</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.shardingsphere.datasource.sculli_db2.password</span>=<span class="string">root</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#拆分策略</span></span><br><span class="line"><span class="comment">#分库策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.default-database-strategy.inline.algorithm-expression</span>=<span class="string">sculli_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分表策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.actual-data-nodes</span>=<span class="string">sculli_db$-&gt;&#123;0..1&#125;.monitor_db$-&gt;&#123;0..1&#125;</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.sharding-column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.column</span>=<span class="string">id</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.key-generator.type</span>=<span class="string">SNOWFLAKE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分片策略</span></span><br><span class="line"><span class="meta">spring.shardingsphere.sharding.tables.monitor_db.table-strategy.inline.algorithm-expression</span>=<span class="string">monitor_db$-&gt;&#123;id % 2&#125;</span></span><br><span class="line"><span class="comment">#打印语句</span></span><br><span class="line"><span class="meta">spring.shardingsphere.props.sql.show</span>=<span class="string">true</span></span><br><span class="line"><span class="meta">spring.main.allow-bean-definition-overriding</span>=<span class="string">true</span></span><br></pre></td></tr></table></figure>
-
-<p>虽然这种方式也能够完成对于分库分表的操作,但是并不理想,有以下几个问题。</p>
-<ol>
-<li><code>Sharding JDBC Spring Boot Starter</code>对于版本的依赖比较严重,在<code>issue</code>上有很大一部分用户都在反馈2.x的版本和4.0.RC版本有很大的冲突,会导致<code>nullPointException</code>,并且非常难以排查和解决。</li>
-<li>配置文件繁琐,如果通过JDBC的方式配置,那么每一个服务都需要配置这类文件,而且我的示例文件中还有很多的细节没有配置,整个过程非常繁琐,并且容易出错。</li>
-<li>升级困难,当我们希望Sharding Sphere JDBC进行升级时,必须对各个配置文件进行检查等操作,整个过程维护起来非常困难。</li>
-</ol>
-<p>结合手头上的项目,我们最后还是决定使用第二种方式。</p>
-<h3 id="Sharding-Proxy"><a href="#Sharding-Proxy" class="headerlink" title="Sharding Proxy"></a>Sharding Proxy</h3><blockquote>
-<p>定位为透明化的数据库代理端，提供封装了数据库二进制协议的服务端版本，用于完成对异构语言的支持。 目前先提供MySQL/PostgreSQL版本，它可以使用任何兼容MySQL/PostgreSQL协议的访问客户端(如：MySQL Command Client, MySQL Workbench, Navicat等)操作数据，对DBA更加友好。</p>
-</blockquote>
-<p><img src="https://s1.ax1x.com/2020/05/11/YYAhlQ.png" alt=""></p>
-<p>Sharding Proxy实际上是为数据库与应用程序提供了一个解耦的中间件。应用程序不再直接访问数据库,而是将SQL语句发送给Proxy,由Proxy进行分库处理来完成,整个过程对于应用层来说是完全透明的,并且对于DBA来说也是利于管理的。</p>
-<p>其中有几个重要的概念 : </p>
-<p><strong>逻辑表</strong></p>
-<p>水平拆分的数据库（表）的相同逻辑和数据结构表的总称。例：用户数据根据主键尾数拆分为2张表，分别是user_0到user_1，他们的逻辑表名为user。</p>
-<p><strong>真实表</strong></p>
-<p>在分片的数据库中真实存在的物理表。即上个示例中的user_0到user_1</p>
-<p>在Sharding Proxy中,我们主要需要配置数据库源和逻辑表以及逻辑表到真实表的散列规则。</p>
-<p>这里使用Aliyun的RDS服务给出的Sharding Proxy配置规则。</p>
-<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="string">vi</span> <span class="string">/root/apache-shardingsphere-incubating-4.0.0-sharding-proxy-bin/conf/config-sharding.yaml</span>  </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">schemaName:</span> <span class="string">sdb</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dataSources:</span></span><br><span class="line"><span class="attr">  db0:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db0</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db1:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db1</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db2:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db2</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"><span class="attr">  db3:</span></span><br><span class="line"><span class="attr">    url:</span> <span class="attr">jdbc:postgresql://pgm-bpxxxxx.pg.rds.aliyuncs.com:1433/db3</span></span><br><span class="line"><span class="attr">    username:</span> <span class="string">r1</span></span><br><span class="line"><span class="attr">    password:</span> <span class="string">PW123321!</span></span><br><span class="line"><span class="attr">    connectionTimeoutMilliseconds:</span> <span class="number">30000</span></span><br><span class="line"><span class="attr">    idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line"><span class="attr">    maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line"><span class="attr">    maxPoolSize:</span> <span class="number">65</span></span><br><span class="line"></span><br><span class="line"><span class="attr">shardingRule:</span></span><br><span class="line"><span class="attr">  tables:</span></span><br><span class="line"><span class="attr">    t_order:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">    t_order_item:</span></span><br><span class="line"><span class="attr">      actualDataNodes:</span> <span class="string">db$&#123;0..3&#125;.t_order_item$&#123;0..7&#125;</span></span><br><span class="line"><span class="attr">      databaseStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">user_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">db$&#123;user_id</span> <span class="string">%</span> <span class="number">4</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      tableStrategy:</span></span><br><span class="line"><span class="attr">        inline:</span></span><br><span class="line"><span class="attr">          shardingColumn:</span> <span class="string">order_id</span></span><br><span class="line"><span class="attr">          algorithmExpression:</span> <span class="string">t_order_item$&#123;order_id</span> <span class="string">%</span> <span class="number">8</span><span class="string">&#125;</span></span><br><span class="line"><span class="attr">      keyGenerator:</span></span><br><span class="line"><span class="attr">        type:</span> <span class="string">SNOWFLAKE</span></span><br><span class="line"><span class="attr">        column:</span> <span class="string">order_item_id</span></span><br><span class="line"><span class="attr">  bindingTables:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">t_order,t_order_item</span></span><br><span class="line"><span class="attr">  defaultTableStrategy:</span></span><br><span class="line"><span class="attr">    none:</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="旧数据迁移问题"><a href="#旧数据迁移问题" class="headerlink" title="旧数据迁移问题"></a>旧数据迁移问题</h2><p>虽然Sharding Proxy能帮我们透明的数据分片操作,尽量小的减少对于代码的侵入,但是如何去进行旧的数据迁移是一个比较重要的问题,这部分我在网上找到了一些方案。</p>
-<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>在一个不敏感的时期进行停机,然后开多台机器读取就旧数据库并将数据读出并导入到新的数据库中,然后进行配置,重启即可。</p>
-<p>这个方案胜在简单,易于操作,但是如果表量大,而且停机时间影响很大则不适用此方案。</p>
-<h3 id="双写迁移方法"><a href="#双写迁移方法" class="headerlink" title="双写迁移方法"></a>双写迁移方法</h3><p>简单来说，就是在线上系统里面，之前所有写库的地方，增删改操作，<strong>除了对老库增删改，都加上对新库的增删改</strong>，这就是所谓的<strong>双写</strong>，同时写俩库，老库和新库。</p>
-<p>然后<strong>系统部署</strong>之后，新库数据差太远，用之前说的导数工具，跑起来读老库数据写新库，写的时候要根据 gmt_modified 这类字段判断这条数据最后修改的时间，除非是读出来的数据在新库里没有，或者是比新库的数据新才会写。简单来说，就是不允许用老数据覆盖新数据。</p>
-<p>导完一轮之后，有可能数据还是存在不一致，那么就程序自动做一轮校验，比对新老库每个表的每条数据，接着如果有不一样的，就针对那些不一样的，从老库读数据再次写。反复循环，直到两个库每个表的数据都完全一致为止。</p>
-<p>接着当数据完全一致了，就 ok 了，基于仅仅使用分库分表的最新代码，重新部署一次，不就仅仅基于分库分表在操作了么，还没有几个小时的停机时间，很稳。所以现在基本玩儿数据迁移之类的，都是这么干的。</p>
-<h3 id="权衡"><a href="#权衡" class="headerlink" title="权衡"></a>权衡</h3><p>最终结合我们项目的自身特性,我们决定结合两个方式来完成,由于我们的数据是只需要保证半年内,所以半年前的数据都会进行抛弃处理。所以对新库和就库做以下处理</p>
-<ul>
-<li>新库 : 每次写入都会写入新库,但是并不对新库进行读取</li>
-<li>旧库 : 依旧对旧库进行写入,但是会用一台机器对就库和新库进行同步,读取操作暂时还在旧库上进行</li>
-</ul>
-<p>当新库和旧库一致时,暂停数据模块,更改配置源即可。</p>
-<p>这样能够保证与各个监控端口不会断开,数据处理模块的暂停期间内,Modbus数据会被存放在消息队列中,能够再上线后能够存入库内。同时也能够在一个比较短的时间内完成同步操作。</p>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>Sharding Sphere</tag>
       </tags>
   </entry>
   <entry>
@@ -2345,6 +2255,96 @@
       </categories>
       <tags>
         <tag>TCP/UDP协议</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Netty Reactor模型</title>
+    <url>/2020/06/06/Netty-Reactor%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<h2 id="Reactor模型概览"><a href="#Reactor模型概览" class="headerlink" title="Reactor模型概览"></a>Reactor模型概览</h2><blockquote>
+<p>The reactor <a href="https://en.wikipedia.org/wiki/Design_pattern_(computer_science)" target="_blank" rel="noopener">design pattern</a> is an <a href="https://en.wikipedia.org/wiki/Event_handling" target="_blank" rel="noopener">event handling</a> pattern for handling service requests delivered <a href="https://en.wikipedia.org/wiki/Concurrency_(computer_science)" target="_blank" rel="noopener">concurrently</a> to a service handler by one or more inputs. The service handler then <a href="https://en.wikipedia.org/wiki/Demultiplex" target="_blank" rel="noopener">demultiplexes</a> the incoming requests and dispatches them synchronously to the associated request handlers.<a href="https://en.wikipedia.org/wiki/Reactor_pattern#cite_note-1" target="_blank" rel="noopener">[1]</a></p>
+</blockquote>
+<p><strong>反应器模式</strong>（Reactor pattern）是一种为处理服务请求<a href="https://zh.wikipedia.org/wiki/并发" target="_blank" rel="noopener">并发</a> 提交到一个或者多个服务处理程序的事件设计模式。当请求抵达后，服务处理程序使用解多路分配策略，然后同步地派发这些请求至相关的请求处理程序。</p>
+<p>先来回忆一个场景，当出现一个网络连接，并发送数据时，都应该经历哪些步骤 ？</p>
+<p>一般来说，需要接收连接，读取数据，解码，执行业务逻辑，编码，发送这几个阶段。而如果将所有阶段都集中处理，会让整个逻辑链变得复杂而不可拓展。因此可以将各个步骤交由不同模块来完成，有些类似于责任链。</p>
+<p>而 Reactor Pattern 实际上就是对上述场景提出的一种设计模式，既然是设计模式，就是十分高度抽象的，一般来说，最简单的Reactor中应该具有以下几个部分。</p>
+<ul>
+<li>Reactor : 负责处理IO事件,将事件分发给绑定的Handler处理</li>
+<li>Handler : 事件处理器,负责对某些事件进行具体的业务处理</li>
+<li>Acceptor : 负责接收并将事件注册进入Reactor，并交由Reactor处理</li>
+</ul>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6rnPO.png" alt=""></p>
+<p>该图主要是最简单的Reactor模型，而实际开发和Netty框架中，Reactor设计更为精妙和繁杂，增添了诸多细节例如NIO事件驱动，多Reactor线程池以及各类编解码器。</p>
+<a id="more"></a>
+
+<h3 id="单线程Reactor模型"><a href="#单线程Reactor模型" class="headerlink" title="单线程Reactor模型"></a>单线程Reactor模型</h3><p>由于使用了事件驱动，所以能够使用单一线程监听多个IO事件，结合Acceptor，就能够将整个模型进行拓展。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t66FMQ.png" alt=""></p>
+<p>该图即是我对于单线程Reactor模型的理解，需要理解的一个点是，Acceptor 和 Handler 本质上是一类事务，只不过是处理不同的事件。如果了解 Redis 的IO模型，会对该图有更深的理解，Redis中使用的就是类似于图中的IO多路复用，如果将编解码，读写过程合一，也能够看作一个单线程的 Reactor 模型。</p>
+<p>虽然单线程的 Reactor 模型足够简单，也能够凭借Selector应对一定数量的并发，但是由于Selector是单线程设计，这样就无法充分利用多核CPU的性能，同时，如果并发量十分巨大(例如常见的游戏服务器)，那么单个线程无法应对所有的IO请求，同时，只要该线程出错，那么整个通讯模块都将无法使用。</p>
+<h3 id="多线程Reactor模型"><a href="#多线程Reactor模型" class="headerlink" title="多线程Reactor模型"></a>多线程Reactor模型</h3><p>正是因为单线程Reactor中的一些缺点，所以又出现了Reactor多线程模型，还是来看一张图。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6gzI1.png" alt=""></p>
+<p>如果搭建过 Netty 服务器的话，对于这个模型来说会更加熟悉。回忆一下，在 Netty 中，我们在Server端一般会创建两个<code>NioEventLoop</code>,分别为Boss和Worker，而其中的Boss则只负责注册IO请求，而Worker线程则负责对IO请求进行读写，过滤，编解码等操作。</p>
+<p>Reactor 多线程模型同理，Worker线程能够使用线程池负责，当注册线程将一个事件注册到Set中，之后就会由Worker来完成该事件的相关响应。</p>
+<blockquote>
+<p><strong>注意 : 多线程模型中，可以拥有多个工作线程，但是一个IO事件只能够注册到其中的一个工作组中，否则会出现并发异常</strong></p>
+</blockquote>
+<h3 id="主从多Reactor模型"><a href="#主从多Reactor模型" class="headerlink" title="主从多Reactor模型"></a>主从多Reactor模型</h3><p>虽然一般的多线程Reactor模型已经能够完成大部分的性能需求，但是在一些特殊场景下，多线程模型还是无法很好的适应。</p>
+<p>一般来说 Server 服务器都会开启一个端口来接收TCP连接通讯，但是如果我们希望开启多个端口，绑定多个注册线程，就可以使用到主从多Reactor模型，该模型和多线程模型很相似，只不过Selector由单一线程变成了线程池，并且每个线程都绑定了不同的端口并有自己的Worker工作线程组。</p>
+<h2 id="Netty-Reactor"><a href="#Netty-Reactor" class="headerlink" title="Netty Reactor"></a>Netty Reactor</h2><p>Netty相比较于其他框架，学习难度相对来说比较高，我自己在学习的过程中，发现一个很大的问题就是在于，Netty对于底层的封装很完善，而又在Handler中配备了<code>channelActive</code>，<code>channelRead</code>非常便捷的方法来屏蔽底层实现，这样带来的结果就是，虽然Netty上手很容易，但是想要再往深处学习，会感觉有些无从下手。</p>
+<p>之前有看过《 Netty 实战》一书，其中花了很大篇幅来讲解如何搭建各种各样的服务器，如何配置<code>ChannelInitializer</code>以及<code>Handler</code>，但是对于Netty底层的相关和整个Netty的设计框架概览来说，有些简略，这就造成了我看完这本书后，能够搭建一个Netty服务器，但是时间一长，那些API忘掉后，有感觉什么都没有掌握。</p>
+<p>那么先从一个简单的服务器来看下，Netty都需要哪些组件。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ModbusServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建boss和work两个group,一个负责接收TCP连接,一个负责处理IO相关操作</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup bossGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NioEventLoopGroup workGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//省略port，host等配置文件读取</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ChannelFuture channelFuture = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ServerBootstrap bootstrap = <span class="keyword">new</span> ServerBootstrap();</span><br><span class="line">            bootstrap.group(bossGroup, workGroup)</span><br><span class="line">                .channel(NioServerSocketChannel.class)</span><br><span class="line">                .localAddress(<span class="keyword">new</span> InetSocketAddress(host, port))</span><br><span class="line">                .childHandler(serverInitializer);</span><br><span class="line">            channelFuture = bootstrap.bind().sync();</span><br><span class="line">            channel = channelFuture.channel();</span><br><span class="line">            logger.info(<span class="string">"===========Netty Start Successful==========="</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            logger.error(<span class="string">"==============Netty Start Failed============"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> channelFuture;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        shutdownGracefully()</span><br><span class="line">        <span class="comment">// . . . . . .</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是一个非常典型的 Netty 服务器程序，其中省略了一些相关的代码，并不影响阅读。</p>
+<p>Netty通过<code>bootstrap</code>完成Group，端口，host以及Handler和serverInitializer的绑定，在之后的消息发送过程中会按照配置的拦截器完成对于数据的处理。</p>
+<h3 id="BossGroup-和-WorkGroup"><a href="#BossGroup-和-WorkGroup" class="headerlink" title="BossGroup 和 WorkGroup"></a>BossGroup 和 WorkGroup</h3><blockquote>
+<p>Why we need bossGroup and workGroup ? </p>
+</blockquote>
+<p>这个问题是一个很经典的问题，在很多平台上都有不同的人给出了不同的解释，当然，在Netty官网中的Doc中也给出了解释。</p>
+<blockquote>
+<p><a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> is a multithreaded event loop that handles I/O operation. Netty provides various <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementations for different kind of transports. We are implementing a server-side application in this example, and therefore two <a href="https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html" target="_blank" rel="noopener"><code>NioEventLoopGroup</code></a> will be used. The first one, often called ‘boss’, accepts an incoming connection. The second one, often called ‘worker’, handles the traffic of the accepted connection once the boss accepts the connection and registers the accepted connection to the worker. How many Threads are used and how they are mapped to the created <a href="https://netty.io/4.1/api/io/netty/channel/Channel.html" target="_blank" rel="noopener"><code>Channel</code></a>s depends on the <a href="https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html" target="_blank" rel="noopener"><code>EventLoopGroup</code></a> implementation and may be even configurable via a constructor.</p>
+</blockquote>
+<p>总结来说，Boss线程将负责接收IO请求并将其注册的channel传递给Worker线程，具体的IO活动将由Worker处理，同时，出现多少线程将由IO连接数来决定，同时也可以使用构造器来限制。</p>
+<h3 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h3><p>现在已经知道了BossGroup和WorkGroup的作用，那么用一张图来展示下其结构。</p>
+<p><img src="https://s1.ax1x.com/2020/06/06/t6znxO.png" alt=""></p>
+<p>这是一张非常经典的Netty Reactor模型结构，netty线程模型采用“服务端监听线程”和“IO线程”分离的方式，与多线程Reactor模型类似。抽象出NioEventLoop来表示一个不断循环执行处理任务的线程，每个NioEventLoop有一个selector，用于监听绑定在其上的socket链路。</p>
+<h3 id="Selector源码"><a href="#Selector源码" class="headerlink" title="Selector源码"></a>Selector源码</h3><p>select如何去做一个IO切换操作，我们能够通过源码来看到。Netty中使用的是JAVA NIO中Selector的模型。我们来看下其中的重点内容。</p>
+<p>SocketChannel、ServerSocketChannel和Selector的实例初始化都通过SelectorProvider类实现，其中Selector是整个NIO Socket的核心实现。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">provider</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        <span class="keyword">if</span> (provider != <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> provider;</span><br><span class="line">        <span class="keyword">return</span> AccessController.doPrivileged(</span><br><span class="line">            <span class="keyword">new</span> PrivilegedAction&lt;&gt;() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> SelectorProvider <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderFromProperty())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    <span class="keyword">if</span> (loadProviderAsService())</span><br><span class="line">                        <span class="keyword">return</span> provider;</span><br><span class="line">                    provider = sun.nio.ch.DefaultSelectorProvider.create();</span><br><span class="line">                    <span class="keyword">return</span> provider;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的式,Provider在Win和Linux下有不同的实现，查看<code>create()</code>就能看到。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SelectorProvider <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> sun.nio.ch.WindowsSelectorProvider();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而底层则用的是<code>Unsafe</code>申请一块物理内存来存放dispatch，剩下的就是C语言实现的操作系统层面的API。</p>
+<p>在获得一个Selector后，需要做的事情就是将Channel注册进入Selector。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> SelectionKey <span class="title">register</span><span class="params">(Selector sel, <span class="keyword">int</span> ops, Object att)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> ClosedChannelException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (regLock) &#123;</span><br><span class="line">        SelectionKey k = findKey(sel);</span><br><span class="line">        <span class="keyword">if</span> (k != <span class="keyword">null</span>) &#123;</span><br><span class="line">            k.interestOps(ops);</span><br><span class="line">            k.attach(att);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (k == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// New registration</span></span><br><span class="line">            <span class="keyword">synchronized</span> (keyLock) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedChannelException();</span><br><span class="line">                k = ((AbstractSelector)sel).register(<span class="keyword">this</span>, ops, att);</span><br><span class="line">                addKey(k);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> k;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>如果该channel和selector已经注册过，则直接添加事件和附件。</li>
+<li>否则通过selector实现注册过程。</li>
+</ol>
+<p>下面来看下Netty的doSelect过程，这个过程使用的是JAVA NIO底层的Selector来完成。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">doSelect</span><span class="params">(Consumer&lt;SelectionKey&gt; action, <span class="keyword">long</span> timeout)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> IOException</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</span><br><span class="line">        <span class="keyword">synchronized</span> (selectedKeys) &#123;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line">            <span class="keyword">int</span> numKeySelected;</span><br><span class="line">            <span class="keyword">if</span> (timeout &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                numKeySelected = selectNow();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                numKeySelected = select(timeout);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// copy selected-key set as action may remove keys</span></span><br><span class="line">            Set&lt;SelectionKey&gt; keysToConsume = Set.copyOf(selectedKeys);</span><br><span class="line">            <span class="keyword">assert</span> keysToConsume.size() == numKeySelected;</span><br><span class="line">            selectedKeys.clear();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// invoke action for each selected key</span></span><br><span class="line">            keysToConsume.forEach(k -&gt; &#123;</span><br><span class="line">                action.accept(k);</span><br><span class="line">                <span class="keyword">if</span> (!isOpen())</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> ClosedSelectorException();</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> numKeySelected;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里需要重点关注的就是<code>Set&lt;SelectionKey&gt; selectedKeys = selectedKeys();</code>，这个set就是存放每一个channel对应的selectedKeys，每次请求到达服务器，都是从connect开始，connect成功后，服务端开始准备accept，准备就绪，开始读数据，并处理，最后写回数据返回。一共有四种事件。</p>
+<ol>
+<li><strong>connect</strong> ：客户端连接服务端事件，对应值为SelectionKey.OP_CONNECT(8) </li>
+<li><strong>accept</strong> ：服务端接收客户端连接事件，对应值为SelectionKey.OP_ACCEPT(16) </li>
+<li><strong>read</strong> ：读事件，对应值为SelectionKey.OP_READ(1) </li>
+<li><strong>write</strong> ：写事件，对应值为SelectionKey.OP_WRITE(4)</li>
+</ol>
+<p>服务端操作过程。</p>
+<p>1、创建ServerSocketChannel实例，并绑定指定端口； 2、创建Selector实例； 3、将serverSocketChannel注册到selector，并指定事件OP_ACCEPT，最底层的socket通过channel和selector建立关联； 4、如果没有准备好的socket，select方法会被阻塞一段时间并返回0； 5、如果底层有socket已经准备好，selector的select方法会返回socket的个数，而且selectedKeys方法会返回socket对应的事件（connect、accept、read or write）； 6、根据事件类型，进行不同的处理逻辑；</p>
+<p>在步骤3中，selector只注册了serverSocketChannel的OP_ACCEPT事件 1、如果有客户端A连接服务，执行select方法时，可以通过serverSocketChannel获取客户端A的socketChannel，并在selector上注册socketChannel的OP_READ事件。 2、如果客户端A发送数据，会触发read事件，这样下次轮询调用select方法时，就能通过socketChannel读取数据，同时在selector上注册该socketChannel的OP_WRITE事件，实现服务器往客户端写数据。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://www.lvbby.com/p/md/1902031144157633974003" target="_blank" rel="noopener">绿皮 : Netty系列</a></li>
+<li><a href="https://www.jianshu.com/p/38b56531565d" target="_blank" rel="noopener">Netty Reactor模型</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Web框架</category>
+      </categories>
+      <tags>
+        <tag>Netty</tag>
       </tags>
   </entry>
   <entry>
@@ -2954,6 +2954,135 @@
       </categories>
       <tags>
         <tag>在输入一个URL后浏览器发生了什么?</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>面试复盘 — Mysql锁内容</title>
+    <url>/2020/07/18/%E9%9D%A2%E8%AF%95%E5%A4%8D%E7%9B%98-%E2%80%94-Mysql%E9%94%81%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<blockquote>
+<p>🌈<strong>“ 夜阑卧听风吹雨 , 铁马冰河入梦来 “</strong></p>
+</blockquote>
+<p>昨天刚面完京东的寻猎提前批，难度相较于一面要高一些，有一些问题自己没答上来，但是好在JVM方面了解比较深，并且有在实习中实操的经验，所以面试官还是给过了，希望接下来能够一切顺利。</p>
+<p>言归正传，二面中我在Mysql方面的回答自己不是太满意，尤其是关于锁方面的知识，细节方面没有太过了解，今天打算做一下复盘，把薄弱的地方弥补一下。</p>
+<p>本文打算以面试官问我的流程来进行梳理，主要为以下三个阶段 : </p>
+<ol>
+<li>Mysql中锁你了解多少 ? </li>
+<li>InnoDB中的行锁到底锁住了什么 ? </li>
+<li>锁与索引之间有什么关系 ? </li>
+</ol>
+<p>后来想了一下，这三个问题确实经典，难度上来说也是由广入深，又能够把整个Mysql中锁相关的知识总结，因此通过这三个问题，基本上就能把Mysql中锁相关的内容进行一个完整的梳理。</p>
+<a id="more"></a>
+
+<h2 id="Mysql中的锁相关知识"><a href="#Mysql中的锁相关知识" class="headerlink" title="Mysql中的锁相关知识"></a>Mysql中的锁相关知识</h2><p>数据库中相关的锁技术比较多，因此需要按照一定的条理来划分，首先从概念上来说可以分为乐观锁/悲观锁两种。</p>
+<h3 id="乐观锁-amp-悲观锁"><a href="#乐观锁-amp-悲观锁" class="headerlink" title="乐观锁 &amp; 悲观锁"></a>乐观锁 &amp; 悲观锁</h3><blockquote>
+<p>📌 <strong>注意 : 乐观锁/悲观锁只是一种概念，而非具体的锁实现 !</strong> </p>
+</blockquote>
+<p>乐观锁与悲观锁实际上是在面对数据库发生并发竞争时的一种策略。</p>
+<ul>
+<li>乐观锁 : 认为每次都不会发生竞争，对数据操作时不进行阻塞，如果发生竞争后，再尝试一次操作(CAS)</li>
+<li>悲观锁 : 默认每次都会发生并发竞争，在对数据操作时，会对数据加锁处理</li>
+</ul>
+<p>我们很难说这两种概念哪一个更好，因为都有各自的使用场景，如果发生竞争的几率很小，并且程序执行的时间又很短，使用乐观锁能够避免加锁导致的多个线程阻塞等待的情况，能够有效提升效率。</p>
+<p>而如果某个数据为热点数据，频繁发生竞争，那么悲观锁更适合该场景，因为乐观锁会由于数据同步失败导致多次CAS操作，会对CPU造成一个比较大的性能消耗。</p>
+<p>在Mysql中，并未提供相应的乐观锁实现，所以很多时候需要我们自己来通过逻辑实现相应的乐观锁。</p>
+<p>乐观锁的本质还是由<strong>CAS(Compare-and-Swap)</strong>来完成，CAS操作主要通过检查版本号或者时间戳的方式来校验数据是否被修改。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/569a62ca-4737-4be2-9466-8d7bf81fe45e.png" alt=""></p>
+<p>通过版本号和时间戳的方式，都能够完成CAS，并且能够解决ABA问题。</p>
+<p>相较于乐观锁来说，悲观锁的具体实现就要复杂一些，在Mysql中，根据不同引擎具有不同的悲观锁实现，我们以最典型的InnoDB和MyISAM为例，以二者最有代表性的几个锁来概括悲观锁的具体实现。</p>
+<h3 id="表锁"><a href="#表锁" class="headerlink" title="表锁"></a>表锁</h3><p>在MyISAM中，仅支持表级锁。表锁能够锁住整个表，当某个线程对表进行加锁时，在锁释放之前，其他的线程只能够进行阻塞等待。表锁实现相对简单，并且加锁的消耗较少，但是由于其粒度比较粗，会在高并发的情况下，造成大量数据阻塞的情况，因此在很多案例中都指出MyISAM擅长读多写少的场景，锁是其中的重要原因。</p>
+<p>*<em>什么时候会触发表锁呢 ? *</em></p>
+<p>这个问题需要针对不同引擎来说，对于MyISAM来讲，任何情况下，对数据进行写操作都会触发表锁，而对于InnoDB来说，需要对批量数据操作时才会触发”表锁”，但是这里的表锁并不代表会锁住整个表，而是将锁住需要操作的那一批数据。</p>
+<p>实际上这是一个InnoDB中的特有的技术点<strong>Next-Key Locks</strong>，由于这个锁比较特殊，所以会放在后面总结。</p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>表锁虽然实现简单，但是在高并发的情况下，如果写入的请求比较多时，会造成严重的阻塞，因此可能无法满足性能上的需求。</p>
+<p>而在InnoDB引擎中，实现了行锁来满足性能上的需求，得益于行锁的细粒度，行锁能够带来几个优点。</p>
+<ol>
+<li>行锁粒度较小，发生冲突的概率会低很多</li>
+<li>多个线程可以对不同行进行操作，能够处理更高的并发</li>
+</ol>
+<p>但是行锁同样由自己的不足，行锁可能会导致死锁，同时，开启行锁的资源消耗要高于表锁。</p>
+<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><p>页锁是一种介于行锁和表锁之间的一种所，其粒度适中，但是同样会触发死锁情况，实际场景中使用较少。</p>
+<h3 id="排它锁和共享锁"><a href="#排它锁和共享锁" class="headerlink" title="排它锁和共享锁"></a>排它锁和共享锁</h3><p>以InnoDB为例，提供了两种标准的行级锁</p>
+<ul>
+<li>S-共享锁：又叫读锁，其他事务可以继续加共享锁，但是不能继续加排他锁。</li>
+<li>X-排他锁: 又叫写锁，一旦加了写锁之后，其他事务就不能加锁了。</li>
+</ul>
+<blockquote>
+<p>兼容性:是指事务A获得一个某行某种锁之后，事务B同样的在这个行上尝试获取某种锁，如果能立即获取，则称锁兼容，反之叫冲突。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>X</th>
+<th>S</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>X</td>
+<td>冲突</td>
+<td>冲突</td>
+</tr>
+<tr>
+<td>S</td>
+<td>冲突</td>
+<td>兼容</td>
+</tr>
+</tbody></table>
+<h3 id="意向锁"><a href="#意向锁" class="headerlink" title="意向锁"></a>意向锁</h3><blockquote>
+<p>意向锁是在当一个操作需要锁表是有意义的操作,因为获取一个意向锁要比逐条记录检查锁的操作要节省资源</p>
+</blockquote>
+<ul>
+<li>意向共享锁:表达一个事务想要获取一张表中某几行的共享锁。</li>
+<li>意向排他锁:表达一个事务想要获取一张表中某几行的排他锁。</li>
+</ul>
+<p>考虑这个例子：</p>
+<p>事务A锁住了表中的<strong>一行</strong>，让这一行只能读，不能写。</p>
+<p>之后，事务B申请<strong>整个表</strong>的写锁。</p>
+<p>如果事务B申请成功，那么理论上它就能修改表中的任意一行，这与A持有的行锁是冲突的。</p>
+<p>数据库需要避免这种冲突，就是说要让B的申请被阻塞，直到A释放了行锁。</p>
+<p>数据库要怎么判断这个冲突呢？</p>
+<p>step1：判断表是否已被其他事务用表锁锁表<br>step2：判断表中的每一行是否已被行锁锁住。</p>
+<p>注意step2，这样的判断方法效率实在不高，因为需要遍历整个表。<br>于是就有了意向锁。</p>
+<p>在意向锁存在的情况下，事务A必须先申请表的意向共享锁，成功后再申请一行的行锁。</p>
+<p>在意向锁存在的情况下，上面的判断可以改成</p>
+<p>step1：不变<br>step2：发现表上有意向共享锁，说明表中有些行被共享行锁锁住了，因此，事务B申请表的写锁会被阻塞。</p>
+<p>注意：申请意向锁的动作是数据库完成的，就是说，事务A申请一行的行锁的时候，数据库会自动先开始申请表的意向锁，不需要我们程序员使用代码来申请。</p>
+<h3 id="Next-Key-Locks"><a href="#Next-Key-Locks" class="headerlink" title="Next-Key Locks"></a>Next-Key Locks</h3><p>在之前说到了关于Next Key Locks的内容，这里需要理解两个概念 : </p>
+<p><code>Next key locks</code>是InnoDB中实现的一种锁,由于MVCC不能够解决幻读的问题,所以在可重复读的隔离级别下InnoDB使用MVCC+Next key locks来解决这个问题。</p>
+<p><strong>Record Locks(行锁)</strong></p>
+<p>单条索引记录上加锁，record lock锁住的永远是索引，而非记录本身，即使该表上没有任何索引，那么innodb会在后台创建一个隐藏的聚集主键索引，那么锁住的就是这个隐藏的聚集主键索引。</p>
+<p><strong>Gap locks(间隙锁)</strong></p>
+<p>在索引记录之间的间隙中加锁，或者是在某一条索引记录之前或者之后加锁，并不包括该索引记录本身。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> c <span class="keyword">FROM</span> t <span class="keyword">WHERE</span> c <span class="keyword">BETWEEN</span> <span class="number">10</span> <span class="keyword">and</span> <span class="number">20</span> <span class="keyword">FOR</span> <span class="keyword">UPDATE</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在这条语句中,会在索引10和20之间加锁,这之间的数据会暂时无法被其他事务获取。但是不会锁定记录本身,可以看作一个开区间<code>(10,20)</code></p>
+<p><strong>Next Key locks</strong></p>
+<p><code>Next Key locks</code>可以看作Gap Locks和Record Locks的结合,既锁记录本身也锁记录间隙，对于行查询,都采用这个方法,来解决幻读的问题。它锁定一个前开后闭区间，例如一个索引包含以下值：10, 11, 13, and 20，那么就需要锁定以下区间：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">(-∞, 10]</span><br><span class="line">(10, 11]</span><br><span class="line">(11, 13]</span><br><span class="line">(13, 20]</span><br><span class="line">(20, +∞)</span><br></pre></td></tr></table></figure>
+
+<h2 id="InnoDB中锁到底锁住了什么"><a href="#InnoDB中锁到底锁住了什么" class="headerlink" title="InnoDB中锁到底锁住了什么 ?"></a>InnoDB中锁到底锁住了什么 ?</h2><p>我们来做个实验，来看看InnoDB中的锁到底锁了什么 ? </p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Transaction-A</span></span><br><span class="line">mysql&gt; set autocommit = 0;</span><br><span class="line">mysql&gt; update innodb_lock set v='1001' where id=1;</span><br><span class="line">mysql&gt; commit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Transaction-B</span></span><br><span class="line">mysql&gt; update innodb_lock set v='2001' where id=2;</span><br><span class="line">Query OK, 1 row affected (0.37 sec)</span><br><span class="line">mysql&gt; update innodb_lock set v='1002' where id=1;</span><br><span class="line">Query OK, 1 row affected (37.51 sec)</span><br></pre></td></tr></table></figure>
+
+<p>我们开启两个事务，AB，同时对id = 1的行进行操作，但是在B中，再对id=2的行操作，可以看到，由于行锁的存在，事务B在操作id=1时被阻塞了，而id=2时则正常操作。</p>
+<p>整个过程和我们想的没什么区别，但是我们试着更改操作字段。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Transaction-A</span><br><span class="line">mysql&gt; set autocommit = 0;</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;1002&apos; where naem=&apos;KKK&apos;;</span><br><span class="line">mysql&gt; commit;</span><br><span class="line"></span><br><span class="line"># Transaction-B</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;2002&apos; where naem=&apos;KKK&apos;;</span><br><span class="line">Query OK, 1 row affected (37.56 sec)</span><br><span class="line">mysql&gt; update innodb_lock set v=&apos;1003&apos; where naem=&apos;HHH&apos;;</span><br><span class="line">Query OK, 1 row affected (37.41 sec)</span><br></pre></td></tr></table></figure>
+
+<p>情况不一样了，我们发现，两个操作都出现了阻塞，理论上来说，只有name=’KKK’的操作才会出现阻塞，而实际上说明全部阻塞。</p>
+<blockquote>
+<p>🔴 <strong>InnoDB的行锁是针对索引加的锁，不是针对记录加的锁。并且该索引不能失效，否则都会从行锁升级为表锁</strong>。</p>
+</blockquote>
+<p>由于id为索引，并且在第一次查询时使用到了索引并且未失效，而第二次操作中name字段不为索引，导致了行锁升级为表锁的情况发生。</p>
+<h2 id="锁与索引之间的关系"><a href="#锁与索引之间的关系" class="headerlink" title="锁与索引之间的关系"></a>锁与索引之间的关系</h2><p>其实这个问题现在看来没有一个特别标准的答案，但是从我们上面对锁的介绍和对于索引的功能两个方面来看，是能够总结出一些关系的。</p>
+<p>索引在数据库中最大的作用就是能够快速找到某个数据并进行相应的操作，但是由于种种原因可能导致索引失效。在事务处理的过程中，往往会出现多个SQL操作，这个过程中很可能触发表锁。</p>
+<p>这并不是由于索引失效或者未操作索引字段的原因，因为对于InnoDB来说，如果操作多个数据行，为每个数据行添加行锁，首先会让加锁的资源消耗变大，其次可能触发行锁，并且在性能上并不一定优于表锁，因此很多时候会导致行锁升级为表锁。</p>
+<p>锁实际上锁住的是索引，但是在一些情况下，由于需要操作很多的数据，行锁最后会升级为表锁。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>面试复盘</tag>
+        <tag>Mysql锁</tag>
       </tags>
   </entry>
   <entry>
@@ -3975,143 +4104,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Tomcat系列文章:Tomcat基本架构</title>
-    <url>/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/</url>
-    <content><![CDATA[<p>在使用Spring Boot的过程中,时时刻刻都会使用到Tomcat,但是回顾以往的学习,似乎没有对Tomcat进行一个知识的梳理,最近在回想Tomcat的相关知识,发现很多内容是混乱而没有逻辑的,所以打算以笔记的形式重新总结下Tomcat的学习过程以及它的框架设计思路。</p>
-<p>Tomcat组件很复杂,如果直接阅读源码可能会产生无从下手的感觉。好在Apache提供了Tomcat的框架设计图以及对各个模块的Doc,能够辅助我们完成对于各个部分功能的理解,而本文将尽量详尽的记录我所理解的Tomcat的工作流程,如果有不足的地方,请及时指正。</p>
-<p>个人认为,Tomcat的学习按照如下方式比较合理 : </p>
-<ul>
-<li>Tomcat组件设计原理</li>
-<li>一个Servelt究竟是如何在Tomcat上接收Request请求并返回Respone</li>
-<li>各个组件源码级理解</li>
-<li>串联多个组件,搞懂Tomcat运行流程</li>
-<li>总结</li>
-</ul>
-<p>本文将仅从Tomcat背景以及基本结构方面进行总结,源码以及Debug过程将在后续系列文章中进行总结。</p>
-<a id="more"></a>
-
-<hr>
-<h2 id="什么是Tomcat"><a href="#什么是Tomcat" class="headerlink" title="什么是Tomcat?"></a>什么是Tomcat?</h2><p>这里引用维基百科的知识和官网文档的知识。</p>
-<blockquote>
-<p><strong>Tomcat</strong>是由Apache软件基金会属下<a href="https://zh.wikipedia.org/wiki/Jakarta项目" target="_blank" rel="noopener">Jakarta项目</a>开发的<a href="https://zh.wikipedia.org/wiki/Servlet" target="_blank" rel="noopener">Servlet</a>容器，按照<a href="https://zh.wikipedia.org/wiki/Sun_Microsystems" target="_blank" rel="noopener">Sun Microsystems</a>提供的技术规范，实现了对<a href="https://zh.wikipedia.org/wiki/Servlet" target="_blank" rel="noopener">Servlet</a>和<a href="https://zh.wikipedia.org/wiki/JavaServer_Page" target="_blank" rel="noopener">JavaServer Page</a>（<a href="https://zh.wikipedia.org/wiki/JSP" target="_blank" rel="noopener">JSP</a>）的支持，并提供了作为Web服务器的一些特有功能，如Tomcat管理和控制平台、安全域管理和Tomcat阀等。由于Tomcat本身也内含了<a href="https://zh.wikipedia.org/wiki/HTTP" target="_blank" rel="noopener">HTTP</a><a href="https://zh.wikipedia.org/wiki/服务器" target="_blank" rel="noopener">服务器</a>，因此也可以视作单独的<a href="https://zh.wikipedia.org/wiki/Web服务器" target="_blank" rel="noopener">Web服务器</a>。但是，不能将Tomcat和<a href="https://zh.wikipedia.org/wiki/Apache_HTTP服务器" target="_blank" rel="noopener">Apache HTTP服务器</a>混淆，<a href="https://zh.wikipedia.org/wiki/Apache_HTTP服务器" target="_blank" rel="noopener">Apache HTTP服务器</a>是用C语言实现的HTTP<a href="https://zh.wikipedia.org/wiki/Web服务器" target="_blank" rel="noopener">Web服务器</a>；这两个HTTP web server不是捆绑在一起的。Apache Tomcat包含了配置管理工具，也可以通过编辑XML格式的配置文件来进行配置。        ——    《维基百科》</p>
-</blockquote>
-<p>简单来说,Tomcat是一个能够接收Http请求并可以放回一个Http响应的应用程序。可以看作为一个Socket程序和一个针对JSP和Servlet的容器。</p>
-<p>在了解Tomcat的工作原理之前,先要Servlet有所了解,这有关历史问题,是不能够绕过的一个阶段。</p>
-<h3 id="Servlet技术背景"><a href="#Servlet技术背景" class="headerlink" title="Servlet技术背景"></a>Servlet技术背景</h3><p>早期互联网都是大量的静态页面,而后来用户交互需求的增多则出现了动态响应技术。如日中天的SUN公司想搞个事情,于是研发了Applet,希望能够搭配Java使用来改变互联网,然而Applet实际用途不大,并没有按照SUN公司的规划成为主流技术。</p>
-<p>但是SUN公司不想放弃这块大蛋糕,于是研发了Servlet技术，Servlet 其实就是 SUN 为了让 Java 能实现动态的可交互的网页, 从而进入 web 编程的领域而定义的一套标准。</p>
-<p>简单来描述一下这个标准。</p>
-<p>这套标准是这么说的: 你想用 Java 开发动态网页, 可以定义一个自己的” Servlet”, 但一定要实现我的 HTTPServlet 接口, 然后重载 <code>doGet()</code>, <code>doPost()</code>方法. 用户从流浪器 GET 的时候, 调用 <code>doGet</code> 方法, 从流浪器向服务器发送表单数据的时候, 调用 <code>doPost</code> 方法, 如果你想访问用户从浏览器传递过来的参数, 用 HttpServletRequest 对象就好了, 里面有 getParameter, getQueryString 方法, 如果你处理完了, 想向浏览器返回数据, 用 HttpServletResponse 对象调用 getPrintWriter 方法就可以输出数据了。</p>
-<h3 id="Servlet规范工作职责"><a href="#Servlet规范工作职责" class="headerlink" title="Servlet规范工作职责"></a>Servlet规范工作职责</h3><p>如果想要完整的阐述Servlet的工作流程是非常复杂的,但是如果想从Http请求的角度来概括一下Servlet做了什么,这个过程会简化许多,由于本文主要是总结Tomcat相关内容,所以不会讲太多的篇幅花费在Servlet上,这里仅从Servlet职责方法来做个总结性的概述。</p>
-<p>Servlet是个很完善而复杂的系统,当时当Http请求进入时,它将专注于三个操作 : </p>
-<ol>
-<li>创建一个 Request 对象, 用可能会在调用的 Servlet 中使用到的信息填充该 Request 对象, 如参数, 头, cookie, 查询字符串, URI 等, Request 对象是 javax.servlet.ServletRequest 接口或 javax.servlet.ServletRequest 接口的一个实例.</li>
-<li>创建一个调用 Servlet 的 Response 对象, 用来向 Web 客户端发送响应. response 对象是 javax.servlet.http.ServletResponse 接口或 javax.servlet.ServletResponse 接口的一个实例;</li>
-<li>调用 Servlet 的 service 方法, 将 request 对象和 response 对象作为参数传入, Servlet 从 request 对象中读取信息, 并通过 response 对象发送响应信息.</li>
-</ol>
-<p>这样就能够完成了Http请求处理了吗? 答案是否定的。</p>
-<p>Servlet本质上是个应用程序,而Http底层则是一个TCP连接,那么我们怎么去让一个Socket发送数据到Servlet?如果直接在内部维护一个Socket,这样会让程序耦合度极高。所以就出现了容器概念。</p>
-<p>Tomcat实际上就是一个Servlet的容器,能够将浏览器发送的Http请求通过一系列链路处理后转发给Servlet,然后再将响应返回给浏览器,这也是Tomcat上所做的最多的操作。</p>
-<p>而早先做动态页面时,并没有现在的模板或者前后端分离开发的概念,当时会直接在Servlet中拼接HTML代码,这样的耦合度是无法想象的,并且对于代码的修改和管理也是地狱难度。</p>
-<p>因此JSP的出现,这个问题得到了很大的缓解,我们能够通过向HTML中内嵌JAVA代码来完成页面的动态交互。而JSP也非一门新的技术,本质上它就是一个轻量级的Servlet,没有提供任何超出Servlet范围的功能。在执行JSP前,都会将其编译为一个Servlet才能够运行。</p>
-<p>在 JSP 中编写静态 HTML 更加方便, 不必再用 println 语句来输出每一行HTML 代码, 更重要的是, 借助内容和外观的分离,页面制作中不同性质的任务可以方便的分开: 比如, 有页面设计者进行 HTML 设计, 同时预留供 Java 程序插入动态内容的空间.</p>
-<p>因此Tomcat同样能够运行JSP,因为其本质就是一个轻量级Servlet。</p>
-<h2 id="Tomcat基本结构"><a href="#Tomcat基本结构" class="headerlink" title="Tomcat基本结构"></a>Tomcat基本结构</h2><p>只要涉及到Tomcat一定绕不开一个Tomcat的组件—— <strong>Catalina Servlet</strong>,    tomcat 的主体是 Catalina, catalina 是一个成熟的软件, 设计和开发的十分优雅, 功能结构也是模块化的. 我们之前说 <code>Servlet 是如何工作的?</code>中提到了 Servlet 容器的任务, 基于这些任务可以将 Catalina 划分为两个模块: <strong>连接器(connector)和容器(container)</strong>.</p>
-<h3 id="Catalina-Servlet"><a href="#Catalina-Servlet" class="headerlink" title="Catalina Servlet"></a>Catalina Servlet</h3><p>关于Catalina的资料很少,我在Google上找到了一篇简短的Catalina的介绍文章。</p>
-<blockquote>
-<p><a href="https://www.mulesoft.com/tcat/tomcat-catalina" target="_blank" rel="noopener">An Introduction to Tomcat Catalina </a></p>
-</blockquote>
-<p>其中有一些观点能够支撑我们往下理解Tomcat的设计实现 : </p>
-<ul>
-<li>Tomcat实际上由许多组件组成，包括 <a href="https://www.mulesoft.com/tomcat-jsp" target="_blank" rel="noopener">Tomcat JSP</a> 引擎和各种不同的连接器，但其核心组件称为Catalina。Catalina提供了Tomcat的servlet规范的实际实现。当您 <a href="https://www.mulesoft.com/tomcat-start" target="_blank" rel="noopener">启动Tomcat服务器时</a>，实际上是在启动Catalina。</li>
-<li>Catalina提供了一系列的配置文件,通过这些配置文件能够按照用户需求配置自己所需要的Tomcat方案</li>
-<li>Catalina由Java编写,并且包含在Tomcat源码之中</li>
-</ul>
-<p>关于更多的Catalina内容,在后面源码部分能够详细看到其作用和设计,这里只做简单解释。</p>
-<h3 id="Tomcat框架结构"><a href="#Tomcat框架结构" class="headerlink" title="Tomcat框架结构"></a>Tomcat框架结构</h3><p>闲言少叙,在上文中提过两个概念<strong>连接器(connector)和容器(container)</strong>,这两个概念将贯穿整个Tomcat的学习过程,因为这两个概念就是我们之前提到了Tomcat的两个主要功能<strong>Socket连接</strong>和<strong>Servlet容器管理</strong>的真正实现。而围绕着这两个概念,设计者又引入了多个模块进行功能上的增强和模块间的解耦,最终整个架构如下图。</p>
-<p><img src="https://s1.ax1x.com/2020/05/13/Yd968U.gif" alt=""></p>
-<p>从图中可以看到,Tomcat可以看成一种树形结构,整个服务器作为一个Server存在,然后内部拥有多个服务,每个服务器中又有多个连接器和一个容器,同时配置了一些辅助模块来帮助Service完成更好的操作。</p>
-<p>我们来看下最新的源码部分,这是Github上Tomcat源码结构。</p>
-<p><img src="https://s1.ax1x.com/2020/05/13/YdPqHA.png" alt=""></p>
-<p>其结构可以看作如下目录 : </p>
-<ol>
-<li>Server<ul>
-<li>Service<ul>
-<li>Connetor <ul>
-<li>HTTP协议</li>
-<li>AJP协议</li>
-</ul>
-</li>
-<li>Container<ul>
-<li>Engine</li>
-<li>Host</li>
-<li>Context</li>
-<li>Wrapper</li>
-</ul>
-</li>
-<li>Component<ul>
-<li>Manager管理器</li>
-<li>logger日志记录</li>
-<li>loader加载器</li>
-<li>pipeline管道</li>
-<li>valve管道阀</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<p><em>Server</em>是整个Tomcat组件的容器，包含一个或多个Service。 <em>Service</em>：Service是包含Connector和Container的集合，Service用适当的Connector接收用户的请求，再发给相应的Container来处理。</p>
-<p>Tomcat的两个核心组件就是Connector和Container,但是这两个组件又构成了Service,在Tomcat中,对外提供服务的真正组件就是Service,但是由于Tomcat中拥有多个Service,所以我们需要个地方来进行管理,这个地方就是Server。</p>
-<p>Connector是一个连接器，主要负责接收请求并把请求交给Container，Container就是一个容器，主要装的是具体处理请求的组件。Service主要是为了关联Container与Connector，一个单独的Container或者一个单独的Connector都不能完整处理一个请求，只有两个结合在一起才能完成一个请求的处理</p>
-<p>Server这是负责管理Service集合，从图中我们看到一个Tomcat可以提供多种服务，那么这些Serice就是由Server来管理的，具体的工作包括：对外提供一个接口访问Service，对内维护Service集合，维护Service集合又包括管理Service的生命周期、寻找一个请求的Service、结束一个Service等</p>
-<h4 id="Connector组件"><a href="#Connector组件" class="headerlink" title="Connector组件"></a>Connector组件</h4><p>在Tomcat中,真正处理问题的单元是Container,但是容器并没有对外暴露的功能,那么容器从哪里获取信息呢?这就是Connector的作用,Connector我们可以看作一个Socket程序,专门用于接收Http请求并将数据发送给Container的组件。在Tomcat中,存在两种Connector,一种叫http connectoer， 用来传递http需求的。 另一种叫AJP， 在我们整合apache与tomcat工作的时候，apache与tomcat之间就是通过这个协议来互动的。 </p>
-<p>官方文档(基于Tomcat 7)中指出</p>
-<blockquote>
-<p>The <strong>HTTP Connector</strong> element represents a <strong>Connector</strong> component that supports the HTTP/1.1 protocol. It enables Catalina to function as a stand-alone web server, in addition to its ability to execute servlets and JSP pages. A particular instance of this component listens for connections on a specific TCP port number on the server. One or more such <strong>Connectors</strong> can be configured as part of a single <a href="https://tomcat.apache.org/tomcat-7.0-doc/config/service.html" target="_blank" rel="noopener">Service</a>, each forwarding to the associated <a href="https://tomcat.apache.org/tomcat-7.0-doc/config/engine.html" target="_blank" rel="noopener">Engine</a> to perform request processing and create the response.</p>
-</blockquote>
-<p>在Tomcat8后,已经完成了对于HTTP 2.0的支持,所以Tomcat Connector能够监控TCP连接端口,并接收HTTP请求,将其转发给和<strong>自己绑定的Engine</strong>处理请求返回响应,也就是说当TCP发送的数据到达Connector时会被封装为一个HttpRequest对象,在之后Container的操作中,都是对这个已经封装好的对象来进行操作处理。</p>
-<h4 id="Container组件"><a href="#Container组件" class="headerlink" title="Container组件"></a>Container组件</h4><p>Container是Tomcat中非常重要的一个内容,但是遗憾的是我在网上并没有找到很有意义的中文资料,所以只能够去挖Tomcat的文档内容,所幸发现了一些比较好的总结性介绍。</p>
-<blockquote>
-<p>A <strong>Container</strong> is an object that can execute requests received from a client, and return responses based on those requests. A Container may optionally support a pipeline of Valves that process the request in an order configured at runtime, by implementing the <strong>Pipeline</strong> interface as well.</p>
-<p>Containers will exist at several conceptual levels within Catalina. The following examples represent common cases:</p>
-<ul>
-<li><strong>Engine</strong> - Representation of the entire Catalina servlet engine, most likely containing one or more subcontainers that are either Host or Context implementations, or other custom groups.</li>
-<li><strong>Host</strong> - Representation of a virtual host containing a number of Contexts.</li>
-<li><strong>Context</strong> - Representation of a single ServletContext, which will typically contain one or more Wrappers for the supported servlets.</li>
-<li><strong>Wrapper</strong> - Representation of an individual servlet definition (which may support multiple servlet instances if the servlet itself implements SingleThreadModel).</li>
-</ul>
-</blockquote>
-<p>这部分主要阐述了一个容器是一个能够<strong>接收请求,并完成响应的对象</strong>,同时能够通过管道的方式来配置阀门完成对于请求的顺序执行处理。</p>
-<p>容器同样存在层级问题,而细分如Engine,Host等容器则代表了不同的层级。</p>
-<p>Engine包含了Host和Context,同样能够自定义组来实现。而Host则代表了虚拟主机，Context则指常见的Web上下文,包含了多个Wrapper,而Wrapper则是最细粒度的容器,每一个Wrapper对应一个Servlet,每个Wrapper都能够对自己所负责的Servlet的请求和响应进行管理。</p>
-<h4 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h4><p>需求被传递到了容器里面， 在合适的时候， 会传递给下一个容器处理。而容器里面又盛装着各种各样的组件， 我们可以理解为提供各种各样的增值服务。比如:</p>
-<ol>
-<li>manager: 当一个容器里面装了manager组件后，这个容器就支持session管理了， 事实上在tomcat里面的session管理, 就是靠的在context里面装的manager component.</li>
-<li>logger: 当一个容器里面装了logger组件后， 这个容器里所发生的事情， 就被该组件记录下来, 我们通常会在logs/ 这个目录下看见catalina_log.time.txt 以及localhost.time.txt和localhost_examples_log.time.txt。 这就是因为我们分别为：engin, host以及context(examples)这三个容器安装了logger组件， 这也是默认安装， 又叫做标配 .</li>
-<li>loader: loader这个组件通常只会给我们的context容器使用，loader是用来启动context以及管理这个context的classloader用的。</li>
-<li>pipline: pipeline是这样一个东西，使用的责任链模式.  当一个容器决定了要把从上级传递过来的需求交给子容器的时候， 他就把这个需求放进容器的管道(pipeline)里面去。 而需求傻呼呼得在管道里面流动的时候， 就会被管道里面的各个阀门拦截下来。 比如管道里面放了两个阀门。 第一个阀门叫做“access_allow_vavle”， 也就是说需求流过来的时候，它会看这个需求是哪个IP过来的， 如果这个IP已经在黑名单里面了，sure, 杀！ 第二个阀门叫做“defaul_access_valve”它会做例行的检查， 如果通过的话，OK， 把需求传递给当前容器的子容器。 就是通过这种方式， 需求就在各个容器里面传递，流动， 最后抵达目的地的了。</li>
-<li>valve: 就是上面所说的阀门。</li>
-</ol>
-<p>主要的三个部分清楚后,我用一张图来描述一下各个部分的结构层次。</p>
-<p><img src="https://s1.ax1x.com/2020/05/13/YdKFhQ.png" alt=""></p>
-<p><strong>注意</strong> : 该图中所有部分都是按照单例出现的,实际上在底层中会有非常多的Connector以及容器。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通篇文章简单的讲解了Tomcat中几个重要的组件以及其工作职责,如果不结合源码看可能还有很多不明白的地方,我在之后的文章会尽我所能去完善和总结细节方面的问题,尽量从一个学习者的角度考虑Tomcat的实现流程和学习曲线,尽量保证其难度适中,易于理解。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a href="https://juejin.im/post/5a59f1c25188257323351a71" target="_blank" rel="noopener">深入理解Tomcat</a></li>
-<li><a href="https://www.mulesoft.com/tcat/tomcat-catalina" target="_blank" rel="noopener">An introduction to Tomcat Catalina</a></li>
-<li><a href="http://tomcat.apache.org/" target="_blank" rel="noopener">Apache Tomcat Document</a></li>
-<li><a href="https://github.com/apache/tomcat/tree/master/java/org/apache" target="_blank" rel="noopener">Tomcat resouce code in Github</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Web Server</category>
-      </categories>
-      <tags>
-        <tag>Tomcat</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Z Garbage Collector染色指针及读屏障总结</title>
     <url>/2020/06/07/Z-Garbage-Collector%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E5%8F%8A%E8%AF%BB%E5%B1%8F%E9%9A%9C%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
@@ -4340,6 +4332,143 @@
       </categories>
       <tags>
         <tag>ZGC垃圾收集器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tomcat系列文章:Tomcat基本架构</title>
+    <url>/2020/05/13/Tomcat%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0-Tomcat%E5%9F%BA%E6%9C%AC%E6%9E%B6%E6%9E%84/</url>
+    <content><![CDATA[<p>在使用Spring Boot的过程中,时时刻刻都会使用到Tomcat,但是回顾以往的学习,似乎没有对Tomcat进行一个知识的梳理,最近在回想Tomcat的相关知识,发现很多内容是混乱而没有逻辑的,所以打算以笔记的形式重新总结下Tomcat的学习过程以及它的框架设计思路。</p>
+<p>Tomcat组件很复杂,如果直接阅读源码可能会产生无从下手的感觉。好在Apache提供了Tomcat的框架设计图以及对各个模块的Doc,能够辅助我们完成对于各个部分功能的理解,而本文将尽量详尽的记录我所理解的Tomcat的工作流程,如果有不足的地方,请及时指正。</p>
+<p>个人认为,Tomcat的学习按照如下方式比较合理 : </p>
+<ul>
+<li>Tomcat组件设计原理</li>
+<li>一个Servelt究竟是如何在Tomcat上接收Request请求并返回Respone</li>
+<li>各个组件源码级理解</li>
+<li>串联多个组件,搞懂Tomcat运行流程</li>
+<li>总结</li>
+</ul>
+<p>本文将仅从Tomcat背景以及基本结构方面进行总结,源码以及Debug过程将在后续系列文章中进行总结。</p>
+<a id="more"></a>
+
+<hr>
+<h2 id="什么是Tomcat"><a href="#什么是Tomcat" class="headerlink" title="什么是Tomcat?"></a>什么是Tomcat?</h2><p>这里引用维基百科的知识和官网文档的知识。</p>
+<blockquote>
+<p><strong>Tomcat</strong>是由Apache软件基金会属下<a href="https://zh.wikipedia.org/wiki/Jakarta项目" target="_blank" rel="noopener">Jakarta项目</a>开发的<a href="https://zh.wikipedia.org/wiki/Servlet" target="_blank" rel="noopener">Servlet</a>容器，按照<a href="https://zh.wikipedia.org/wiki/Sun_Microsystems" target="_blank" rel="noopener">Sun Microsystems</a>提供的技术规范，实现了对<a href="https://zh.wikipedia.org/wiki/Servlet" target="_blank" rel="noopener">Servlet</a>和<a href="https://zh.wikipedia.org/wiki/JavaServer_Page" target="_blank" rel="noopener">JavaServer Page</a>（<a href="https://zh.wikipedia.org/wiki/JSP" target="_blank" rel="noopener">JSP</a>）的支持，并提供了作为Web服务器的一些特有功能，如Tomcat管理和控制平台、安全域管理和Tomcat阀等。由于Tomcat本身也内含了<a href="https://zh.wikipedia.org/wiki/HTTP" target="_blank" rel="noopener">HTTP</a><a href="https://zh.wikipedia.org/wiki/服务器" target="_blank" rel="noopener">服务器</a>，因此也可以视作单独的<a href="https://zh.wikipedia.org/wiki/Web服务器" target="_blank" rel="noopener">Web服务器</a>。但是，不能将Tomcat和<a href="https://zh.wikipedia.org/wiki/Apache_HTTP服务器" target="_blank" rel="noopener">Apache HTTP服务器</a>混淆，<a href="https://zh.wikipedia.org/wiki/Apache_HTTP服务器" target="_blank" rel="noopener">Apache HTTP服务器</a>是用C语言实现的HTTP<a href="https://zh.wikipedia.org/wiki/Web服务器" target="_blank" rel="noopener">Web服务器</a>；这两个HTTP web server不是捆绑在一起的。Apache Tomcat包含了配置管理工具，也可以通过编辑XML格式的配置文件来进行配置。        ——    《维基百科》</p>
+</blockquote>
+<p>简单来说,Tomcat是一个能够接收Http请求并可以放回一个Http响应的应用程序。可以看作为一个Socket程序和一个针对JSP和Servlet的容器。</p>
+<p>在了解Tomcat的工作原理之前,先要Servlet有所了解,这有关历史问题,是不能够绕过的一个阶段。</p>
+<h3 id="Servlet技术背景"><a href="#Servlet技术背景" class="headerlink" title="Servlet技术背景"></a>Servlet技术背景</h3><p>早期互联网都是大量的静态页面,而后来用户交互需求的增多则出现了动态响应技术。如日中天的SUN公司想搞个事情,于是研发了Applet,希望能够搭配Java使用来改变互联网,然而Applet实际用途不大,并没有按照SUN公司的规划成为主流技术。</p>
+<p>但是SUN公司不想放弃这块大蛋糕,于是研发了Servlet技术，Servlet 其实就是 SUN 为了让 Java 能实现动态的可交互的网页, 从而进入 web 编程的领域而定义的一套标准。</p>
+<p>简单来描述一下这个标准。</p>
+<p>这套标准是这么说的: 你想用 Java 开发动态网页, 可以定义一个自己的” Servlet”, 但一定要实现我的 HTTPServlet 接口, 然后重载 <code>doGet()</code>, <code>doPost()</code>方法. 用户从流浪器 GET 的时候, 调用 <code>doGet</code> 方法, 从流浪器向服务器发送表单数据的时候, 调用 <code>doPost</code> 方法, 如果你想访问用户从浏览器传递过来的参数, 用 HttpServletRequest 对象就好了, 里面有 getParameter, getQueryString 方法, 如果你处理完了, 想向浏览器返回数据, 用 HttpServletResponse 对象调用 getPrintWriter 方法就可以输出数据了。</p>
+<h3 id="Servlet规范工作职责"><a href="#Servlet规范工作职责" class="headerlink" title="Servlet规范工作职责"></a>Servlet规范工作职责</h3><p>如果想要完整的阐述Servlet的工作流程是非常复杂的,但是如果想从Http请求的角度来概括一下Servlet做了什么,这个过程会简化许多,由于本文主要是总结Tomcat相关内容,所以不会讲太多的篇幅花费在Servlet上,这里仅从Servlet职责方法来做个总结性的概述。</p>
+<p>Servlet是个很完善而复杂的系统,当时当Http请求进入时,它将专注于三个操作 : </p>
+<ol>
+<li>创建一个 Request 对象, 用可能会在调用的 Servlet 中使用到的信息填充该 Request 对象, 如参数, 头, cookie, 查询字符串, URI 等, Request 对象是 javax.servlet.ServletRequest 接口或 javax.servlet.ServletRequest 接口的一个实例.</li>
+<li>创建一个调用 Servlet 的 Response 对象, 用来向 Web 客户端发送响应. response 对象是 javax.servlet.http.ServletResponse 接口或 javax.servlet.ServletResponse 接口的一个实例;</li>
+<li>调用 Servlet 的 service 方法, 将 request 对象和 response 对象作为参数传入, Servlet 从 request 对象中读取信息, 并通过 response 对象发送响应信息.</li>
+</ol>
+<p>这样就能够完成了Http请求处理了吗? 答案是否定的。</p>
+<p>Servlet本质上是个应用程序,而Http底层则是一个TCP连接,那么我们怎么去让一个Socket发送数据到Servlet?如果直接在内部维护一个Socket,这样会让程序耦合度极高。所以就出现了容器概念。</p>
+<p>Tomcat实际上就是一个Servlet的容器,能够将浏览器发送的Http请求通过一系列链路处理后转发给Servlet,然后再将响应返回给浏览器,这也是Tomcat上所做的最多的操作。</p>
+<p>而早先做动态页面时,并没有现在的模板或者前后端分离开发的概念,当时会直接在Servlet中拼接HTML代码,这样的耦合度是无法想象的,并且对于代码的修改和管理也是地狱难度。</p>
+<p>因此JSP的出现,这个问题得到了很大的缓解,我们能够通过向HTML中内嵌JAVA代码来完成页面的动态交互。而JSP也非一门新的技术,本质上它就是一个轻量级的Servlet,没有提供任何超出Servlet范围的功能。在执行JSP前,都会将其编译为一个Servlet才能够运行。</p>
+<p>在 JSP 中编写静态 HTML 更加方便, 不必再用 println 语句来输出每一行HTML 代码, 更重要的是, 借助内容和外观的分离,页面制作中不同性质的任务可以方便的分开: 比如, 有页面设计者进行 HTML 设计, 同时预留供 Java 程序插入动态内容的空间.</p>
+<p>因此Tomcat同样能够运行JSP,因为其本质就是一个轻量级Servlet。</p>
+<h2 id="Tomcat基本结构"><a href="#Tomcat基本结构" class="headerlink" title="Tomcat基本结构"></a>Tomcat基本结构</h2><p>只要涉及到Tomcat一定绕不开一个Tomcat的组件—— <strong>Catalina Servlet</strong>,    tomcat 的主体是 Catalina, catalina 是一个成熟的软件, 设计和开发的十分优雅, 功能结构也是模块化的. 我们之前说 <code>Servlet 是如何工作的?</code>中提到了 Servlet 容器的任务, 基于这些任务可以将 Catalina 划分为两个模块: <strong>连接器(connector)和容器(container)</strong>.</p>
+<h3 id="Catalina-Servlet"><a href="#Catalina-Servlet" class="headerlink" title="Catalina Servlet"></a>Catalina Servlet</h3><p>关于Catalina的资料很少,我在Google上找到了一篇简短的Catalina的介绍文章。</p>
+<blockquote>
+<p><a href="https://www.mulesoft.com/tcat/tomcat-catalina" target="_blank" rel="noopener">An Introduction to Tomcat Catalina </a></p>
+</blockquote>
+<p>其中有一些观点能够支撑我们往下理解Tomcat的设计实现 : </p>
+<ul>
+<li>Tomcat实际上由许多组件组成，包括 <a href="https://www.mulesoft.com/tomcat-jsp" target="_blank" rel="noopener">Tomcat JSP</a> 引擎和各种不同的连接器，但其核心组件称为Catalina。Catalina提供了Tomcat的servlet规范的实际实现。当您 <a href="https://www.mulesoft.com/tomcat-start" target="_blank" rel="noopener">启动Tomcat服务器时</a>，实际上是在启动Catalina。</li>
+<li>Catalina提供了一系列的配置文件,通过这些配置文件能够按照用户需求配置自己所需要的Tomcat方案</li>
+<li>Catalina由Java编写,并且包含在Tomcat源码之中</li>
+</ul>
+<p>关于更多的Catalina内容,在后面源码部分能够详细看到其作用和设计,这里只做简单解释。</p>
+<h3 id="Tomcat框架结构"><a href="#Tomcat框架结构" class="headerlink" title="Tomcat框架结构"></a>Tomcat框架结构</h3><p>闲言少叙,在上文中提过两个概念<strong>连接器(connector)和容器(container)</strong>,这两个概念将贯穿整个Tomcat的学习过程,因为这两个概念就是我们之前提到了Tomcat的两个主要功能<strong>Socket连接</strong>和<strong>Servlet容器管理</strong>的真正实现。而围绕着这两个概念,设计者又引入了多个模块进行功能上的增强和模块间的解耦,最终整个架构如下图。</p>
+<p><img src="https://s1.ax1x.com/2020/05/13/Yd968U.gif" alt=""></p>
+<p>从图中可以看到,Tomcat可以看成一种树形结构,整个服务器作为一个Server存在,然后内部拥有多个服务,每个服务器中又有多个连接器和一个容器,同时配置了一些辅助模块来帮助Service完成更好的操作。</p>
+<p>我们来看下最新的源码部分,这是Github上Tomcat源码结构。</p>
+<p><img src="https://s1.ax1x.com/2020/05/13/YdPqHA.png" alt=""></p>
+<p>其结构可以看作如下目录 : </p>
+<ol>
+<li>Server<ul>
+<li>Service<ul>
+<li>Connetor <ul>
+<li>HTTP协议</li>
+<li>AJP协议</li>
+</ul>
+</li>
+<li>Container<ul>
+<li>Engine</li>
+<li>Host</li>
+<li>Context</li>
+<li>Wrapper</li>
+</ul>
+</li>
+<li>Component<ul>
+<li>Manager管理器</li>
+<li>logger日志记录</li>
+<li>loader加载器</li>
+<li>pipeline管道</li>
+<li>valve管道阀</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><em>Server</em>是整个Tomcat组件的容器，包含一个或多个Service。 <em>Service</em>：Service是包含Connector和Container的集合，Service用适当的Connector接收用户的请求，再发给相应的Container来处理。</p>
+<p>Tomcat的两个核心组件就是Connector和Container,但是这两个组件又构成了Service,在Tomcat中,对外提供服务的真正组件就是Service,但是由于Tomcat中拥有多个Service,所以我们需要个地方来进行管理,这个地方就是Server。</p>
+<p>Connector是一个连接器，主要负责接收请求并把请求交给Container，Container就是一个容器，主要装的是具体处理请求的组件。Service主要是为了关联Container与Connector，一个单独的Container或者一个单独的Connector都不能完整处理一个请求，只有两个结合在一起才能完成一个请求的处理</p>
+<p>Server这是负责管理Service集合，从图中我们看到一个Tomcat可以提供多种服务，那么这些Serice就是由Server来管理的，具体的工作包括：对外提供一个接口访问Service，对内维护Service集合，维护Service集合又包括管理Service的生命周期、寻找一个请求的Service、结束一个Service等</p>
+<h4 id="Connector组件"><a href="#Connector组件" class="headerlink" title="Connector组件"></a>Connector组件</h4><p>在Tomcat中,真正处理问题的单元是Container,但是容器并没有对外暴露的功能,那么容器从哪里获取信息呢?这就是Connector的作用,Connector我们可以看作一个Socket程序,专门用于接收Http请求并将数据发送给Container的组件。在Tomcat中,存在两种Connector,一种叫http connectoer， 用来传递http需求的。 另一种叫AJP， 在我们整合apache与tomcat工作的时候，apache与tomcat之间就是通过这个协议来互动的。 </p>
+<p>官方文档(基于Tomcat 7)中指出</p>
+<blockquote>
+<p>The <strong>HTTP Connector</strong> element represents a <strong>Connector</strong> component that supports the HTTP/1.1 protocol. It enables Catalina to function as a stand-alone web server, in addition to its ability to execute servlets and JSP pages. A particular instance of this component listens for connections on a specific TCP port number on the server. One or more such <strong>Connectors</strong> can be configured as part of a single <a href="https://tomcat.apache.org/tomcat-7.0-doc/config/service.html" target="_blank" rel="noopener">Service</a>, each forwarding to the associated <a href="https://tomcat.apache.org/tomcat-7.0-doc/config/engine.html" target="_blank" rel="noopener">Engine</a> to perform request processing and create the response.</p>
+</blockquote>
+<p>在Tomcat8后,已经完成了对于HTTP 2.0的支持,所以Tomcat Connector能够监控TCP连接端口,并接收HTTP请求,将其转发给和<strong>自己绑定的Engine</strong>处理请求返回响应,也就是说当TCP发送的数据到达Connector时会被封装为一个HttpRequest对象,在之后Container的操作中,都是对这个已经封装好的对象来进行操作处理。</p>
+<h4 id="Container组件"><a href="#Container组件" class="headerlink" title="Container组件"></a>Container组件</h4><p>Container是Tomcat中非常重要的一个内容,但是遗憾的是我在网上并没有找到很有意义的中文资料,所以只能够去挖Tomcat的文档内容,所幸发现了一些比较好的总结性介绍。</p>
+<blockquote>
+<p>A <strong>Container</strong> is an object that can execute requests received from a client, and return responses based on those requests. A Container may optionally support a pipeline of Valves that process the request in an order configured at runtime, by implementing the <strong>Pipeline</strong> interface as well.</p>
+<p>Containers will exist at several conceptual levels within Catalina. The following examples represent common cases:</p>
+<ul>
+<li><strong>Engine</strong> - Representation of the entire Catalina servlet engine, most likely containing one or more subcontainers that are either Host or Context implementations, or other custom groups.</li>
+<li><strong>Host</strong> - Representation of a virtual host containing a number of Contexts.</li>
+<li><strong>Context</strong> - Representation of a single ServletContext, which will typically contain one or more Wrappers for the supported servlets.</li>
+<li><strong>Wrapper</strong> - Representation of an individual servlet definition (which may support multiple servlet instances if the servlet itself implements SingleThreadModel).</li>
+</ul>
+</blockquote>
+<p>这部分主要阐述了一个容器是一个能够<strong>接收请求,并完成响应的对象</strong>,同时能够通过管道的方式来配置阀门完成对于请求的顺序执行处理。</p>
+<p>容器同样存在层级问题,而细分如Engine,Host等容器则代表了不同的层级。</p>
+<p>Engine包含了Host和Context,同样能够自定义组来实现。而Host则代表了虚拟主机，Context则指常见的Web上下文,包含了多个Wrapper,而Wrapper则是最细粒度的容器,每一个Wrapper对应一个Servlet,每个Wrapper都能够对自己所负责的Servlet的请求和响应进行管理。</p>
+<h4 id="Component"><a href="#Component" class="headerlink" title="Component"></a>Component</h4><p>需求被传递到了容器里面， 在合适的时候， 会传递给下一个容器处理。而容器里面又盛装着各种各样的组件， 我们可以理解为提供各种各样的增值服务。比如:</p>
+<ol>
+<li>manager: 当一个容器里面装了manager组件后，这个容器就支持session管理了， 事实上在tomcat里面的session管理, 就是靠的在context里面装的manager component.</li>
+<li>logger: 当一个容器里面装了logger组件后， 这个容器里所发生的事情， 就被该组件记录下来, 我们通常会在logs/ 这个目录下看见catalina_log.time.txt 以及localhost.time.txt和localhost_examples_log.time.txt。 这就是因为我们分别为：engin, host以及context(examples)这三个容器安装了logger组件， 这也是默认安装， 又叫做标配 .</li>
+<li>loader: loader这个组件通常只会给我们的context容器使用，loader是用来启动context以及管理这个context的classloader用的。</li>
+<li>pipline: pipeline是这样一个东西，使用的责任链模式.  当一个容器决定了要把从上级传递过来的需求交给子容器的时候， 他就把这个需求放进容器的管道(pipeline)里面去。 而需求傻呼呼得在管道里面流动的时候， 就会被管道里面的各个阀门拦截下来。 比如管道里面放了两个阀门。 第一个阀门叫做“access_allow_vavle”， 也就是说需求流过来的时候，它会看这个需求是哪个IP过来的， 如果这个IP已经在黑名单里面了，sure, 杀！ 第二个阀门叫做“defaul_access_valve”它会做例行的检查， 如果通过的话，OK， 把需求传递给当前容器的子容器。 就是通过这种方式， 需求就在各个容器里面传递，流动， 最后抵达目的地的了。</li>
+<li>valve: 就是上面所说的阀门。</li>
+</ol>
+<p>主要的三个部分清楚后,我用一张图来描述一下各个部分的结构层次。</p>
+<p><img src="https://s1.ax1x.com/2020/05/13/YdKFhQ.png" alt=""></p>
+<p><strong>注意</strong> : 该图中所有部分都是按照单例出现的,实际上在底层中会有非常多的Connector以及容器。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通篇文章简单的讲解了Tomcat中几个重要的组件以及其工作职责,如果不结合源码看可能还有很多不明白的地方,我在之后的文章会尽我所能去完善和总结细节方面的问题,尽量从一个学习者的角度考虑Tomcat的实现流程和学习曲线,尽量保证其难度适中,易于理解。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://juejin.im/post/5a59f1c25188257323351a71" target="_blank" rel="noopener">深入理解Tomcat</a></li>
+<li><a href="https://www.mulesoft.com/tcat/tomcat-catalina" target="_blank" rel="noopener">An introduction to Tomcat Catalina</a></li>
+<li><a href="http://tomcat.apache.org/" target="_blank" rel="noopener">Apache Tomcat Document</a></li>
+<li><a href="https://github.com/apache/tomcat/tree/master/java/org/apache" target="_blank" rel="noopener">Tomcat resouce code in Github</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Web Server</category>
+      </categories>
+      <tags>
+        <tag>Tomcat</tag>
       </tags>
   </entry>
   <entry>
