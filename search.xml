@@ -395,39 +395,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Mybatis Lite配合Mybatis Plus快速开发</title>
-    <url>/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/</url>
-    <content><![CDATA[<p>网课开展，发现并没有想象中的轻松，相反很多在课堂上能快速完成的事情通过网络需要浪费好多时间，所以最近也就没怎么给自己充电，但是总结了一些自己用着比较顺手的IDEA快速开发的插件。</p>
-<a id="more"></a>
-
-<h2 id="Mybatis-Lite-Mybatis-Plus"><a href="#Mybatis-Lite-Mybatis-Plus" class="headerlink" title="Mybatis Lite   +    Mybatis Plus"></a>Mybatis Lite   +    Mybatis Plus</h2><p>大部分Java工程师选择ORM框架的时候都是使用Mybatis，我想原因有二</p>
-<ul>
-<li>Mybatis成熟度高,业内用户量大,效率也不错</li>
-<li>Mybatis能够手写SQL语句,对于SQL优化以及多表操作有着非常便捷的优势</li>
-</ul>
-<p>但是由于Mybatis的XML Mapper配置十分繁琐，所以很多时候在开发效率上要和其他的ORM框架有所差距，印象最深的一次是有一个四十多个字段的表，当时为了写Model和Mapper.xml，几乎用了快半天的时间。很多大佬也意识到了这个情况，所以出现了例如<strong>tk.mybats</strong>和<strong>Mybatis Plus</strong>这种增强框架，能够通过实现接口的方式完成对单表的简单操作。</p>
-<p>但是我自己在学习的过程中，还是发现了一个问题，当我们需要学习一个依赖数据库和DAO层的项目时，即便是使用Mybatis Plus，效率依旧有些慢，因为还是要自己写Model，自己去写Mapper，虽然这个Mapper很简单。程序员永远是最懒惰的人，所以我发现可以使用Mybats Lite Plugin和Mybatis Plus配合使用。由于Mybatis Plus是一款Mybatis的增强型框架，这就意味着能够无侵入的增强Mybatis，使用起来会非常顺滑。</p>
-<p>而Mybatis Lite是一款Mybatis Generator插件，能够为我们的数据表生成对应的Model、Mapper、Service和Controller等服务层，这两者搭配使用，可以完成对于单表除建表以外的零操作，而对于多表我们只需要在相应的Mapper中写Sql语句即可，使用起来非常方便。</p>
-<blockquote>
-<p>Mybatis Lite下载 &gt; File &gt; Settings &gt; Plugins &gt; 搜索Mybatis Lite &gt; Install and Restart</p>
-</blockquote>
-<p>安装完成后，在Tools中能够找到Mybatis Lite，其中有Generator和Temple</p>
-<p><img src="https://s2.ax1x.com/2020/03/09/89YSat.png" alt=""></p>
-<p>不需要再向以往的工程一样，手写大量重复的工作。运行一下</p>
-<p><img src="https://s2.ax1x.com/2020/03/09/89UiRK.png" alt=""></p>
-<p>自动生成后的MangerUserPo类以及相关的套件已经完成，当然，这之中有很多不太完美的地方，比如数据库中的tinyInt我们更加期望对应boolean，这些细节问题我们可以在使用到的时候更改一下即可，这样我们就能够简单完成单表的各种操作，同时如果需要使用复杂的语句，可以在Mapper中编写即可，试一下查询权限的多表联查。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> p.*</span><br><span class="line"><span class="keyword">from</span> mangeruser ma</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> mangeruser_role mr <span class="keyword">on</span> ma.id = mr.mangeruser_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> <span class="keyword">role</span> r <span class="keyword">on</span> mr.role_id = r.id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> role_permission rp <span class="keyword">on</span> r.id = rp.role_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> permission p <span class="keyword">on</span> rp.permission_id = p.id</span><br><span class="line"><span class="keyword">where</span> username = <span class="string">'fanhao'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>尝试一下能够完成查询。使用起来还是非常方便的。</p>
-]]></content>
-      <categories>
-        <category>工具</category>
-      </categories>
-      <tags>
-        <tag>Mybatis generator</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Java</title>
     <url>/2019/10/23/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>最近在看关于并发编程的一些内容，因为之前在学这一块内容不是很彻底，很多细节问题都不太清楚，中午看牛客的一些面试题目的时候发现自己还是应该好好总结一下这些内容。</p>
@@ -508,6 +475,39 @@
 ]]></content>
       <tags>
         <tag>Java并发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mybatis Lite配合Mybatis Plus快速开发</title>
+    <url>/2020/03/09/Mybatis-Lite%E4%BD%BF%E7%94%A8%E6%84%9F%E5%8F%97/</url>
+    <content><![CDATA[<p>网课开展，发现并没有想象中的轻松，相反很多在课堂上能快速完成的事情通过网络需要浪费好多时间，所以最近也就没怎么给自己充电，但是总结了一些自己用着比较顺手的IDEA快速开发的插件。</p>
+<a id="more"></a>
+
+<h2 id="Mybatis-Lite-Mybatis-Plus"><a href="#Mybatis-Lite-Mybatis-Plus" class="headerlink" title="Mybatis Lite   +    Mybatis Plus"></a>Mybatis Lite   +    Mybatis Plus</h2><p>大部分Java工程师选择ORM框架的时候都是使用Mybatis，我想原因有二</p>
+<ul>
+<li>Mybatis成熟度高,业内用户量大,效率也不错</li>
+<li>Mybatis能够手写SQL语句,对于SQL优化以及多表操作有着非常便捷的优势</li>
+</ul>
+<p>但是由于Mybatis的XML Mapper配置十分繁琐，所以很多时候在开发效率上要和其他的ORM框架有所差距，印象最深的一次是有一个四十多个字段的表，当时为了写Model和Mapper.xml，几乎用了快半天的时间。很多大佬也意识到了这个情况，所以出现了例如<strong>tk.mybats</strong>和<strong>Mybatis Plus</strong>这种增强框架，能够通过实现接口的方式完成对单表的简单操作。</p>
+<p>但是我自己在学习的过程中，还是发现了一个问题，当我们需要学习一个依赖数据库和DAO层的项目时，即便是使用Mybatis Plus，效率依旧有些慢，因为还是要自己写Model，自己去写Mapper，虽然这个Mapper很简单。程序员永远是最懒惰的人，所以我发现可以使用Mybats Lite Plugin和Mybatis Plus配合使用。由于Mybatis Plus是一款Mybatis的增强型框架，这就意味着能够无侵入的增强Mybatis，使用起来会非常顺滑。</p>
+<p>而Mybatis Lite是一款Mybatis Generator插件，能够为我们的数据表生成对应的Model、Mapper、Service和Controller等服务层，这两者搭配使用，可以完成对于单表除建表以外的零操作，而对于多表我们只需要在相应的Mapper中写Sql语句即可，使用起来非常方便。</p>
+<blockquote>
+<p>Mybatis Lite下载 &gt; File &gt; Settings &gt; Plugins &gt; 搜索Mybatis Lite &gt; Install and Restart</p>
+</blockquote>
+<p>安装完成后，在Tools中能够找到Mybatis Lite，其中有Generator和Temple</p>
+<p><img src="https://s2.ax1x.com/2020/03/09/89YSat.png" alt=""></p>
+<p>不需要再向以往的工程一样，手写大量重复的工作。运行一下</p>
+<p><img src="https://s2.ax1x.com/2020/03/09/89UiRK.png" alt=""></p>
+<p>自动生成后的MangerUserPo类以及相关的套件已经完成，当然，这之中有很多不太完美的地方，比如数据库中的tinyInt我们更加期望对应boolean，这些细节问题我们可以在使用到的时候更改一下即可，这样我们就能够简单完成单表的各种操作，同时如果需要使用复杂的语句，可以在Mapper中编写即可，试一下查询权限的多表联查。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> p.*</span><br><span class="line"><span class="keyword">from</span> mangeruser ma</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> mangeruser_role mr <span class="keyword">on</span> ma.id = mr.mangeruser_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> <span class="keyword">role</span> r <span class="keyword">on</span> mr.role_id = r.id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> role_permission rp <span class="keyword">on</span> r.id = rp.role_id</span><br><span class="line">         <span class="keyword">left</span> <span class="keyword">join</span> permission p <span class="keyword">on</span> rp.permission_id = p.id</span><br><span class="line"><span class="keyword">where</span> username = <span class="string">'fanhao'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>尝试一下能够完成查询。使用起来还是非常方便的。</p>
+]]></content>
+      <categories>
+        <category>工具</category>
+      </categories>
+      <tags>
+        <tag>Mybatis generator</tag>
       </tags>
   </entry>
   <entry>
@@ -914,6 +914,45 @@
       </categories>
       <tags>
         <tag>秋招</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>字典树小记.md</title>
+    <url>/2020/07/26/%E5%AD%97%E5%85%B8%E6%A0%91%E5%B0%8F%E8%AE%B0/</url>
+    <content><![CDATA[<p>昨天面完了百度提前批的二面，其中提到了字典树的相关内容，这一块内容了解的不是很深 ，所以打算做个复盘，记录一下。</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/d9dca81a-56b4-472e-9beb-3cbf99eba3ac.jpg" alt=""></p>
+<a id="more"></a>
+
+<p>*<em>什么是字典树 ? *</em></p>
+<blockquote>
+<p>在<a href="https://zh.wikipedia.org/wiki/计算机科学" target="_blank" rel="noopener">计算机科学</a>中，<strong>trie</strong>，又称<strong>前缀树</strong>或<strong>字典树</strong>，是一种有序<a href="https://zh.wikipedia.org/wiki/树_(数据结构)" target="_blank" rel="noopener">树</a>，用于保存<a href="https://zh.wikipedia.org/wiki/关联数组" target="_blank" rel="noopener">关联数组</a>，其中的键通常是<a href="https://zh.wikipedia.org/wiki/字符串" target="_blank" rel="noopener">字符串</a>。与<a href="https://zh.wikipedia.org/wiki/二叉查找树" target="_blank" rel="noopener">二叉查找树</a>不同，键不是直接保存在节点中，而是由节点在树中的位置决定。一个节点的所有子孙都有相同的<a href="https://zh.wikipedia.org/wiki/前缀" target="_blank" rel="noopener">前缀</a>，也就是这个节点对应的字符串，而根节点对应<a href="https://zh.wikipedia.org/wiki/空字符串" target="_blank" rel="noopener">空字符串</a>。一般情况下，不是所有的节点都有对应的值，只有叶子节点和部分内部节点所对应的键才有相关的值。</p>
+</blockquote>
+<p>先来看一张图</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/afaaeb1a-0bce-4ffc-9c75-962e6aece342.png" alt=""></p>
+<p>这是一个非常典型的字典树，字典树具有如下几个要求 : </p>
+<ol>
+<li>根节点不包含任何字符</li>
+<li>任意节点只包含除父节点字符以外的单一字符</li>
+<li>任意路径上字符都不相同</li>
+</ol>
+<p>满足这三个要求就能够称之为一个字典树，字典树实际上是使用非常频繁的一种数据结构。在搜索引擎中，输入一个字符一般都会出现多条结果，这些结果就是从字典树中搜索的相关内容，如果使用翻译类型的软件，同样是这种效果。之所以叫做字典树，就是因为该树能够根据字符前缀提供与之相匹配的各种选项。</p>
+<p>但是字典树由于字符串组合的变化，可能会变得非常臃肿，因此很多时候，字典树是一种以空间交换时间的策略，为了能够快速找到搜索内容，需要将大量的字符保存在一颗树中，因此对于内存来说，是一种比较大的消耗。</p>
+<p>下面看下查找过程 : </p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/a41af238-0466-4b1d-85fc-aab7aaadcef5.png" alt=""></p>
+<p>该过程实际上就是按照二叉树的深度搜索来完成的，这种方式也是十分常见的一种，当然，字典树并不局限于二叉树，可能会使用多叉树来拓展更多的字符选择。</p>
+<p>我们来看下怎样搜索一个字典树找到我们想要的信息，以下代码用Java实现。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个Tire</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TireNode</span> </span>&#123;</span><br><span class="line">    String key;</span><br><span class="line">    String value;</span><br><span class="line">    TireNode left;</span><br><span class="line">    TireNode right;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="comment">//递归搜索，将之前的</span></span><br><span class="line">    String res;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">searchTire</span><span class="params">(TireNode root, String target,String prefix)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (root == <span class="keyword">null</span>);</span><br><span class="line">        String info = prefix + root.key;</span><br><span class="line">        <span class="keyword">if</span> (info.equals(target)) res = root.value ;</span><br><span class="line">        <span class="keyword">if</span> (target.startsWith(info)) &#123;</span><br><span class="line">            searchTire(root.left, target, info);</span><br><span class="line">            searchTire(root.right, target, info);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>数据结构与算法</category>
+      </categories>
+      <tags>
+        <tag>复盘</tag>
       </tags>
   </entry>
   <entry>
