@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://github.com/jorybeast97/jorybeast97.github.io</id>
+    <id>https://jorybeast97.github.io</id>
     <title>Gridea</title>
-    <updated>2021-08-15T09:27:46.674Z</updated>
+    <updated>2021-08-15T09:34:40.081Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://github.com/jorybeast97/jorybeast97.github.io"/>
-    <link rel="self" href="https://github.com/jorybeast97/jorybeast97.github.io/atom.xml"/>
+    <link rel="alternate" href="https://jorybeast97.github.io"/>
+    <link rel="self" href="https://jorybeast97.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>https://github.com/jorybeast97/jorybeast97.github.io/images/avatar.png</logo>
-    <icon>https://github.com/jorybeast97/jorybeast97.github.io/favicon.ico</icon>
+    <logo>https://jorybeast97.github.io/images/avatar.png</logo>
+    <icon>https://jorybeast97.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, Gridea</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://github.com/jorybeast97/jorybeast97.github.io/post/hello-gridea/</id>
-        <link href="https://github.com/jorybeast97/jorybeast97.github.io/post/hello-gridea/">
+        <id>https://jorybeast97.github.io/post/hello-gridea/</id>
+        <link href="https://jorybeast97.github.io/post/hello-gridea/">
         </link>
         <updated>2018-12-11T16:00:00.000Z</updated>
         <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
