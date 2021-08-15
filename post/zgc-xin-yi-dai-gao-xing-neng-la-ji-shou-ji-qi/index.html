@@ -1,22 +1,98 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://jorybeast97.github.io</id>
-    <title></title>
-    <updated>2021-08-15T12:32:23.511Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://jorybeast97.github.io"/>
-    <link rel="self" href="https://jorybeast97.github.io/atom.xml"/>
-    <subtitle>『 君子终日乾乾，夕惕若厉，无咎 』</subtitle>
-    <logo>https://jorybeast97.github.io/images/avatar.png</logo>
-    <icon>https://jorybeast97.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, </rights>
-    <entry>
-        <title type="html"><![CDATA[ZGC - 新一代高性能垃圾收集器]]></title>
-        <id>https://jorybeast97.github.io/post/zgc-xin-yi-dai-gao-xing-neng-la-ji-shou-ji-qi/</id>
-        <link href="https://jorybeast97.github.io/post/zgc-xin-yi-dai-gao-xing-neng-la-ji-shou-ji-qi/">
-        </link>
-        <updated>2020-08-15T10:38:08.000Z</updated>
-        <content type="html"><![CDATA[<p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ZGC - 新一代高性能垃圾收集器 | </title>
+<link rel="shortcut icon" href="https://jorybeast97.github.io/favicon.ico?v=1629024281469">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://jorybeast97.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="ZGC - 新一代高性能垃圾收集器 |  - Atom Feed" href="https://jorybeast97.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经..." />
+    <meta name="keywords" content="JVM" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://jorybeast97.github.io">
+  <img class="avatar" src="https://jorybeast97.github.io/images/avatar.png?v=1629024281469" alt="">
+  </a>
+  <h1 class="site-title">
+    
+  </h1>
+  <p class="site-description">
+    『 君子终日乾乾，夕惕若厉，无咎 』
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              ZGC - 新一代高性能垃圾收集器
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-08-15
+              </span>
+              <span>
+                22 min read
+              </span>
+              
+                <a href="https://jorybeast97.github.io/tag/oEs9fNqz0/" class="post-tag">
+                  # JVM
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <p>JVM垃圾收集器的发展过程从某种角度来说可以看作人类在不断追求STW尽量短暂的过程，而这个过程中涌现了很多优秀的垃圾收集器。从开始的单线程 Serial GC到 CMS 再到 G1，直到 ZGC的出现让GC提升到了一个新的高度。虽然官方已经在JDK11中加入了ZGC并且成为了标配，但是其神秘的面纱一直未被揭开，以至于很多人还对他有些陌生。</p>
 <p>如果说CMS的出现大大缩短了STW的时间，实现了第一款伪并发GC收集器，那么G1就是一次更大的跨越，G1中提出的Fegin概念让垃圾回收变得可期待，人们能够按照自己的意愿去尽量缩短STW的时间，虽然这种短时间是以吞吐量为代价，但是在计算机硬件性能十分过剩的今天，这种代价明显是可接受的。</p>
 <p>虽然 G1很美好，并且也是目前使用非常多的GC收集器，但是还是有不少的缺点。</p>
 <ul>
@@ -255,6 +331,104 @@
 <li>[<a href="https://segmentfault.com/a/1190000021711902">理解JVM垃圾收集器-ZGC</a>](https://segmentfault.com/a/1190000021711902)</li>
 <li><a href="https://juejin.im/post/5e3c0a7bf265da5724465f45">一文带你深入理解JVM - ZGC垃圾收集器</a></li>
 </ul>
-]]></content>
-    </entry>
-</feed>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#zgc">ZGC</a></li>
+<li><a href="#numa-aware">NUMA-aware</a>
+<ul>
+<li><a href="#uma-%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E8%AE%BF%E9%97%AE">UMA 统一内存访问</a></li>
+<li><a href="#numa-%E9%9D%9E%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E8%AE%BF%E9%97%AE">NUMA 非统一内存访问</a></li>
+</ul>
+</li>
+<li><a href="#zgc-region">ZGC Region</a>
+<ul>
+<li><a href="#region%E5%88%86%E5%8C%BA">Region分区</a></li>
+<li><a href="#%E5%9B%9E%E6%94%B6%E8%BF%87%E7%A8%8B">回收过程</a></li>
+<li><a href="#%E5%86%85%E5%AD%98%E4%BC%98%E5%8A%BF">内存优势</a></li>
+</ul>
+</li>
+<li><a href="#colored-pointers">Colored Pointers</a>
+<ul>
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88">什么是染色指针 ?</a></li>
+<li><a href="#%E5%BC%95%E7%94%A8%E7%BB%93%E6%9E%84">引用结构</a></li>
+<li><a href="#%E6%9F%93%E8%89%B2%E6%8C%87%E9%92%88%E4%BC%98%E5%8A%BF">染色指针优势</a></li>
+<li><a href="#%E8%AF%BB%E5%B1%8F%E9%9A%9C">读屏障</a></li>
+<li><a href="#zgc%E6%B5%81%E7%A8%8B">ZGC流程</a></li>
+</ul>
+</li>
+<li><a href="#zgc%E6%80%BB%E7%BB%93">ZGC总结</a>
+<ul>
+<li><a href="#zgc%E4%BC%98%E7%82%B9">ZGC优点</a></li>
+<li><a href="#zgc%E4%B8%8D%E8%B6%B3">ZGC不足</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://jorybeast97.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
