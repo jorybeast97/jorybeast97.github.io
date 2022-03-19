@@ -2,14 +2,14 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://jorybeast97.github.io</id>
     <title></title>
-    <updated>2021-08-15T12:59:24.412Z</updated>
+    <updated>2022-03-19T07:12:53.448Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://jorybeast97.github.io"/>
     <link rel="self" href="https://jorybeast97.github.io/atom.xml"/>
     <subtitle>『 君子终日乾乾，夕惕若厉，无咎 』</subtitle>
     <logo>https://jorybeast97.github.io/images/avatar.png</logo>
     <icon>https://jorybeast97.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, </rights>
+    <rights>All rights reserved 2022, </rights>
     <entry>
         <title type="html"><![CDATA[ZGC - 新一代高性能垃圾收集器]]></title>
         <id>https://jorybeast97.github.io/post/zgc-xin-yi-dai-gao-xing-neng-la-ji-shou-ji-qi/</id>
